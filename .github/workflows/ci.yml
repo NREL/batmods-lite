@@ -34,7 +34,6 @@ jobs:
           python -m pip install --upgrade pip
           conda install -y -c conda-forge scikits.odes
           python -m pip install .
-          python -m pip install scikits.odes
           python -m pip install pytest
       - name: Test
         run: |
