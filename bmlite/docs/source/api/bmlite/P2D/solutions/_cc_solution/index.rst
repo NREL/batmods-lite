@@ -24,7 +24,7 @@ Classes
 
 
 
-   Constant current solution for P2D simuations.
+   Constant current solution for P2D simulations.
 
    Base: :class:`~bmlite.P2D.solutions.BaseSolution`
 

@@ -236,7 +236,7 @@ class BaseSolution(object):
 
     def report(self) -> None:
         """
-        Prints the experiment detials and solution success report.
+        Prints the experiment details and solution success report.
 
         Returns
         -------

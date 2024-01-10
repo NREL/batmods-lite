@@ -32,7 +32,7 @@ BatMods-lite Documentation
          :padding: 2
            
          A great place to learn how to use the package 
-         and exand your skills.
+         and expand your skills.
 
          .. image:: _static/examples.svg
             :class: bg-transparent

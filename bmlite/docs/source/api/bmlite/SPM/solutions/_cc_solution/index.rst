@@ -24,7 +24,7 @@ Classes
 
 
 
-   Constant current solution for SPM simuations.
+   Constant current solution for SPM simulations.
 
    Base: :class:`~bmlite.SPM.solutions.BaseSolution`
 
