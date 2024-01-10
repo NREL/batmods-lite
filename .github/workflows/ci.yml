@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          conda install sundials
+          conda install -c conda-forge sundials
           python -m pip install .
           python -m pip install scikit.odes
           python -m pip install pytest
