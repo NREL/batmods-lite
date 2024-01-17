@@ -133,7 +133,7 @@ Classes
 
    .. py:method:: report() -> None
 
-      Prints the experiment detials and solution success report.
+      Prints the experiment details and solution success report.
 
       :returns: *None.*
 
@@ -207,7 +207,7 @@ Classes
 
 
 
-   Constant current solution for SPM simuations.
+   Constant current solution for SPM simulations.
 
    Base: :class:`~bmlite.SPM.solutions.BaseSolution`
 

@@ -56,7 +56,7 @@ def bandwidth(sim: object) -> tuple[int | _ndarray]:
     # Turn on band flag
     sim._flags['band'] = True
 
-    # Perturbe variables
+    # Perturbed variables
     jac = np.zeros([N,N])
     sv = sim.sv_0.copy()
     svdot = sim.svdot_0.copy()

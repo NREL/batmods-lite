@@ -134,7 +134,7 @@ Classes
 
    .. py:method:: report() -> None
 
-      Prints the experiment detials and solution success report.
+      Prints the experiment details and solution success report.
 
       :returns: *None.*
 
@@ -168,7 +168,7 @@ Classes
       cs_c      electrode Li at t, x_c, r_c [kmol/m^3] (3D array)
       phie      electrolyte potentials at t, x [V] (2D array)
       ce        electrolyte Li+ at t, x [kmol/m^3] (2D array)
-      ie        electrolyte current at t, x boundarys [A/m^2] (2D array)
+      ie        electrolyte current at t, x boundary [A/m^2] (2D array)
       j_a       anode Faradaic current at t, x_a [kmol/m^2/s] (2D array)
       j_c       cathode Faradaic current at t, x_c [kmol/m^2/s] (2D array)
       ========= ==========================================================
