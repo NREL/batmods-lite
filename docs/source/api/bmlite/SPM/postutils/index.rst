@@ -25,10 +25,13 @@ Functions
 
    bmlite.SPM.postutils.contour
    bmlite.SPM.postutils.contours
+   bmlite.SPM.postutils.current
    bmlite.SPM.postutils.debug
    bmlite.SPM.postutils.general
    bmlite.SPM.postutils.post
+   bmlite.SPM.postutils.power
    bmlite.SPM.postutils.verify
+   bmlite.SPM.postutils.voltage
 
 
 
@@ -36,6 +39,9 @@ Functions
 
 
 .. py:function:: contours(sol: object) -> None
+
+
+.. py:function:: current(sol: object) -> None
 
 
 .. py:function:: debug(sol: object) -> None
@@ -47,6 +53,12 @@ Functions
 .. py:function:: post(sol: object) -> dict
 
 
+.. py:function:: power(sol: object) -> None
+
+
 .. py:function:: verify(sol: object) -> None
+
+
+.. py:function:: voltage(sol: object) -> None
 
 

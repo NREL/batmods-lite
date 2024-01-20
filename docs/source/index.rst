@@ -20,9 +20,10 @@ BatMods-lite Documentation
 
 **Useful links:** 
 `anaconda <https://www.anaconda.com/download>`_ |
+`spyder <https://www.spyder-ide.org/>`_ |
 `numpy <https://numpy.org/doc/stable/>`_  |  
 `pandas <https://pandas.pydata.org/docs/>`_  |  
-`scikits-odes <https://bmcage.github.io/odes/dev/>`_ |
+`scikits.odes <https://bmcage.github.io/odes/dev/>`_ |
 `matplotlib <https://matplotlib.org/stable/users/>`_
 
 .. grid:: 1 2 2 2

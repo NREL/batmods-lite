@@ -54,8 +54,8 @@ html_context = {'default_mode': 'light'}
 
 html_sidebars = {"**": ["search-field.html", "sidebar-nav-bs.html"]}
 
-html_theme_options = {'logo': {'image_light': '_static/bm_light_g.png',
-                               'image_dark': '_static/bm_dark_g.png'},
+html_theme_options = {'logo': {'image_light': '_static/light.svg',
+                               'image_dark': '_static/dark.svg'},
                       'header_links_before_dropdown': 6, 
                       'navbar_align': 'content',
                       'footer_start': ['copyright.html'],
@@ -80,7 +80,8 @@ napoleon_custom_sections = ['BatMods-lite',
                             'Single Particle Model Package',
                             'Material Properties Package',
                             'Battery Builder Module',
-                            'DAE Module'
+                            'DAE Module',
+                            'Plotting Utilities'
                             ]
 
 

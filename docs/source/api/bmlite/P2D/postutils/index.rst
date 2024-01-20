@@ -27,7 +27,7 @@ Functions
    bmlite.P2D.postutils.contours
    bmlite.P2D.postutils.debug
    bmlite.P2D.postutils.general
-   bmlite.P2D.postutils.post
+   bmlite.P2D.postutils.postvars
    bmlite.P2D.postutils.verify
 
 
@@ -44,7 +44,7 @@ Functions
 .. py:function:: general(sol: object) -> None
 
 
-.. py:function:: post(sol: object) -> dict
+.. py:function:: postvars(sol: object) -> dict
 
 
 .. py:function:: verify(sol: object) -> None

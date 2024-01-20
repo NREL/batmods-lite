@@ -13,4 +13,4 @@ setup(
       python_requires='>=3.10',
       install_requires=['numpy', 'pandas', 'openpyxl', 'scipy', 'matplotlib',
                         'ruamel.yaml']
-      )
+     )

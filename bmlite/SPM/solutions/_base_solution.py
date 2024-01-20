@@ -26,7 +26,7 @@ class BaseSolution(object):
             the experiment that was run.
         """
 
-        self._sim = sim
+        self._sim = sim.copy()
         self._exp = exp.copy()
 
         self._t = None
@@ -183,7 +183,7 @@ class BaseSolution(object):
             self._success = True
 
         self._onroot = False
-        if type(sol.roots.t) != type(None):
+        if not isinstance(sol.roots.t, type(None)):
             self._onroot = True
 
         self._message = sol.message
@@ -236,11 +236,15 @@ class BaseSolution(object):
         experiment = 'Experiment('
         for i, (k, v) in enumerate(self._exp.items()):
 
-            if i == 0: spacer = ''
-            else: spacer = ' ' * 11
+            if i == 0:
+                spacer = ''
+            else:
+                spacer = ' ' * 11
 
-            if i == len(self._exp) - 1: endline = ')'
-            else: endline = ',\n'
+            if i == len(self._exp) - 1:
+                endline = ')'
+            else:
+                endline = ',\n'
 
             experiment += spacer + f'{k} = {v}' + endline
 
@@ -250,7 +254,7 @@ class BaseSolution(object):
                      False: lambda t: str(round(t, 3)) + ' s'
                      }
 
-        solvetime = converter[self._solvetime == None](self._solvetime)
+        solvetime = converter[self._solvetime is None](self._solvetime)
 
         print(f'Solution(classname = {self.classname},\n'
               f'         success = {self._success},\n'
@@ -293,51 +297,101 @@ class BaseSolution(object):
 
         return sol
 
-    # def save(self, savename, overwrite=0):
-    #     import os, shutil
-    #     from pathlib import Path
+    def plot(self, *args, **kwargs) -> None:
 
-    #     import pandas as pd
-    #     from ruamel.yaml import YAML
+        if 'current' in args:
+            from ..postutils import current
+            current(self, **kwargs)
 
-    #     if not hasattr(self, 'sol'):
-    #         raise Exception('Run experiment before calling save().')
+        if 'voltage' in args:
+            from ..postutils import voltage
+            voltage(self, **kwargs)
 
-    #     if not os.path.exists('Results/'):
-    #         os.mkdir('Results')
+        if 'power' in args:
+            from ..postutils import power
+            power(self, **kwargs)
 
-    #     savepath = Path('Results/' + savename)
-    #     if os.path.exists(savepath) and not overwrite:
-    #         raise Exception(savename + ' already in Results folder.')
+        if 'IVP' in args:
+            from ..postutils import IVP
+            IVP(self, **kwargs)
 
-    #     elif os.path.exists(savepath):
-    #         shutil.rmtree(savepath)
+        if 'potentials' in args:
+            from ..postutils import potentials
+            potentials(self, **kwargs)
 
-    #     os.mkdir(savepath)
+        if 'intercalation' in args:
+            from ..postutils import intercalation
+            intercalation(self, **kwargs)
 
-    #     yaml = YAML()
-    #     yaml.indent(mapping=4)
+        if 'contours' in args:
+            from ..postutils import contours
+            contours(self, **kwargs)
 
-    #     default_yaml = yaml.load(self.__yamlpath)
+    def slice_and_save(self, savename: str, overwrite: bool = False) -> None:
+        """
+        Save a ``.npz`` file with all spatial, time, and state variables
+        separated into 1D and 2D arrays. The keys are given below. The index
+        order of the 2D arrays is given with the value descriptions.
 
-    #     bat_k = default_yaml['battery'].keys()
-    #     el_k = default_yaml['electrolyte'].keys()
-    #     an_k = default_yaml['anode'].keys()
-    #     ca_k = default_yaml['cathode'].keys()
+        ========= =====================================================
+        Key       Value [units] (type)
+        ========= =====================================================
+        r_a       r mesh for anode particles [m] (1D array)
+        r_c       r mesh for cathode particles [m] (1D array)
+        t         saved solution times [s] (1D array)
+        phis_a    anode electrode potentials at t [V] (1D array)
+        cs_a      electrode Li at t, r_a [kmol/m^3] (2D array)
+        phis_c    cathode electrode potentials at t [V] (1D array)
+        cs_c      electrode Li at t, r_c [kmol/m^3] (2D array)
+        phie      electrolyte potentials at t [V] (1D array)
+        j_a       anode Faradaic current at t [kmol/m^2/s] (1D array)
+        j_c       cathode Faradaic current at t [kmol/m^2/s] (1D array)
+        ========= =====================================================
 
-    #     data = {}
-    #     data['battery'] = dict((k, self.bat.__dict__.get(k)) for k in bat_k)
-    #     data['electrolyte'] = dict((k, self.el.__dict__.get(k)) for k in el_k)
-    #     data['anode'] = dict((k, self.an.__dict__.get(k)) for k in an_k)
-    #     data['cathode'] = dict((k, self.ca.__dict__.get(k)) for k in ca_k)
+        Parameters
+        ----------
+        savename : str
+            Either a file name or the absolute/relative file path. The ``.npz``
+            extension will be added to the end of the string if it is not
+            already there. If only the file name is given, the file will be
+            saved in the user's current working directory.
 
-    #     yaml.dump(data, Path(savepath.joinpath(savename + '.yaml')))
+        overwrite : bool, optional
+            A flag to overwrite and existing ``.npz`` file with the same name
+            if one exists. The default is ``False``.
 
-    #     t = pd.DataFrame(self.sol.values.t)
-    #     y = pd.DataFrame(self.sol.values.y)
-    #     ydot = pd.DataFrame(self.sol.values.ydot)
+        Returns
+        -------
+        None.
+        """
 
-    #     pd_opts = {'index': False, 'header': False}
-    #     t.to_csv(savepath.joinpath('t.csv'), **pd_opts)
-    #     y.to_csv(savepath.joinpath('y.csv'), **pd_opts)
-    #     ydot.to_csv(savepath.joinpath('ydot.csv'), **pd_opts)
+        import os
+
+        import numpy as np
+
+        if len(self.postvars) == 0:
+            self.post()
+
+        if os.path.exists(savename) and not overwrite:
+            raise Exception('save_and_slice file already exists. Overwrite'
+                            ' with flag or delete the file and try again.')
+
+        sim = self._sim
+
+        r_a = sim.an.r
+        r_c = sim.ca.r
+
+        t = self.t
+
+        phis_a = self.y[:, sim.an.ptr['phi_ed']]
+        phis_c = self.y[:, sim.ca.ptr['phi_ed']]
+        phie = self.y[:, sim.el.ptr['phi_el']]
+
+        cs_a = self.y[:, sim.an.r_ptr('Li_ed')] * sim.an.Li_max
+        cs_c = self.y[:, sim.ca.r_ptr('Li_ed')] * sim.ca.Li_max
+
+        j_a = self.postvars['sdot_an']
+        j_c = self.postvars['sdot_ca']
+
+        np.savez(savename, r_a=r_a, r_c=r_c, t=t, phis_a=phis_a, phie=phie,
+                 phis_c=phis_c, cs_a=cs_a, cs_c=cs_c, j_a=j_a, j_c=j_c)

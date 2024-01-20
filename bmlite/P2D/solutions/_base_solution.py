@@ -26,7 +26,7 @@ class BaseSolution(object):
             the experiment that was run.
         """
 
-        self._sim = sim
+        self._sim = sim.copy()
         self._exp = exp.copy()
 
         self._t = None
@@ -184,7 +184,7 @@ class BaseSolution(object):
             self._success = True
 
         self._onroot = False
-        if type(sol.roots.t) != type(None):
+        if not isinstance(sol.roots.t, type(None)):
             self._onroot = True
 
         self._message = sol.message
@@ -237,11 +237,15 @@ class BaseSolution(object):
         experiment = 'Experiment('
         for i, (k, v) in enumerate(self._exp.items()):
 
-            if i == 0: spacer = ''
-            else: spacer = ' ' * 11
+            if i == 0:
+                spacer = ''
+            else:
+                spacer = ' ' * 11
 
-            if i == len(self._exp) - 1: endline = ')'
-            else: endline = ',\n'
+            if i == len(self._exp) - 1:
+                endline = ')'
+            else:
+                endline = ',\n'
 
             experiment += spacer + f'{k} = {v}' + endline
 
@@ -251,7 +255,7 @@ class BaseSolution(object):
                      False: lambda t: str(round(t, 3)) + ' s'
                      }
 
-        solvetime = converter[self._solvetime == None](self._solvetime)
+        solvetime = converter[self._solvetime is None](self._solvetime)
 
         print(f'Solution(classname = {self.classname},\n'
               f'         success = {self._success},\n'
@@ -294,79 +298,143 @@ class BaseSolution(object):
 
         return sol
 
-    # def save(self, savename: str, overwrite: bool = False) -> None:
-    #     """
+    def plot(self, *args) -> None:
 
+        if 'current' in args:
+            from ..postutils import current
+            current(self)
 
-    #     Parameters
-    #     ----------
-    #     savename : str
-    #         DESCRIPTION.
+        if 'voltage' in args:
+            from ..postutils import voltage
+            voltage(self)
 
-    #     overwrite : bool, optional
-    #         DESCRIPTION. The default is False.
+        if 'power' in args:
+            from ..postutils import power
+            power(self)
 
-    #     Raises
-    #     ------
-    #     Exception
-    #         DESCRIPTION.
+        if 'IVP' in args:
+            from ..postutils import IVP
+            IVP(self)
 
-    #     Returns
-    #     -------
-    #     None.
-    #     """
+        if 'potentials' in args:
+            from ..postutils import potentials
+            potentials(self)
 
-    #     import os, shutil
-    #     from pathlib import Path
+        if 'electrolyte' in args:
+            from ..postutils import electrolyte
+            electrolyte(self)
 
-    #     import numpy as np
-    #     from ruamel.yaml import YAML
+        if 'intercalation' in args:
+            from ..postutils import intercalation
+            intercalation(self)
 
-    #     savepath = Path(savename)
-    #     if os.path.exists(savepath) and not overwrite:
-    #         raise Exception(savename + ' already exists. Overwrite with flag.')
+        if 'contours' in args:
+            from ..postutils import contours
+            contours(self)
 
-    #     elif os.path.exists(savepath):
-    #         shutil.rmtree(savepath)
+    def slice_and_save(self, savename: str, overwrite: bool = False) -> None:
+        """
+        Save a ``.npz`` file with all spatial, time, and state variables
+        separated into 1D, 2D, and 3D arrays. The keys are given below.
+        The index order of the 2D and 3D arrays is given with the value
+        descriptions.
 
-    #     os.mkdir(savepath)
+        ========= ==========================================================
+        Key       Value [units] (type)
+        ========= ==========================================================
+        x_a       x mesh in anode [m] (1D array)
+        x_s       x mesh in separator [m] (1D array)
+        x_c       x mesh in cathode [m] (1D array)
+        x         stacked x mesh for an, sep, and ca [m] (1D array)
+        r_a       r mesh for anode particles [m] (1D array)
+        r_c       r mesh for cathode particles [m] (1D array)
+        t         saved solution times [s] (1D array)
+        phie_a    electrolyte potentials at t, x_a [V] (2D array)
+        phis_a    electrode potentials at t, x_a [V] (2D array)
+        ce_a      electrolyte Li+ at t, x_a [kmol/m^3] (2D array)
+        cs_a      electrode Li at t, x_a, r_a [kmol/m^3] (3D array)
+        phie_s    electrolyte potentials at t, x_s [V] (2D array)
+        ce_s      electrolyte Li+ at t, x_s [kmol/m^3] (2D array)
+        phie_c    electrolyte potentials at t, x_c [V] (2D array)
+        phis_c    electrode potentials at t, x_c [V] (2D array)
+        ce_c      electrolyte Li+ at t, x_c [kmol/m^3] (2D array)
+        cs_c      electrode Li at t, x_c, r_c [kmol/m^3] (3D array)
+        phie      electrolyte potentials at t, x [V] (2D array)
+        ce        electrolyte Li+ at t, x [kmol/m^3] (2D array)
+        ie        electrolyte current at t, x boundarys [A/m^2] (2D array)
+        j_a       anode Faradaic current at t, x_a [kmol/m^2/s] (2D array)
+        j_c       cathode Faradaic current at t, x_c [kmol/m^2/s] (2D array)
+        ========= ==========================================================
 
-    #     yaml = YAML()
-    #     yaml.indent(mapping=4)
+        Parameters
+        ----------
+        savename : str
+            Either a file name or the absolute/relative file path. The ``.npz``
+            extension will be added to the end of the string if it is not
+            already there. If only the file name is given, the file will be
+            saved in the user's current working directory.
 
-    #     path = os.path.dirname(__file__) + '/../default_sims/default_P2D.yaml'
+        overwrite : bool, optional
+            A flag to overwrite and existing ``.npz`` file with the same name
+            if one exists. The default is ``False``.
 
-    #     yamlpath = Path(path)
-    #     default_yaml = yaml.load(yamlpath)
+        Returns
+        -------
+        None.
+        """
 
-    #     k_bat = default_yaml['battery'].keys()
-    #     k_el = default_yaml['electrolyte'].keys()
-    #     k_an = default_yaml['anode'].keys()
-    #     k_sep = default_yaml['separator'].keys()
-    #     k_ca = default_yaml['cathode'].keys()
+        import os
 
-    #     sim = self._sim
+        import numpy as np
 
-    #     simdata = {}
-    #     simdata['battery'] = dict((k, getattr(sim.bat, k)) for k in k_bat)
-    #     simdata['electrolyte'] = dict((k, getattr(sim.el, k)) for k in k_el)
-    #     simdata['anode'] = dict((k, getattr(sim.an, k)) for k in k_an)
-    #     simdata['separator'] = dict((k, getattr(sim.sep, k)) for k in k_sep)
-    #     simdata['cathode'] = dict((k, getattr(sim.ca, k)) for k in k_ca)
+        if len(self.postvars) == 0:
+            self.post()
 
-    #     yaml.dump(simdata, savepath.joinpath(savename + '_sim.yaml'))
+        if os.path.exists(savename) and not overwrite:
+            raise Exception('save_and_slice file already exists. Overwrite'
+                            ' with flag or delete the file and try again.')
 
-    #     exp = self._exp
+        sim = self._sim
 
-    #     yaml.dump(exp, savepath.joinpath(savename + '_exp.yaml'))
+        x_a = sim.an.x
+        x_s = sim.sep.x
+        x_c = sim.ca.x
 
-    #     soldata = self.to_dict()
-    #     soldata['classname'] = self.classname
+        x = np.hstack([x_a, x_s, x_c])
 
-    #     t = soldata.pop('t')
-    #     y = soldata.pop('y')
-    #     ydot = soldata.pop('ydot')
+        r_a = sim.an.r
+        r_c = sim.ca.r
 
-    #     yaml.dump(soldata, savepath.joinpath(savename + '_sol.yaml'))
+        t = self.t
 
-    #     np.savez(savepath.joinpath(savename + '_sol.npz'), t=t, y=y, ydot=ydot)
+        phie_a = self.y[:, sim.an.x_ptr('phi_el')]
+        phis_a = self.y[:, sim.an.x_ptr('phi_ed')]
+        ce_a = self.y[:, sim.an.x_ptr('Li_el')]
+
+        phie_s = self.y[:, sim.sep.x_ptr('phi_el')]
+        ce_s = self.y[:, sim.sep.x_ptr('Li_el')]
+
+        phie_c = self.y[:, sim.ca.x_ptr('phi_el')]
+        phis_c = self.y[:, sim.ca.x_ptr('phi_ed')]
+        ce_c = self.y[:, sim.ca.x_ptr('Li_el')]
+
+        phie = np.hstack([phie_a, phie_s, phie_c])
+        ce = np.hstack([ce_a, ce_s, ce_c])
+
+        cs_a = np.zeros([t.size, x_a.size, sim.an.Nr])
+        for k in range(sim.an.Nr):
+            cs_a[:, :, k] = self.y[:, sim.an.x_ptr('Li_ed', k)] * sim.an.Li_max
+
+        cs_c = np.zeros([t.size, x_c.size, sim.ca.Nr])
+        for k in range(sim.ca.Nr):
+            cs_c[:, :, k] = self.y[:, sim.ca.x_ptr('Li_ed', k)] * sim.ca.Li_max
+
+        ie = self.postvars['i_el_x']
+        j_a = self.postvars['sdot_an']
+        j_c = self.postvars['sdot_ca']
+
+        np.savez(savename, x_a=x_a, x_s=x_s, x_c=x_c, x=x, r_a=r_a,
+                 r_c=r_c, t=t, phie_a=phie_a, phis_a=phis_a, ce_a=ce_a,
+                 phie_s=phie_s, ce_s=ce_s, phie_c=phie_c, phis_c=phis_c,
+                 ce_c=ce_c, phie=phie, ce=ce, cs_a=cs_a, cs_c=cs_c,
+                 ie=ie, j_a=j_a, j_c=j_c)

@@ -4,7 +4,7 @@ BatMods-lite
 
 Provides:
 
-1. Library of pre-built battery models
+1. A library of pre-built battery models
 2. Kinetic/transport properties for common battery materials
 
 How to use the documentation
@@ -23,8 +23,6 @@ available in ``bmlite``, type ``bm.<TAB>`` (where ``<TAB>`` refers to the TAB
 key). To view the type hints and brief descriptions, type an open parenthesis
 ``(`` after any function, method, class, etc. (e.g., ``bm.Constants(``).
 """
-
-from typing import NamedTuple as _NamedTuple
 
 from numpy import ndarray as _ndarray
 from scikits.odes import dae as _DAE
@@ -106,8 +104,8 @@ class IDASolver(object):
 
     Notes
     -----
-    * The solver name IDA stands for Implicit Differential-Algebraic solver. It
-      is part of the `SUNDIALS`_ package, and is accessed here through the
+    * The solver name IDA stands for Implicit Differential-Algebraic solver.
+      It is part of the `SUNDIALS`_ package, and is accessed here through the
       `scikits-odes`_ python wrapper.
     * The solver can be unstable if the ``algidx`` keyword argument is not
       specified for DAEs.
@@ -144,8 +142,7 @@ class IDASolver(object):
 
         _DAE.__init__(self, 'ida', residuals, **options)
 
-    def solve(self, t_span: _ndarray, y0: _ndarray,
-              yp0: _ndarray) -> _NamedTuple:
+    def solve(self, t_span: _ndarray, y0: _ndarray, yp0: _ndarray) -> object:
         """
         Solve the ODE/DAE system and save the solution at each time in
         ``t_span``.
@@ -153,8 +150,8 @@ class IDASolver(object):
         Parameters
         ----------
         t_span : 1D array
-            Array of times [s] to store the solution. ``t_span[0]`` must be the
-            start time and ``t_span[-1]`` the final time.
+            Array of times [s] to store the solution. ``t_span[0]`` must be
+            the start time and ``t_span[-1]`` the final time.
 
         y0 : 1D array
             Array of state variables at ``t = t_span[0]``.
@@ -165,14 +162,14 @@ class IDASolver(object):
         Returns
         -------
         idasol : NamedTuple
-            Solution returned by SUNDIALS IDA integrator.
+            Solution returned by SUNDIALS IDA integrator over ``t_span``.
         """
 
         idasol = _DAE.solve(self, t_span, y0, yp0)
 
         return idasol
 
-    def init_step(self, t0: float, y0: _ndarray, yp0: _ndarray) -> _NamedTuple:
+    def init_step(self, t0: float, y0: _ndarray, yp0: _ndarray) -> object:
         """
         Solve the ODE/DAE for a consistent initial condition at ``t = t0``.
 
@@ -190,7 +187,7 @@ class IDASolver(object):
         Returns
         -------
         idasol : NamedTuple
-            Solution returned by SUNDIALS IDA integrator.
+            Solution returned by SUNDIALS IDA integrator at ``t = t0``.
         """
 
         idasol = _DAE.init_step(self, t0, y0, yp0)
@@ -214,33 +211,80 @@ def docs() -> None:
     webbrowser.open_new_tab('file://' + os.path.realpath(sitepath))
 
 
-def format_ax(ax: object) -> None:
+def _templates(model__file__: str, model_name: str, sim: str | int = None,
+               exp: str | int = None) -> None:
     """
-    Formats an ``axis`` object by adjusting the ticks.
-
-    Specifically, the top and right ticks are added, minor ticks are turned on,
-    and all ticks are set to face inward.
+    Print simulation and/or experiment templates. If both ``sim`` and ``exp``
+    are ``None``, a list of available templates will be printed. Otherwise,
+    if a name or index is given, that template will print to the console.
 
     Parameters
     ----------
-    ax : object
-        An ``axis`` instance from a ``matplotlib`` figure.
+    model__file__ : str
+        The module ``__file__`` attribute. This sets the local path to make
+        sure templates are pulled from the correct model path.
+
+    model_name : str
+        Name for the model package. This ensures template lists are labeled
+        correctly.
+
+    sim : str | int, optional
+        Simulation template file name or index. The default is ``None``.
+
+    exp : str | int, optional
+        Experiment template file name or index. The default is ``None``.
 
     Returns
     -------
     None.
     """
 
-    from matplotlib.ticker import AutoMinorLocator
+    import os, json
+    from pathlib import Path
 
-    if ax.get_xaxis().get_scale() != 'log':
-        ax.xaxis.set_minor_locator(AutoMinorLocator())
+    from ruamel.yaml import YAML
 
-    if ax.get_yaxis().get_scale() != 'log':
-        ax.yaxis.set_minor_locator(AutoMinorLocator())
+    dirname = os.path.dirname(model__file__)
 
-    ax.tick_params(axis='x', top=True, which='both', direction='in')
-    ax.tick_params(axis='y', right=True, which='both', direction='in')
+    simlist = os.listdir(dirname + '/default_sims/')
+    explist = os.listdir(dirname + '/default_exps/')
+
+    if sim is None and exp is None:
+        print('\nTemplates for ' + model_name + ' simulations:')
+        for i, file in enumerate(simlist):
+            print('- [' + str(i) + '] ' + file.removesuffix('.yaml'))
+
+        print('\nTemplates for ' + model_name + ' experiments:')
+        for i, file in enumerate(explist):
+            print('- [' + str(i) + '] ' + file.removesuffix('.yaml'))
+
+    if isinstance(sim, str):
+        if '.yaml' not in sim:
+            sim += '.yaml'
+
+        simfile = sim
+    elif isinstance(sim, int):
+        simfile = simlist[sim]
+
+    if sim is not None:
+        print('\n' + '=' * 30 + '\n' + simfile + '\n' + '=' * 30)
+        with open(dirname + '/default_sims/' + simfile, 'r') as f:
+            print('\n' + f.read())
+
+    yaml = YAML()
+
+    if isinstance(exp, str):
+        if '.yaml' not in exp:
+            exp += '.yaml'
+
+        expfile = exp
+    elif isinstance(exp, int):
+        expfile = explist[exp]
+
+    if exp is not None:
+        print('\n' + '=' * 30 + '\n' + expfile + '\n' + '=' * 30)
+        expdict = yaml.load(Path(dirname + '/default_exps/' + expfile))
+        print('exp = ' + json.dumps(expdict, indent=4))
 
 
 __version__ = '0.0.1'

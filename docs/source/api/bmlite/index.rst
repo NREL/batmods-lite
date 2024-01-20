@@ -39,6 +39,7 @@ Subpackages
    P2D/index.rst
    SPM/index.rst
    materials/index.rst
+   plotutils/index.rst
 
 
 Package Contents
@@ -95,7 +96,7 @@ Functions
    with a signature like ``def resdiuals(t, y, yp, res, inputs) -> None``.
    The ``res`` parameter must be a 1D array the same size as ``y`` and ``yp``.
    Although the function returns ``None``, the solver uses the filled ``res``
-   array to integrate/solve the system. The ``inputs`` parameter is a ``tuple``
+   array to integrate/solve the sytem. The ``inputs`` parameter is a ``tuple``
    that is used to pass any required user-defined ``*args`` to the function.
 
    :param residuals: Residual function like ``def residuals(t, y, yp, res, inputs)``.
@@ -119,7 +120,7 @@ Functions
                       nr_rootfns         number of events in ``'rootfn'`` (*int*, ``0``)
                       compute_initcond   vary y or yp to get a consistent initial condition
                                          (``{'y0', 'yp0', None}``, ``'yp0'``)
-                      algebraic_vars_idx the indices of the algebraic variables in the
+                      algebraic_vars_idx the indicies of the algebraic variables in the
                                          ``residuals`` y array (*list[int]*, ``None``)
                       ================== ==================================================
    :type \*\*kwargs: dict, optional
@@ -131,7 +132,7 @@ Functions
      `scikits-odes`_ python wrapper.
    * The solver can be unstable if the ``algebraic_vars_idx`` keyword argument
      is not specified for DAEs.
-   * The ``rootfn`` keyword argument must have the signature ``def f(t, y, yp,
+   * The ``rootfn`` keyward argument must have the signature ``def f(t, y, yp,
      events, inputs) -> None`` where the ``events`` parameter is an array that
      is filled with root functions. If any element in ``events`` hits zero
      during the solver integration, the solver will exit.

@@ -170,10 +170,10 @@ class Electrode(object):
 
         self.eps_s = 1 - self.eps_el
         self.eps_AM = 1 - self.eps_el - self.eps_CBD
-        self.A_s = 3*self.eps_AM / self.R_s
+        self.A_s = 3 * self.eps_AM / self.R_s
 
-        ActiveMaterial = getattr(materials, self.material)
-        self._material = ActiveMaterial(self.alpha_a, self.alpha_c, self.Li_max)
+        Material = getattr(materials, self.material)
+        self._material = Material(self.alpha_a, self.alpha_c, self.Li_max)
 
     def get_Ds(self, x: float | _ndarray, T: float) -> float | _ndarray:
         """
@@ -194,7 +194,7 @@ class Electrode(object):
             Lithium diffusivity in the solid phase [m^2/s].
         """
 
-        return self.Ds_deg*self._material.get_Ds(x, T)
+        return self.Ds_deg * self._material.get_Ds(x, T)
 
     def get_i0(self, x: float, C_Li: float, T: float) -> float:
         """
@@ -219,7 +219,7 @@ class Electrode(object):
             Exchange current density [A/m^2].
         """
 
-        return self.i0_deg*self._material.get_i0(x, C_Li, T)
+        return self.i0_deg * self._material.get_i0(x, C_Li, T)
 
     def get_Eeq(self, x: float, T: float) -> float:
         """
@@ -262,10 +262,10 @@ class Electrode(object):
 
         import numpy as np
 
-        self.r = np.linspace(self.R_s/self.Nr/2,
-                             self.R_s*(1 - 1/self.Nr/2), self.Nr)
+        self.r = np.linspace(self.R_s / self.Nr / 2,
+                             self.R_s * (1 - 1 / self.Nr / 2), self.Nr)
 
-        self.rm = np.hstack([0, 0.5*(self.r[:-1] + self.r[1:])])
+        self.rm = np.hstack([0, 0.5 * (self.r[:-1] + self.r[1:])])
         self.rp = np.hstack([self.rm[1:], self.R_s])
 
     def make_ptr(self):
@@ -283,7 +283,7 @@ class Electrode(object):
     def sv_0(self):
         import numpy as np
 
-        return np.hstack([self.x_0*np.ones(self.Nr), self.phi_0])
+        return np.hstack([self.x_0 * np.ones(self.Nr), self.phi_0])
 
     def algidx(self):
         import numpy as np
@@ -291,4 +291,4 @@ class Electrode(object):
         return np.array([self.ptr['phi_ed']])
 
     def r_ptr(self, key):
-        return [self.ptr[key] + i*self.ptr['r_off'] for i in range(self.Nr)]
+        return [self.ptr[key] + i * self.ptr['r_off'] for i in range(self.Nr)]

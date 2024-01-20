@@ -7,8 +7,8 @@ class GraphiteFast(object):
         """
         Computationally fast Graphite kinetic and transport properties.
 
-        Differs from ``GraphiteSlow`` because the equilibrium potential is not
-        piecewise here, making it faster to evaluate.
+        Differs from ``GraphiteSlow`` because the equilibrium potential is
+        not piecewise here, making it less accurate, but faster to evaluate.
 
         Parameters
         ----------
@@ -51,10 +51,10 @@ class GraphiteFast(object):
 
         c = Constants()
 
-        Ds = 3e-14*np.exp(-30e6/c.R*(1/T - 1/303.15))
+        Ds = 3e-14 * np.exp(-30e6 / c.R * (1 / T - 1 / 303.15))
 
         if np.atleast_1d(x).size > 1:
-            Ds = Ds*np.ones_like(x)
+            Ds = Ds * np.ones_like(x)
 
         return Ds
 
@@ -90,9 +90,9 @@ class GraphiteFast(object):
 
         c = Constants()
 
-        i0 = 2.5*0.27*np.exp(-30e6/c.R*(1/T - 1/303.15))*C_Li**self.alpha_a \
-           * (self.Li_max - self.Li_max*x)**self.alpha_a \
-           * (self.Li_max*x)**self.alpha_c
+        i0 = 2.5 * 0.27 * np.exp(-30e6 / c.R * (1 / T - 1 / 303.15)) \
+           * C_Li**self.alpha_a * (self.Li_max * x)**self.alpha_c \
+           * (self.Li_max - self.Li_max * x)**self.alpha_a
 
         return i0
 
@@ -152,34 +152,31 @@ class GraphiteFast(object):
 
         F = np.array([-1.02956203215198])
 
-        Eeq = A[ 0]*np.tanh((x + A[ 1]) / A[ 2]) \
-            + A[ 3]*np.tanh((x + A[ 4]) / A[ 5]) \
-            + A[ 6]*np.tanh((x + A[ 7]) / A[ 8]) \
-            + A[ 9]*np.tanh((x + A[10]) / A[11]) \
-            + A[12]*np.tanh((x + A[13]) / A[14]) \
-            + A[15]*np.tanh((x + A[16]) / A[17]) \
+        Eeq = A[ 0] * np.tanh((x + A[ 1]) / A[ 2]) \
+            + A[ 3] * np.tanh((x + A[ 4]) / A[ 5]) \
+            + A[ 6] * np.tanh((x + A[ 7]) / A[ 8]) \
+            + A[ 9] * np.tanh((x + A[10]) / A[11]) \
+            + A[12] * np.tanh((x + A[13]) / A[14]) \
+            + A[15] * np.tanh((x + A[16]) / A[17]) \
             + A[18] \
-            + B[ 0]*np.tanh((x + B[ 1]) / B[ 2]) \
-            + B[ 3]*np.tanh((x + B[ 4]) / B[ 5]) \
-            + (  C[0]*x**8 + C[1]*x**7 + C[2]*x**6 + C[3]*x**5
-               + C[4]*x**4 + C[5]*x**3 + C[6]*x**2 + C[7]*x + C[8]
-               + D[ 0]*np.tanh((x + D[ 1]) / D[ 2])
-               + D[ 3]*np.tanh((x + D[ 4]) / D[ 5])
-               + D[ 6]*np.tanh((x + D[ 7]) / D[ 8])
-               + D[ 9]*np.tanh((x + D[10]) / D[11])
-               + D[12]*np.tanh((x + D[13]) / D[14])
-               + D[15]*np.tanh((x + D[16]) / D[17])
+            + B[ 0] * np.tanh((x + B[ 1]) / B[ 2]) \
+            + B[ 3] * np.tanh((x + B[ 4]) / B[ 5]) \
+            + (  C[0] * x**8 + C[1] * x**7 + C[2] * x**6 + C[3] * x**5
+               + C[4] * x**4 + C[5] * x**3 + C[6] * x**2 + C[7] * x + C[8]
+               + D[ 0] * np.tanh((x + D[ 1]) / D[ 2])
+               + D[ 3] * np.tanh((x + D[ 4]) / D[ 5])
+               + D[ 6] * np.tanh((x + D[ 7]) / D[ 8])
+               + D[ 9] * np.tanh((x + D[10]) / D[11])
+               + D[12] * np.tanh((x + D[13]) / D[14])
+               + D[15] * np.tanh((x + D[16]) / D[17])
                + D[18]
-               + E[ 0]*np.tanh((x + E[ 1]) / E[ 2])
-               + E[ 3]*np.tanh((x + E[ 4]) / E[ 5])  ) \
-            / ( 1.0 + np.exp(-1.0e2*(x + F[0])) )
+               + E[ 0] * np.tanh((x + E[ 1]) / E[ 2])
+               + E[ 3] * np.tanh((x + E[ 4]) / E[ 5])  ) \
+            / ( 1.0 + np.exp(-1.0e2 * (x + F[0])) )
 
         Eeq = np.real(Eeq)
 
-        Eeq[x<=0] =  10
-        Eeq[x> 1] = -10
+        Eeq[x <= 0] = 10
+        Eeq[x > 1] = -10
 
-        if Eeq.size == 1:
-            Eeq = Eeq[0]
-
-        return Eeq
+        return Eeq.squeeze()

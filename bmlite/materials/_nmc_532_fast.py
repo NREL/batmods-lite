@@ -8,7 +8,7 @@ class NMC532Fast(object):
         Computationally fast NMC532 kinetic and transport properties.
 
         Differs from ``NMC532Slow`` because the equilibrium potential is not
-        piecewise here, making it faster to evaluate.
+        piecewise here, making it less accurate, but faster to evaluate.
 
         Parameters
         ----------
@@ -57,10 +57,11 @@ class NMC532Fast(object):
          5.016272167775530e+3,  9.824896659649480e+2, -1.502439339070900e+3,
          4.723709304247700e+2, -6.526092046397090e+1])
 
-        Ds = np.exp(-30e6/c.R*(1/T - 1/303.15)) \
-           * 2.25*10.0**(  A[0]*x**10 + A[1]*x**9 + A[2]*x**8 + A[3]*x**7 \
-                         + A[4]*x**6  + A[5]*x**5 + A[6]*x**4 + A[7]*x**3 \
-                         + A[8]*x**2  + A[9]*x    + A[10]  )
+        Ds = np.exp(-30e6 / c.R * (1 / T - 1 / 303.15)) \
+           * 2.25 * 10.0**(  A[0] * x**10 + A[1] * x**9 + A[2] * x**8
+                           + A[3] * x**7 + A[4] * x**6 + A[5] * x**5
+                           + A[6] * x**4 + A[7] * x**3 + A[8] * x**2
+                           + A[9] * x + A[10]  )
 
         return Ds
 
@@ -100,8 +101,10 @@ class NMC532Fast(object):
          1.650452829641290e+1, -7.523567141488800e+1,  1.240524690073040e+2,
         -9.416571081287610e+1,  3.249768821737960e+1, -3.585290065824760e+0])
 
-        i0 = 9*(C_Li/1.2)**self.alpha_a*np.exp(-30e6/c.R*(1/T - 1/303.15)) \
-           * (A[0]*x**5 + A[1]*x**4 + A[2]*x**3 + A[3]*x**2 + A[4]*x**1 + A[5])
+        i0 = 9 * (C_Li / 1.2)**self.alpha_a \
+           * np.exp(-30e6 / c.R * (1 / T - 1 / 303.15)) \
+           * (  A[0] * x**5 + A[1] * x**4 + A[2] * x**3 + A[3] * x**2
+              + A[4] * x**1 + A[5]  )
 
         return i0
 
@@ -134,10 +137,10 @@ class NMC532Fast(object):
         -2.724851668445780e+2,  2.723409218042130e+1, -4.158276603609060e+0,
         -5.573191762723310e-4,  6.560240842659690e+0,  4.148209275061330e+1])
 
-        Eeq = A[0]*x**0  + A[1]*x**14 + A[2]*x**13 + A[3]*x**12 \
-            + A[4]*x**11 + A[5]*x**10 + A[6]*x**9  + A[7]*x**8  \
-            + A[8]*x**7  + A[9]*x**6  + A[10]*x**5 + A[11]*x**4 \
-            + A[12]*x**3 + A[13]*x**2 + A[14]*x**1 \
-            + A[15]*np.exp( A[16]*x**A[17] )
+        Eeq = A[0] * x**0 + A[1] * x**14 + A[2] * x**13 + A[3] * x**12 \
+            + A[4] * x**11 + A[5] * x**10 + A[6] * x**9 + A[7] * x**8  \
+            + A[8] * x**7 + A[9] * x**6 + A[10] * x**5 + A[11] * x**4 \
+            + A[12] * x**3 + A[13] * x**2 + A[14] * x**1 \
+            + A[15] * np.exp( A[16] * x**A[17] )
 
         return Eeq

@@ -166,6 +166,88 @@ Functions
       .. seealso:: :obj:`bmlite.IDASolver`, :obj:`bmlite.SPM.solutions.CCSolution`
 
 
+   .. py:method:: run_CP(exp: dict, **kwargs) -> object
+
+      Runs a constant power experiment specified by the details given in
+      the experiment dictionary ``exp``.
+
+      :param exp: The constant power experimental details. Required keys and
+                  descriptions are listed below:
+
+                  ======== ========================================================
+                  Key      Value [units] (type)
+                  ======== ========================================================
+                  P_ext    external power (+ charge, - discharge) [W/m^2] (*float*)
+                  t_min    minimum time [s] (*float*)
+                  t_max    maximum time [s] (*float*)
+                  Nt       number of time discretizations [-] (*int*)
+                  ======== ========================================================
+      :type exp: dict
+      :param \*\*kwargs: The keyword arguments specify the Sundials IDA solver options. A
+                         partial list of options/defaults is given below:
+
+                         =============== =================================================
+                         Key             Description (type or options, default)
+                         =============== =================================================
+                         rtol            relative tolerance (*float*, 1e-6)
+                         atol            absolute tolerance (*float*, 1e-9)
+                         linsolver       linear solver (``{'dense', 'band'}``, ``'band'``)
+                         lband           width of the lower band (*int*, ``self.lband``)
+                         uband           width of the upper band (*int*, ``self.uband``)
+                         max_step_size   maximum time step (*float*, 0. -> unrestricted)
+                         rootfn          root/event function (*Callable*, ``None``)
+                         nr_rootfns      number of events in ``'rootfn'`` (*int*, 0)
+                         =============== =================================================
+      :type \*\*kwargs: dict, optional
+
+      :returns: **sol** (*CPSolution object*) -- Solution class with the returned variable values, messages, exit
+                flags, etc. from the IDA solver. The returned ``CPSolution``
+                instance includes post processing, plotting, and saving methods.
+
+      .. seealso:: :obj:`bmlite.IDASolver`, :obj:`bmlite.SPM.solutions.CPSolution`
+
+
+   .. py:method:: run_CV(exp: dict, **kwargs) -> object
+
+      Runs a constant voltage experiment specified by the details given in
+      the experiment dictionary ``exp``.
+
+      :param exp: The constant voltage experimental details. Required keys and
+                  descriptions are listed below:
+
+                  =========== ==========================================
+                  Key         Value [units] (type)
+                  =========== ==========================================
+                  V_ext       externally applied voltage [V] (*float*)
+                  t_min       minimum time [s] (*float*)
+                  t_max       maximum time [s] (*float*)
+                  Nt          number of time discretizations [-] (*int*)
+                  =========== ==========================================
+      :type exp: dict
+      :param \*\*kwargs: The keyword arguments specify the Sundials IDA solver options. A
+                         partial list of options/defaults is given below:
+
+                         =============== =================================================
+                         Key             Description (type or options, default)
+                         =============== =================================================
+                         rtol            relative tolerance (*float*, 1e-6)
+                         atol            absolute tolerance (*float*, 1e-9)
+                         linsolver       linear solver (``{'dense', 'band'}``, ``'band'``)
+                         lband           width of the lower band (*int*, ``self.lband``)
+                         uband           width of the upper band (*int*, ``self.uband``)
+                         max_step_size   maximum time step (*float*, 0. -> unrestricted)
+                         rootfn          root/event function (*Callable*, ``None``)
+                         nr_rootfns      number of events in ``'rootfn'`` (*int*, 0)
+                         =============== =================================================
+      :type \*\*kwargs: dict, optional
+
+      :returns: **sol** (*CVSolution object*) -- Solution class with the returned variable values, messages, exit
+                flags, etc. from the IDA solver. The returned ``CVSolution``
+                instance includes post processing, plotting, and saving methods.
+
+      .. seealso:: :obj:`bmlite.IDASolver`, :obj:`bmlite.SPM.solutions.CVSolution`
+
+
 
 .. py:function:: load(loadname: str) -> tuple[object]
 

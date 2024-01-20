@@ -15,95 +15,96 @@ def args():
 def test_gen2_electrolyte():
     el = bm.materials.Gen2Electrolyte()
 
-    C_Li = np.array([1.2, 1.4])
+    data = np.load(__file__ + '/../materials_data/gen2electrolyte.npz')
 
-    assert np.allclose(el.get_D(1.0, 303.15), 1.58571930e-10, atol=1e-14)
-    assert np.allclose(el.get_D(C_Li, 303.15), [1.35029958e-10, 1.145972e-10],
-                       atol=1e-14)
+    C_Li, T = data['C_Li'], data['T']
 
-    assert np.allclose(el.get_t0(1.0, 303.15), 0.45967069)
-    assert np.allclose(el.get_t0(C_Li, 303.15), [0.46292429, 0.46599655])
+    D = el.get_D(C_Li, T)
+    assert np.allclose(D / max(D), data['D'] / max(D))
 
-    assert np.allclose(el.get_kappa(1.0, 303.15), 0.97656228)
-    assert np.allclose(el.get_kappa(C_Li, 303.15), [0.97273979, 0.93240961])
+    t0 = el.get_t0(C_Li, T)
+    assert np.allclose(t0 / max(t0), data['t0'] / max(t0))
 
-    assert np.allclose(el.get_gamma(1.0, 303.15), 2.20537457)
-    assert np.allclose(el.get_gamma(C_Li, 303.15), [2.86877462, 3.66005716])
+    kappa = el.get_kappa(C_Li, T)
+    assert np.allclose(kappa / max(kappa), data['kappa'] / max(kappa))
+
+    gamma = el.get_gamma(C_Li, T)
+    assert np.allclose(gamma / max(gamma), data['gamma'] / max(gamma))
+
+    data.close()
 
 
 def test_graphite_fast(args):
     gr = bm.materials.GraphiteFast(args[0], args[1], args[2])
 
-    assert gr.alpha_a == args[0]
-    assert gr.alpha_c == args[1]
-    assert gr.Li_max == args[2]
+    data = np.load(__file__ + '/../materials_data/graphitefast.npz')
 
-    x = np.array([0.75, 0.98])
+    x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    assert np.allclose(gr.get_Ds(0.25, 303.15), 3.0e-14, atol=1e-18)
-    assert np.allclose(gr.get_Ds(x, 303.15), [3.0e-14, 3.0e-14], atol=1e-18)
+    Ds = gr.get_Ds(x, T)
+    assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    assert np.allclose(gr.get_i0(0.25, 1.2, 303.15), 16.00903065)
-    assert np.allclose(gr.get_i0(x, 1.2, 303.15), [16.00903065,  5.17597817])
+    i0 = gr.get_i0(x, C_Li, T)
+    assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    assert np.allclose(gr.get_Eeq(0.25, 303.15), 0.12185042)
-    assert np.allclose(gr.get_Eeq(x, 303.15), [0.07350187, 0.01585165])
+    Eeq = gr.get_Eeq(x, T)
+    assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
+
+    data.close()
 
 
 def test_graphite_slow(args):
     gr = bm.materials.GraphiteSlow(args[0], args[1], args[2])
 
-    assert gr.alpha_a == args[0]
-    assert gr.alpha_c == args[1]
-    assert gr.Li_max == args[2]
+    data = np.load(__file__ + '/../materials_data/graphiteslow.npz')
 
-    x = np.array([0.75, 0.98])
+    x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    assert np.allclose(gr.get_Ds(0.25, 303.15), 3.0e-14, atol=1e-18)
-    assert np.allclose(gr.get_Ds(x, 303.15), [3.0e-14, 3.0e-14], atol=1e-18)
+    Ds = gr.get_Ds(x, T)
+    assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    assert np.allclose(gr.get_i0(0.25, 1.2, 303.15), 16.00903065)
-    assert np.allclose(gr.get_i0(x, 1.2, 303.15), [16.00903065,  5.17597817])
+    i0 = gr.get_i0(x, C_Li, T)
+    assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    assert np.allclose(gr.get_Eeq(0.25, 303.15), 0.14283605)
-    assert np.allclose(gr.get_Eeq(x, 303.15), [0.10035986, 0.02679])
+    Eeq = gr.get_Eeq(x, T)
+    assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
+
+    data.close()
 
 
 def test_nmc_532_fast(args):
     nmc = bm.materials.NMC532Fast(args[0], args[1], args[2])
 
-    assert nmc.alpha_a == args[0]
-    assert nmc.alpha_c == args[1]
-    assert nmc.Li_max == args[2]
+    data = np.load(__file__ + '/../materials_data/nmc532fast.npz')
 
-    x = np.array([0.75, 0.98])
+    x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    assert np.allclose(nmc.get_Ds(0.25, 303.15), 2.25630659e-16, atol=1e-20)
-    assert np.allclose(nmc.get_Ds(x, 303.15), [2.36737202e-15, 1.92455666e-15],
-                       atol=1e-20)
+    Ds = nmc.get_Ds(x, T)
+    assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    assert np.allclose(nmc.get_i0(0.25, 1.2, 303.15), 2.82890928)
-    assert np.allclose(nmc.get_i0(x, 1.2, 303.15), [2.39367959, 0.96017122])
+    i0 = nmc.get_i0(x, C_Li, T)
+    assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    assert np.allclose(nmc.get_Eeq(0.25, 303.15), 4.51083696)
-    assert np.allclose(nmc.get_Eeq(x, 303.15), [3.73531924, 3.53325221])
+    Eeq = nmc.get_Eeq(x, T)
+    assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
+
+    data.close()
 
 
 def test_nmc_532_slow(args):
     nmc = bm.materials.NMC532Slow(args[0], args[1], args[2])
 
-    assert nmc.alpha_a == args[0]
-    assert nmc.alpha_c == args[1]
-    assert nmc.Li_max == args[2]
+    data = np.load(__file__ + '/../materials_data/nmc532slow.npz')
 
-    x = np.array([0.75, 0.98])
+    x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    assert np.allclose(nmc.get_Ds(0.25, 303.15), 2.25630659e-16, atol=1e-20)
-    assert np.allclose(nmc.get_Ds(x, 303.15), [2.36737202e-15, 1.92455666e-15],
-                       atol=1e-20)
+    Ds = nmc.get_Ds(x, T)
+    assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    assert np.allclose(nmc.get_i0(0.25, 1.2, 303.15), 2.82890928)
-    assert np.allclose(nmc.get_i0(x, 1.2, 303.15), [2.39367959, 0.96017122])
+    i0 = nmc.get_i0(x, C_Li, T)
+    assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    assert np.allclose(nmc.get_Eeq(0.25, 303.15), 0.)
-    assert np.allclose(nmc.get_Eeq(x, 303.15), [3.74209879, 3.56861776])
+    Eeq = nmc.get_Eeq(x, T)
+    assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
+
+    data.close()

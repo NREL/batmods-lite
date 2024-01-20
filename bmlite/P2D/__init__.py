@@ -66,7 +66,7 @@ class Simulation(object):
         defaults = os.listdir(os.path.dirname(__file__) + '/default_sims')
         if yamlfile in defaults:
             path = os.path.dirname(__file__) + '/default_sims/' + yamlfile
-            print('\n[BatMods WARNING] P2D Simulation: Using a default yaml\n')
+            print('[BatMods WARNING] P2D Simulation: Using a default yaml')
             yamlpath = Path(path)
 
         elif os.path.exists(yamlfile):
@@ -151,7 +151,8 @@ class Simulation(object):
         self.ca.make_ptr()
         for key, val in self.ca.ptr.items():
             if 'shift' not in key and 'off' not in key:
-                self.ca.ptr[key] += self.an.ptr['shift'] + self.sep.ptr['shift']
+                self.ca.ptr[key] += self.an.ptr['shift'] + \
+                    self.sep.ptr['shift']
 
         # Initialize potentials [V]
         self.an.phi_0 = 0.
@@ -192,7 +193,7 @@ class Simulation(object):
 
         import matplotlib.pyplot as plt
 
-        from .. import format_ax
+        from ..plotutils import format_ticks, show
         from .dae import bandwidth
 
         lband, uband, j_pat = bandwidth(self)
@@ -203,10 +204,8 @@ class Simulation(object):
         ax.text(0.1, 0.2, 'lband: ' + str(lband), transform=ax.transAxes)
         ax.text(0.1, 0.1, 'uband: ' + str(uband), transform=ax.transAxes)
 
-        format_ax(ax)
-
-        if 'inline' not in plt.get_backend():
-            fig.show()
+        format_ticks(ax)
+        show(fig)
 
     def run_CC(self, exp: dict, **kwargs) -> object:
         """
@@ -383,24 +382,17 @@ class Simulation(object):
         sol.ida_fill(idasol, solvetime)
 
         if not sol.success:
-            print('\n[BatMods WARNING] run_CV: bad initstep, trying to resolve\n')
+            print('[BatMods WARNING] run_CV: bad initstep, trying to resolve')
 
             V_ext = exp['V_ext']
             V_init = self.sv_0[self.ca.ptr['phi_ed']]
-
-            sv_0, svdot_0 = self.sv_0, self.svdot_0
-
-            if V_ext < V_init:
-                exp['V_ext'] = V_ext + 0.1
-            elif V_ext > V_init:
-                exp['V_ext'] = V_ext - 0.1
 
             start = time.time()
 
             for wt in [0.9, 0.8, 0.7, 0.5, 0.4, 0.3, 0.2, 0.1]:
 
-                exp['V_ext'] = wt*V_init + (1 - wt)*V_ext
-                init = solver.init_step(exp['t_min'], sv_0, svdot_0)
+                exp['V_ext'] = wt * V_init + (1 - wt) * V_ext
+                init = solver.init_step(exp['t_min'], self.sv_0, self.svdot)
 
                 exp['V_ext'] = V_ext
                 idasol = solver.solve(t_span, init.values.y, init.values.ydot)
@@ -409,7 +401,9 @@ class Simulation(object):
                     break
 
             if not idasol.flag >= 0:
-                print('\n[BatMods ERROR] run_CV: failed to resolve bad initstep\n')
+                print('[BatMods ERROR] run_CV: failed to resolve bad initstep')
+            else:
+                print('[BatMods NOTE] run_CV: initstep successfully resolved')
 
             solvetime = time.time() - start
 
@@ -511,76 +505,10 @@ class Simulation(object):
 
         return sol
 
+    def copy(self) -> object:
+        from copy import deepcopy
 
-# def load(loadname: str) -> tuple[object]:
-#     """
-#     Load a previous P2D simulation and solution pair.
-
-#     The ``Solution`` classes have a save method that create a directory
-#     with saved ``.yaml`` and ``.npz`` files which can be used to reconstruct
-#     the ``sim`` and ``sol`` objects from a previous experiment.
-
-#     Parameters
-#     ----------
-#     loadname : str
-#         The absolute or relative path to a directory with previously saved
-#         solution files.
-
-#     Returns
-#     -------
-#     sim : P2D Simulation object
-#         An initialized P2D simulation instance.
-
-#     sol : P2D Solution object
-#         An initialized and filled P2D solution instance. The solution class is
-#         determined from information in the previously saved ``.yaml`` files.
-
-#     See also
-#     --------
-#     bmlite.P2D.Simulation
-#     bmlite.P2D.solutions.BaseSolution.save
-#     """
-
-#     import os
-#     from pathlib import Path
-
-#     import numpy as np
-#     from ruamel.yaml import YAML
-
-#     yaml = YAML()
-
-#     loadpath = Path(loadname)
-
-#     simfile = [f for f in os.listdir(loadpath) if '_sim.yaml' in f][0]
-#     simpath = loadname + '/' + simfile
-
-#     sim = Simulation(simpath)
-
-#     expfile = [f for f in os.listdir(loadpath) if '_exp.yaml' in f][0]
-#     exppath = loadpath.joinpath(expfile)
-
-#     exp = yaml.load(exppath)
-
-#     solfile = [f for f in os.listdir(loadpath) if '_sol.yaml' in f][0]
-#     solpath = loadpath.joinpath(solfile)
-
-#     npfile = [f for f in os.listdir(loadpath) if '_sol.npz' in f][0]
-#     nppath = loadname + '/' + npfile
-
-#     soldict = yaml.load(solpath)
-
-#     Solution = getattr(solutions, soldict['classname'])
-#     sol = Solution(sim, exp)
-
-#     data = np.load(nppath)
-#     for k in ['t', 'y', 'ydot']:
-#         soldict[k] = data[k]
-
-#     data.close()
-
-#     sol.dict_fill(soldict)
-
-#     return sim, sol
+        return deepcopy(self)
 
 
 def templates(sim: str | int = None, exp: str | int = None) -> None:
@@ -602,55 +530,6 @@ def templates(sim: str | int = None, exp: str | int = None) -> None:
     None.
     """
 
-    import os, json
-    from pathlib import Path
+    from .. import _templates
 
-    from ruamel.yaml import YAML
-
-    dirname = os.path.dirname(__file__)
-
-    simlist = os.listdir(dirname + '/default_sims/')
-    explist = os.listdir(dirname + '/default_exps/')
-
-    if sim == None and exp == None:
-        print('\nAvailable templates list for P2D simulations:')
-        for i, file in enumerate(simlist):
-            print('\t- [' + str(i) + '] ' +  file.removesuffix('.yaml'))
-
-        print('\nAvailable templates list for P2D experiments:')
-        for i, file in enumerate(explist):
-            print('\t- [' + str(i) + '] ' + file.removesuffix('.yaml'))
-
-    if type(sim) == str:
-
-        if '.yaml' not in sim:
-            sim += '.yaml'
-
-        print('\n' + '='*30 + '\n' + sim + '\n' + '='*30)
-        file = dirname + '/default_sims/' + sim
-        with open(file, 'r') as f:
-            print('\n' + f.read())
-
-    elif type(sim) == int:
-        print('\n' + '='*30 + '\n' + simlist[sim] + '\n' + '='*30)
-        file = dirname + '/default_sims/' + simlist[sim]
-        with open(file, 'r') as f:
-            print('\n' + f.read())
-
-    yaml = YAML()
-
-    if type(exp) == str:
-
-        if '.yaml' not in exp:
-            exp += '.yaml'
-
-        print('\n' + '='*30 + '\n' + exp + '\n' + '='*30)
-        file = dirname + '/default_exps/' + exp
-        expdict = yaml.load(Path(file))
-        print('exp = ' + json.dumps(expdict, indent=4))
-
-    elif type(exp) == int:
-        print('\n' + '='*30 + '\n' + explist[exp] + '\n' + '='*30)
-        file = dirname + '/default_exps/' + explist[exp]
-        expdict = yaml.load(Path(file))
-        print('exp = ' + json.dumps(expdict, indent=4))
+    _templates(__file__, 'P2D', sim, exp)

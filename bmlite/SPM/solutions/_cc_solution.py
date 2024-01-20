@@ -34,100 +34,57 @@ class CCSolution(BaseSolution):
         self.postvars = post(self)
         self._sim._flags['BC'] = None
 
-    def plot(self, *args) -> None:
-
-        if 'debug' in args or 'all' in args:
-            from ..postutils import debug
-            debug(self)
-
-        if 'verify' in args or 'all' in args:
-            from ..postutils import verify
-            verify(self)
-
-        if 'current' in args or 'all' in args:
-            from ..postutils import current
-            current(self)
-
-        if 'voltage' in args or 'all' in args:
-            from ..postutils import voltage
-            voltage(self)
-
-        if 'general' in args or 'all' in args:
-            from ..postutils import general
-            general(self)
-
-        if 'contours' in args or 'all' in args:
-            from ..postutils import contours
-            contours(self)
-
-    def slice_and_save(self, savename: str, overwrite: bool = False) -> None:
-        """
-        Save a ``.npz`` file with all spatial, time, and state variables
-        separated into 1D and 2D arrays. The keys are given below. The index
-        order of the 2D arrays is given with the value descriptions.
-
-        ========= =====================================================
-        Key       Value [units] (type)
-        ========= =====================================================
-        r_a       r mesh for anode particles [m] (1D array)
-        r_c       r mesh for cathode particles [m] (1D array)
-        t         saved solution times [s] (1D array)
-        phis_a    anode electrode potentials at t [V] (1D array)
-        cs_a      electrode Li at t, r_a [kmol/m^3] (2D array)
-        phis_c    cathode electrode potentials at t [V] (1D array)
-        cs_c      electrode Li at t, r_c [kmol/m^3] (2D array)
-        phie      electrolyte potentials at t [V] (1D array)
-        j_a       anode Faradaic current at t [kmol/m^2/s] (1D array)
-        j_c       cathode Faradaic current at t [kmol/m^2/s] (1D array)
-        ========= =====================================================
-
-        Parameters
-        ----------
-        savename : str
-            Either a file name or the absolute/relative file path. The ``.npz``
-            extension will be added to the end of the string if it is not
-            already there. If only the file name is given, the file will be
-            saved in the user's current working directory.
-
-        overwrite : bool, optional
-            A flag to overwrite and existing ``.npz`` file with the same name
-            if one exists. The default is ``False``.
-
-        Returns
-        -------
-        None.
-        """
-
-        import os
-
+    def verify(self, plotflag: bool = False) -> bool:
         import numpy as np
+        import matplotlib.pyplot as plt
+
+        from ... import Constants
+        from ...plotutils import format_ticks, show
+        from ..postutils import current
+
+        c = Constants()
 
         if len(self.postvars) == 0:
             self.post()
 
-        if '.npz' not in savename:
-            savename += '.npz'
+        sim, exp = self._sim, self._exp
 
-        if os.path.exists(savename) and not overwrite:
-            raise Exception('save_and_slice file already exists. Overwrite with'
-                            ' flag or delete the file and try again.')
+        an, ca = sim.an, sim.ca
 
-        sim = self._sim
+        i_ext = exp['C_rate'] * sim.bat.cap / sim.bat.area
+        i_mod = self.postvars['i_ext']
 
-        r_a = sim.an.r
-        r_c = sim.ca.r
+        i_an = -self.postvars['sdot_an'] * an.A_s * an.thick * c.F
+        i_ca = self.postvars['sdot_ca'] * ca.A_s * ca.thick * c.F
 
-        t = self.t
+        checks = []
+        checks.append(np.min(i_mod / i_ext) >= 0.995)
+        checks.append(np.max(i_mod / i_ext) <= 1.005)
+        checks.append(np.min(i_an / i_ext) >= 0.995)
+        checks.append(np.max(i_an / i_ext) <= 1.005)
+        checks.append(np.min(i_ca / i_ext) >= 0.995)
+        checks.append(np.max(i_ca / i_ext) <= 1.005)
 
-        phis_a = self.y[:, sim.an.ptr['phi_ed']]
-        phis_c = self.y[:, sim.ca.ptr['phi_ed']]
-        phie = self.y[:, sim.el.ptr['phi_el']]
+        if plotflag:
+            fig, ax = plt.subplots(nrows=1, ncols=3, figsize=[15, 3.5])
 
-        cs_a = self.y[:, sim.an.r_ptr('Li_ed')]*sim.an.Li_max
-        cs_c = self.y[:, sim.ca.r_ptr('Li_ed')]*sim.ca.Li_max
+            current(self, ax[0])
 
-        j_a = self.postvars['sdot_an']
-        j_c = self.postvars['sdot_ca']
+            ylims = np.array([0.995 * i_ext, 1.005 * i_ext])
+            ax[0].set_ylim([min(ylims), max(ylims)])
 
-        np.savez(savename, r_a=r_a, r_c=r_c, t=t, phis_a=phis_a, phie=phie,
-                 phis_c=phis_c, cs_a=cs_a, cs_c=cs_c, j_a=j_a, j_c=j_c)
+            ax[1].set_ylabel(r'$-i_{\rm an} / i_{\rm ext}$ [$-$]')
+            ax[2].set_ylabel(r'$i_{\rm ca} / i_{\rm ext}$ [$-$]')
+
+            ax[1].plot(self.t, i_an / i_ext, '-C3')
+            ax[2].plot(self.t, i_ca / i_ext, '-C2')
+
+            for i in range(1, 3):
+                ax[i].set_ylim([0.995, 1.005])
+                ax[i].set_xlabel(r'$t$ [s]')
+                format_ticks(ax[i])
+
+            fig.subplots_adjust(wspace=0.3)
+            show(fig)
+
+        return all(checks)
