@@ -5,17 +5,11 @@
 
 
 <div>
-[![CI badge][ci-badge]][ci-link] &nbsp; 
-<img alt="tests badge" src="./images/tests.svg"> &nbsp; 
-<img alt="coverage badge" src="./images/coverage.svg"> &nbsp; 
-[![pep8 badge][pep-badge]][pep-link]
+[![CI badge](https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml/badge.svg)](https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml) &nbsp; 
+![tests badge](./images/tests.svg) &nbsp; 
+![coverage badge](./images/coverage.svg) &nbsp; 
+[![pep8 badge](https://img.shields.io/badge/code%20style-pep8-orange.svg)](https://www.python.org/dev/peps/pep-0008)
 </div>
-
-[ci-badge]: https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml/badge.svg
-[ci-link]: https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml
-
-[pep-badge]: https://img.shields.io/badge/code%20style-pep8-orange.svg
-[pep-link]: https://www.python.org/dev/peps/pep-0008
 
 </br>
 BatMods-lite is a Python package that includes:
