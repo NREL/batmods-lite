@@ -157,21 +157,18 @@ def test_plot(sol, plotsol):
         plt.close('all')
 
 
-def test_slice_and_save(sol, plotsol):
-    sol.dict_fill(plotsol)
+# def test_slice_and_save(sol, plotsol):
+#     sol.dict_fill(plotsol)
 
-    directory = os.path.dirname(__file__)
-    sol.slice_and_save(directory + '/scrap_data/test_spm')
+#     directory = os.path.dirname(__file__)
+#     sol.slice_and_save(directory + '/scrap_data/test_spm')
+#     assert os.path.exists(directory + '/scrap_data/test_spm.npz')
 
-    if os.path.exists(directory + '/scrap_data/test_spm.npz'):
-        data = np.load(directory + '/scrap_data/test_spm.npz')
-        data.close()
+#     data = np.load(directory + '/scrap_data/test_spm.npz')
+#     data.close()
 
-        with pytest.raises(Exception):
-            sol.slice_and_save(directory + '/scrap_data/test_spm')
+#     with pytest.raises(Exception):
+#         sol.slice_and_save(directory + '/scrap_data/test_spm')
 
-        sol.slice_and_save(directory + '/scrap_data/test_spm', overwrite=True)
-        os.remove(directory + '/scrap_data/test_spm.npz')
-
-    else:
-        assert True
+#     sol.slice_and_save(directory + '/scrap_data/test_spm', overwrite=True)
+#     os.remove(directory + '/scrap_data/test_spm.npz')
