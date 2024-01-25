@@ -3,18 +3,21 @@
   <img alt="BatMods-lite logo" src="./images/light.svg">
 </picture> 
 
+
 <div>
-<a href="https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml"
-  style="text-decoration: none;">
-  <img alt="CI badge" src="https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml/badge.svg">
-</a> &nbsp; 
+[![CI badge][ci-badge]][ci-link] &nbsp; 
 <img alt="tests badge" src="./images/tests.svg"> &nbsp; 
 <img alt="coverage badge" src="./images/coverage.svg"> &nbsp; 
-<a href="https://www.python.org/dev/peps/pep-0008">
-  <img alt="style badge" src="https://img.shields.io/badge/code%20style-pep8-orange.svg">
-</a>
+[![pep8 badge][pep-badge]][pep-link]
 </div>
 
+[ci-badge]: https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml/badge.svg
+[ci-link]: https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml
+
+[pep-badge]: https://img.shields.io/badge/code%20style-pep8-orange.svg
+[pep-link]: https://www.python.org/dev/peps/pep-0008
+
+</br>
 BatMods-lite is a Python package that includes:
 
 1) A library and API for pre-built battery models
