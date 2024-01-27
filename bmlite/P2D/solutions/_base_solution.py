@@ -404,6 +404,8 @@ class BaseSolution(object):
             A dictionary containing the solution.
         """
 
+        import numpy as np
+
         if len(self.postvars) == 0:
             self.post()
 
