@@ -120,8 +120,12 @@ class GraphiteSlow(object):
         conditions = []
         eval_funcs = []
 
-        if any(x < 0) or any(x > 0.98):
-            raise ValueError(f"x out of bounds [0, 0.98]")
+        if isinstance(x, float):
+            if x < 0 or x > 0.98:
+                raise ValueError(f"x out of bounds [0, 0.98]")
+        if not isinstance(x, float):
+            if any(x < 0) or any(x > 0.98):
+                raise ValueError(f"x out of bounds [0, 0.98]")
 
         conditions.append((x >= 0.) & (x < 0.0037))
         eval_funcs.append(lambda x: np.polyval(

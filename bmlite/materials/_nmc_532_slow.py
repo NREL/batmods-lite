@@ -132,8 +132,12 @@ class NMC532Slow(object):
         conditions = []
         eval_funcs = []
 
-        if any(x < 0.34) or any(x > 0.996716418):
-            raise ValueError(f"x out of bounds [0.34, 0.996716418]")
+        if isinstance(x, float): 
+            if x < 0.34 or x > 0.996716418:
+                raise ValueError(f"x out of bounds [0.34, 0.996716418]")
+        if (not isinstance(x, float)):
+            if any(x < 0.34) or any(x > 0.996716418):
+                raise ValueError(f"x out of bounds [0.34, 0.996716418]")
 
         conditions.append((x >= 0.34) & (x < 0.342985075))
         eval_funcs.append(lambda x: np.polyval(
