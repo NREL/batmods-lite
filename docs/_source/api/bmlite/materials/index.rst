@@ -123,8 +123,8 @@ Classes
 
    .. py:method:: get_Eeq(x: float | numpy.ndarray, T: float) -> float | numpy.ndarray
 
-      Calculate the equilibrium potential given the intercalation
-      fraction ``x`` at the particle surface and temperature ``T``.
+      Calculate the equilibrium potential given the intercalation fraction
+      ``x`` at the particle surface and temperature ``T``.
 
       :param x: Lithium intercalation fraction at ``r = R_s`` [-].
       :type x: float | 1D array
@@ -186,8 +186,8 @@ Classes
 
    .. py:method:: get_Eeq(x: float | numpy.ndarray, T: float) -> float | numpy.ndarray
 
-      Calculate the equilibrium potential given the intercalation
-      fraction ``x`` at the particle surface and temperature ``T``.
+      Calculate the equilibrium potential given the intercalation fraction
+      ``x`` at the particle surface and temperature ``T``.
 
       :param x: Lithium intercalation fraction at ``r = R_s`` [-].
       :type x: float | 1D array
@@ -195,6 +195,8 @@ Classes
       :type T: float
 
       :returns: **Eeq** (*float | 1D array*) -- Equilibrium potential [V].
+
+      :raises ValueError :: x is out of bounds [x_min, x_max].
 
 
    .. py:method:: get_i0(x: float | numpy.ndarray, C_Li: float | numpy.ndarray, T: float) -> float | numpy.ndarray
@@ -249,8 +251,8 @@ Classes
 
    .. py:method:: get_Eeq(x: float | numpy.ndarray, T: float) -> float | numpy.ndarray
 
-      Calculate the equilibrium potential given the intercalation
-      fraction ``x`` at the particle surface and temperature ``T``.
+      Calculate the equilibrium potential given the intercalation fraction
+      ``x`` at the particle surface and temperature ``T``.
 
       :param x: Lithium intercalation fraction at ``r = R_s`` [-].
       :type x: float | 1D array
@@ -312,8 +314,8 @@ Classes
 
    .. py:method:: get_Eeq(x: float | numpy.ndarray, T: float) -> float | numpy.ndarray
 
-      Calculate the equilibrium potential given the intercalation
-      fraction ``x`` at the particle surface and temperature ``T``.
+      Calculate the equilibrium potential given the intercalation fraction
+      ``x`` at the particle surface and temperature ``T``.
 
       :param x: Lithium intercalation fraction at ``r = R_s`` [-].
       :type x: float | 1D array
@@ -321,6 +323,8 @@ Classes
       :type T: float
 
       :returns: **Eeq** (*float | 1D array*) -- Equilibrium potential [V].
+
+      :raises ValueError :: x is out of bounds [x_min, x_max].
 
 
    .. py:method:: get_i0(x: float | numpy.ndarray, C_Li: float | numpy.ndarray, T: float) -> float | numpy.ndarray

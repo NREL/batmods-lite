@@ -239,6 +239,31 @@ Classes
                 =========== ========================================
 
 
+   .. py:method:: to_sliced_dict() -> dict
+
+      Creates a dict with all spatial, time, and state variables
+      separated into 1D and 2D arrays. The keys are given below.
+
+      ========= =======================================================
+      Key       Value [units] (*type*)
+      ========= =======================================================
+      r_a       r mesh for anode particles [m] (*1D array*)
+      r_c       r mesh for cathode particles [m] (*1D array*)
+      t         saved solution times [s] (*1D array*)
+      phis_a    anode electrode potentials at t [V] (*1D array*)
+      cs_a      electrode Li at t, r_a [kmol/m^3] (*2D array*)
+      phis_c    cathode electrode potentials at t [V] (*1D array*)
+      cs_c      electrode Li at t, r_c [kmol/m^3] (*2D array*)
+      phie      electrolyte potentials at t [V] (*1D array*)
+      j_a       anode Faradaic current at t [kmol/m^2/s] (*1D array*)
+      j_c       cathode Faradaic current at t [kmol/m^2/s] (*1D array*)
+      ========= =======================================================
+
+      :param None.:
+
+      :returns: **sol_dict** (*dict*) -- A dictionary containing the solution
+
+
 
 .. py:class:: CCSolution(sim: object, exp: dict)
 

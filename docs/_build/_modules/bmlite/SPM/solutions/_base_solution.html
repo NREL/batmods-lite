@@ -736,6 +736,63 @@ document.write(`
             <span class="n">pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="BaseSolution.to_sliced_dict">
+<a class="viewcode-back" href="../../../../api/bmlite/SPM/solutions/index.html#bmlite.SPM.solutions._base_solution.BaseSolution.to_sliced_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_sliced_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a dict with all spatial, time, and state variables</span>
+<span class="sd">        separated into 1D and 2D arrays. The keys are given below.</span>
+
+<span class="sd">        ========= =======================================================</span>
+<span class="sd">        Key       Value [units] (*type*)</span>
+<span class="sd">        ========= =======================================================</span>
+<span class="sd">        r_a       r mesh for anode particles [m] (*1D array*)</span>
+<span class="sd">        r_c       r mesh for cathode particles [m] (*1D array*)</span>
+<span class="sd">        t         saved solution times [s] (*1D array*)</span>
+<span class="sd">        phis_a    anode electrode potentials at t [V] (*1D array*)</span>
+<span class="sd">        cs_a      electrode Li at t, r_a [kmol/m^3] (*2D array*)</span>
+<span class="sd">        phis_c    cathode electrode potentials at t [V] (*1D array*)</span>
+<span class="sd">        cs_c      electrode Li at t, r_c [kmol/m^3] (*2D array*)</span>
+<span class="sd">        phie      electrolyte potentials at t [V] (*1D array*)</span>
+<span class="sd">        j_a       anode Faradaic current at t [kmol/m^2/s] (*1D array*)</span>
+<span class="sd">        j_c       cathode Faradaic current at t [kmol/m^2/s] (*1D array*)</span>
+<span class="sd">        ========= =======================================================</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sol_dict : dict</span>
+<span class="sd">            A dictionary containing the solution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postvars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">()</span>
+
+        <span class="n">sim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span>
+
+        <span class="n">sol_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;r_a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">r</span>
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;r_c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">r</span>
+
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;t&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span>
+
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;phis_a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">ptr</span><span class="p">[</span><span class="s1">&#39;phi_ed&#39;</span><span class="p">]]</span>
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;phis_c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">ptr</span><span class="p">[</span><span class="s1">&#39;phi_ed&#39;</span><span class="p">]]</span>
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;phie&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">el</span><span class="o">.</span><span class="n">ptr</span><span class="p">[</span><span class="s1">&#39;phi_el&#39;</span><span class="p">]]</span>
+
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;cs_a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">r_ptr</span><span class="p">(</span><span class="s1">&#39;Li_ed&#39;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">Li_max</span>
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;cs_c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">r_ptr</span><span class="p">(</span><span class="s1">&#39;Li_ed&#39;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">Li_max</span>
+
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;j_a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postvars</span><span class="p">[</span><span class="s1">&#39;sdot_an&#39;</span><span class="p">]</span>
+        <span class="n">sol_dict</span><span class="p">[</span><span class="s1">&#39;j_c&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postvars</span><span class="p">[</span><span class="s1">&#39;sdot_ca&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">sol_dict</span></div>
+
+
 <div class="viewcode-block" id="BaseSolution.slice_and_save">
 <a class="viewcode-back" href="../../../../api/bmlite/SPM/solutions/index.html#bmlite.SPM.solutions._base_solution.BaseSolution.slice_and_save">[docs]</a>
     <span class="k">def</span> <span class="nf">slice_and_save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">savename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -780,35 +837,16 @@ document.write(`
 
         <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postvars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">post</span><span class="p">()</span>
-
         <span class="k">if</span> <span class="s1">&#39;.npz&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">savename</span><span class="p">:</span>
             <span class="n">savename</span> <span class="o">+=</span> <span class="s1">&#39;.npz&#39;</span>
 
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">savename</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;save_and_slice() file already exists. Overwrite&#39;</span>
-                            <span class="s1">&#39; with flag or delete the file and try again.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="n">savename</span> <span class="o">+</span> <span class="s1">&#39; already exists. Use overwrite&#39;</span>
+                                  <span class="s1">&#39; flag or delete the file and try again.&#39;</span><span class="p">)</span>
 
-        <span class="n">sim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span>
+        <span class="n">sol_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_sliced_dict</span><span class="p">()</span>
 
-        <span class="n">r_a</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">r</span>
-        <span class="n">r_c</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">r</span>
-
-        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span>
-
-        <span class="n">phis_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">ptr</span><span class="p">[</span><span class="s1">&#39;phi_ed&#39;</span><span class="p">]]</span>
-        <span class="n">phis_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">ptr</span><span class="p">[</span><span class="s1">&#39;phi_ed&#39;</span><span class="p">]]</span>
-        <span class="n">phie</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">el</span><span class="o">.</span><span class="n">ptr</span><span class="p">[</span><span class="s1">&#39;phi_el&#39;</span><span class="p">]]</span>
-
-        <span class="n">cs_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">r_ptr</span><span class="p">(</span><span class="s1">&#39;Li_ed&#39;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sim</span><span class="o">.</span><span class="n">an</span><span class="o">.</span><span class="n">Li_max</span>
-        <span class="n">cs_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">[:,</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">r_ptr</span><span class="p">(</span><span class="s1">&#39;Li_ed&#39;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sim</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">Li_max</span>
-
-        <span class="n">j_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postvars</span><span class="p">[</span><span class="s1">&#39;sdot_an&#39;</span><span class="p">]</span>
-        <span class="n">j_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postvars</span><span class="p">[</span><span class="s1">&#39;sdot_ca&#39;</span><span class="p">]</span>
-
-        <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">savename</span><span class="p">,</span> <span class="n">r_a</span><span class="o">=</span><span class="n">r_a</span><span class="p">,</span> <span class="n">r_c</span><span class="o">=</span><span class="n">r_c</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">phis_a</span><span class="o">=</span><span class="n">phis_a</span><span class="p">,</span> <span class="n">phie</span><span class="o">=</span><span class="n">phie</span><span class="p">,</span>
-                 <span class="n">phis_c</span><span class="o">=</span><span class="n">phis_c</span><span class="p">,</span> <span class="n">cs_a</span><span class="o">=</span><span class="n">cs_a</span><span class="p">,</span> <span class="n">cs_c</span><span class="o">=</span><span class="n">cs_c</span><span class="p">,</span> <span class="n">j_a</span><span class="o">=</span><span class="n">j_a</span><span class="p">,</span> <span class="n">j_c</span><span class="o">=</span><span class="n">j_c</span><span class="p">)</span></div>
+        <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">savename</span><span class="p">,</span> <span class="o">**</span><span class="n">sol_dict</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

@@ -55,7 +55,7 @@
     "\n",
     "If you don't need to request both a simulation and experimental template at the same time, you can specify that you only want one or the other by using named arguments, for example ``templates(sim=0)`` or ``templates(exp=0)``. \n",
     "\n",
-    "## Simulation inputs (``.yaml`` files)\n",
+    "## Simulation inputs\n",
     "Let's take a look at the output for the \"default_SPM\" simulation template, below."
    ]
   },
@@ -134,7 +134,7 @@
     "\n",
     "You can learn more about any of SPM parameters from the ``bm.SPM.builder`` module. You will also want to look at the ``bm.materials`` package to view all of the available material classes. Specifying an electrode active material that is not avialable in ``bm.materials`` will result in an error.\n",
     "\n",
-    "## Experiment inputs (Python dicionaries)\n",
+    "## Experiment inputs\n",
     "Now, let's take a look at the ``'constant_current'`` template."
    ]
   },

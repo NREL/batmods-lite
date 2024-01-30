@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4bdb038c" />
@@ -390,8 +390,8 @@ Templates for SPM experiments:
 </pre></div>
 </div>
 <p>If you don’t need to request both a simulation and experimental template at the same time, you can specify that you only want one or the other by using named arguments, for example <code class="docutils literal notranslate"><span class="pre">templates(sim=0)</span></code> or <code class="docutils literal notranslate"><span class="pre">templates(exp=0)</span></code>.</p>
-<section id="simulation-inputs-yaml-files">
-<h2><span class="section-number">1.1. </span>Simulation inputs (<code class="docutils literal notranslate"><span class="pre">.yaml</span></code> files)<a class="headerlink" href="#simulation-inputs-yaml-files" title="Link to this heading">#</a></h2>
+<section id="simulation-inputs">
+<h2><span class="section-number">1.1. </span>Simulation inputs<a class="headerlink" href="#simulation-inputs" title="Link to this heading">#</a></h2>
 <p>Let’s take a look at the output for the “default_SPM” simulation template, below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -451,8 +451,8 @@ cathode:
 <p>Note that the <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> extension is optional. Also, the input should be the absolute or relative path to your <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> file, so if you save the file to a location outside your current working directory, you will have to modify the code above to point to the actual file location. You can also always construct a simulation with the <code class="docutils literal notranslate"><span class="pre">'default_SPM.yaml'</span></code> parameters by leaving the input blank, i.e. <code class="docutils literal notranslate"><span class="pre">sim</span> <span class="pre">=</span> <span class="pre">bm.SPM.Simulation()</span></code>. A warning will print if you use the default file.</p>
 <p>You can learn more about any of SPM parameters from the <code class="docutils literal notranslate"><span class="pre">bm.SPM.builder</span></code> module. You will also want to look at the <code class="docutils literal notranslate"><span class="pre">bm.materials</span></code> package to view all of the available material classes. Specifying an electrode active material that is not avialable in <code class="docutils literal notranslate"><span class="pre">bm.materials</span></code> will result in an error.</p>
 </section>
-<section id="experiment-inputs-python-dicionaries">
-<h2><span class="section-number">1.2. </span>Experiment inputs (Python dicionaries)<a class="headerlink" href="#experiment-inputs-python-dicionaries" title="Link to this heading">#</a></h2>
+<section id="experiment-inputs">
+<h2><span class="section-number">1.2. </span>Experiment inputs<a class="headerlink" href="#experiment-inputs" title="Link to this heading">#</a></h2>
 <p>Now, let’s take a look at the <code class="docutils literal notranslate"><span class="pre">'constant_current'</span></code> template.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -507,8 +507,8 @@ exp = {
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-inputs-yaml-files">1.1. Simulation inputs (<code class="docutils literal notranslate"><span class="pre">.yaml</span></code> files)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experiment-inputs-python-dicionaries">1.2. Experiment inputs (Python dicionaries)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-inputs">1.1. Simulation inputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#experiment-inputs">1.2. Experiment inputs</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#important-notes">1.3. Important notes</a></li>
 </ul>
   </nav></div>
