@@ -24,6 +24,8 @@ key). To view the type hints and brief descriptions, type an open parenthesis
 ``(`` after any function, method, class, etc. (e.g., ``bm.Constants(``).
 """
 
+
+from bmlite.version import __version__
 from numpy import ndarray as _ndarray
 from scikits.odes import dae as _DAE
 
@@ -31,7 +33,6 @@ from . import materials
 from . import P2D
 from . import plotutils
 from . import SPM
-
 
 class Constants(object):
 
