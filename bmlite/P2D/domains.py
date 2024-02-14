@@ -197,6 +197,7 @@ class Electrode(object):
             R_s       represenatative particle radius [m] (*float*)
             eps_el    electrolyte volume fraction [-] (*float*)
             eps_CBD   carbon binder domain volume fraction [-] (*float*)
+            eps_void  void volume fraction [-] (*float*)
             p_sol     solid Bruggeman factor, ``eps_s**p_sol`` [-] (*float*)
             p_liq     liquid Bruggeman factor, ``eps_el**p_liq`` [-] (*float*)
             alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
@@ -215,6 +216,7 @@ class Electrode(object):
         self.R_s = kwargs.get('R_s')
         self.eps_el = kwargs.get('eps_el')
         self.eps_CBD = kwargs.get('eps_CBD')
+        self.eps_void = kwargs.get('eps_void')
         self.p_sol = kwargs.get('p_sol')
         self.p_liq = kwargs.get('p_liq')
         self.alpha_a = kwargs.get('alpha_a')
@@ -235,7 +237,7 @@ class Electrode(object):
         * Solid-phase volume fraction [-]:
             ``eps_s = 1 - eps_el``
         * Activate material volume fraction [-]:
-            ``eps_AM = 1 - eps_el - eps_CBD``
+            ``eps_AM = 1 - eps_el - eps_void - eps_CBD``
         * Solid-phase conductivity [S/m]:
             ``sigma_s = 10*eps_s``
         * Specific particle surface area [m^2/m^3]:
@@ -249,7 +251,7 @@ class Electrode(object):
         from .. import materials
 
         self.eps_s = 1 - self.eps_el
-        self.eps_AM = 1 - self.eps_el - self.eps_CBD
+        self.eps_AM = 1 - self.eps_el - self.eps_void - self.eps_CBD
         self.sigma_s = 10 * self.eps_s
         self.A_s = 3 * self.eps_AM / self.R_s
 

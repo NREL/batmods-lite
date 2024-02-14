@@ -129,6 +129,7 @@ class Electrode(object):
             R_s       represenatative particle radius [m] (*float*)
             eps_el    electrolyte volume fraction [-] (*float*)
             eps_CBD   carbon binder domain volume fraction [-] (*float*)
+            eps_void  Void volume fraction [-] (*float*)
             alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
             alpha_c   Butler-Volmer cathodic symmetry factor [-] (*float*)
             Li_max    max solid-phase lithium concentraion [kmol/m^3] (*float*)
@@ -144,6 +145,7 @@ class Electrode(object):
         self.R_s = kwargs.get('R_s')
         self.eps_el = kwargs.get('eps_el')
         self.eps_CBD = kwargs.get('eps_CBD')
+        self.eps_void = kwargs.get('eps_void')
         self.alpha_a = kwargs.get('alpha_a')
         self.alpha_c = kwargs.get('alpha_c')
         self.Li_max = kwargs.get('Li_max')
@@ -162,7 +164,7 @@ class Electrode(object):
         * Solid-phase volume fraction [-]:
             ``eps_s = 1 - eps_el``
         * Activate material volume fraction [-]:
-            ``eps_AM = 1 - eps_el - eps_CBD``
+            ``eps_AM = 1 - eps_el - eps_void - eps_CBD``
         * Specific particle surface area [m^2/m^3]:
             ``A_s = eps_AM / R_s``
 
@@ -174,7 +176,7 @@ class Electrode(object):
         from .. import materials
 
         self.eps_s = 1 - self.eps_el
-        self.eps_AM = 1 - self.eps_el - self.eps_CBD
+        self.eps_AM = 1 - self.eps_el - self.eps_void - self.eps_CBD
         self.A_s = 3 * self.eps_AM / self.R_s
 
         Material = getattr(materials, self.material)
