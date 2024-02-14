@@ -37,7 +37,7 @@ After downloading or cloning the BATMODS-lite repo files onto your local machine
 
 * Step (1) specifies Python 3.10 for your new environment. BATMODS-lite is continuously tested using 3.10. However, the package generally works with versions >=3.8 and <= 3.11. The newest version (3.12) is not yet supported due to the scikits.odes dependency.
 
-* Step (3) installs scikits.odes separately using  ``conda install`` on purpose. Installing scikits.odes via ``pip`` complicates the setup by requiring extra pre-installed softwares and compilers, as covered in the [scikits.odes documenation](https://scikits-odes.readthedocs.io/en/latest/).
+* Step (3) installs scikits.odes separately using  ``conda install`` on purpose. Installing scikits.odes via ``pip`` complicates the setup by requiring extra pre-installed software and compilers, as covered in the [scikits.odes documentation](https://scikits-odes.readthedocs.io/en/latest/).
 
 * The ``-e`` flag in step (4) installs BATMODS-lite in "editable" mode. Use this if you plan to make changes to the package.
 

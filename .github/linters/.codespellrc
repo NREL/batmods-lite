@@ -1,0 +1,3 @@
+[codespell]
+skip = .git,build,__pycache__,images,docs
+ignore-words-list = nd
