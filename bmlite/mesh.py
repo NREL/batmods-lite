@@ -35,11 +35,11 @@ def x_ptr(domain: object, keys: list[str]) -> dict:
         model domain modules. The domain should already have ``ptr`` and
         ``Nx`` attributes. The ``ptr`` attribute is a dictionary where the
         keys are variable names and the values are the indices for the first
-        occurance of that variable. ``Nx`` is the number of ``x`` control
+        occurence of that variable. ``Nx`` is the number of ``x`` control
         volumes.
 
     keys : list[str]
-        A list of the varialbe names defined in the ``x`` direction. This
+        A list of the variable names defined in the ``x`` direction. This
         list should be a subset of the domain's existing ``ptr`` keys.
 
     Returns
@@ -72,11 +72,11 @@ def r_ptr(domain: object, keys: list[str]) -> None:
         model domain modules. The domain should already have ``ptr`` and
         ``Nr`` attributes. The ``ptr`` attribute is a dictionary where the
         keys are variable names and the values are the indices for the first
-        occurance of that variable. ``Nr`` is the number of ``r`` control
+        occurence of that variable. ``Nr`` is the number of ``r`` control
         volumes.
 
     keys : list[str]
-        A list of the varialbe names defined in the ``r`` direction. This
+        A list of the variable names defined in the ``r`` direction. This
         list should be a subset of the domain's existing ``ptr`` keys.
 
     Returns
@@ -109,11 +109,11 @@ def xr_ptr(domain: object, keys: list[str]) -> None:
         model domain modules. The domain should already have ``ptr``, ``Nx``,
         and ``Nr`` attributes. The ``ptr`` attribute is a dictionary where the
         keys are variable names and the values are the indices for the first
-        occurance of that variable. ``Nx`` and ``Nr`` are the number of ``x``
+        occurence of that variable. ``Nx`` and ``Nr`` are the number of ``x``
         and ``r`` control volumes, respectively.
 
     keys : list[str]
-        A list of the varialbe names defined in both the ``x`` and ``r``
+        A list of the variable names defined in both the ``x`` and ``r``
         directions. This list should be a subset of the domain's existing
         ``ptr`` keys.
 
