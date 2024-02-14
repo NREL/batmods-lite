@@ -23,7 +23,7 @@ Battery Analysis and Training Models for Optimization and Degradation Studies (B
 2) Kinetic/transport properties for common battery materials
 
 ## Installing
-We recommend using [Anaconda](https://www.anaconda.com/download) to create and manage your Python virtual environments. The following directions assume you are using Anaconda. 
+We recommmmend using [Anaconda](https://www.anaconda.com/download) to create and manage your Python virtual environments. The following directions assume you are using Anaconda. 
 
 After downloading or cloning the BATMODS-lite repo files onto your local machine, open Anaconda Prompt (Windows) or Terminal (MacOS/Linux) and run the following to: (1) create an environment named "batmods," (2) activate your new environment, (3) install scikits.odes, and (4) install BATMODS-lite. 
 
