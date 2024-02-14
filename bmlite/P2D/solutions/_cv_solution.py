@@ -3,7 +3,7 @@ from ._base_solution import BaseSolution
 
 class CVSolution(BaseSolution):
     """
-    Constant voltage solution for P2D simuations.
+    Constant voltage solution for P2D simulations.
 
     Base: :class:`~bmlite.P2D.solutions.BaseSolution`
     """
@@ -37,7 +37,7 @@ class CVSolution(BaseSolution):
         through-current in each control volume, and the Li-ion and solid-phase
         lithium conservation.
 
-        If the verificaion returns ``False``, you can see which checks failed
+        If the verification returns ``False``, you can see which checks failed
         using ``plotflag``. Any subplots shaded grey failed their test.
         Failures generally suggest that the solver's relative and/or absolute
         tolerance should be adjusted, and/or that the discretization should be

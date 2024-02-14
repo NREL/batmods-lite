@@ -388,7 +388,7 @@ class BaseSolution(object):
         cs_c      electrode Li at t, x_c, r_c [kmol/m^3] (*3D array*)
         phie      electrolyte potentials at t, x [V] (*2D array*)
         ce        electrolyte Li+ at t, x [kmol/m^3] (*2D array*)
-        ie        ``i_el`` at t, x boundarys [A/m^2] (*2D array*)
+        ie        ``i_el`` at t, x boundaries [A/m^2] (*2D array*)
         j_a       Faradaic current at t, x_a [kmol/m^2/s] (*2D array*)
         j_c       Faradaic current at t, x_c [kmol/m^2/s] (*2D array*)
         ========= ====================================================
@@ -481,7 +481,7 @@ class BaseSolution(object):
         cs_c      electrode Li at t, x_c, r_c [kmol/m^3] (*3D array*)
         phie      electrolyte potentials at t, x [V] (*2D array*)
         ce        electrolyte Li+ at t, x [kmol/m^3] (*2D array*)
-        ie        ``i_el`` at t, x boundarys [A/m^2] (*2D array*)
+        ie        ``i_el`` at t, x boundaries [A/m^2] (*2D array*)
         j_a       Faradaic current at t, x_a [kmol/m^2/s] (*2D array*)
         j_c       Faradaic current at t, x_c [kmol/m^2/s] (*2D array*)
         ========= ====================================================

@@ -30,7 +30,7 @@ def grad_x(x: _ndarray, f: _ndarray, axis: int = 0) -> _ndarray:
         locations along ``axis``.
 
     axis : int, optional
-        The axis index of ``f`` that cooresponds to the ``x`` coordinate
+        The axis index of ``f`` that corresponds to the ``x`` coordinate
         values. The default is 0.
 
     Returns
@@ -76,7 +76,7 @@ def grad_r(r: _ndarray, f: _ndarray, axis: int = 0) -> _ndarray:
         locations along ``axis``.
 
     axis : int, optional
-        The axis index of ``f`` that cooresponds to the ``r`` coordinate
+        The axis index of ``f`` that corresponds to the ``r`` coordinate
         values. The default is 0.
 
     Returns
@@ -144,7 +144,7 @@ def div_x(xm: _ndarray, xp: _ndarray, f: _ndarray,
         interface coordinates along ``axis``.
 
     axis : int, optional
-        The axis index of ``f`` that cooresponds to the ``xm`` and ``xp``
+        The axis index of ``f`` that corresponds to the ``xm`` and ``xp``
         interface coordinate values. The default is 0.
 
     Returns
@@ -194,7 +194,7 @@ def div_r(rm: _ndarray, rp: _ndarray, f: _ndarray,
         interface coordinates along ``axis``.
 
     axis : int, optional
-        The axis index of ``f`` that cooresponds to the ``rm`` and ``rp``
+        The axis index of ``f`` that corresponds to the ``rm`` and ``rp``
         interface coordinate values. The default is 0.
 
     Returns
@@ -243,10 +243,10 @@ def int_x(xm: _ndarray, xp: _ndarray, f: _ndarray,
 
     f : ND array
         Dependent variable values that correspond to the control volumes'
-        center coordiantes along ``axis``.
+        center coordinates along ``axis``.
 
     axis : int, optional
-        The axis index of ``f`` that cooresponds to the ``x`` coordinate. The
+        The axis index of ``f`` that corresponds to the ``x`` coordinate. The
         default is 0.
 
     Returns
@@ -287,10 +287,10 @@ def int_r(rm: _ndarray, rp: _ndarray, f: _ndarray,
 
     f : ND array
         Dependent variable values that correspond to the control volumes'
-        center coordiantes along ``axis``.
+        center coordinates along ``axis``.
 
     axis : int, optional
-        The axis index of ``f`` that cooresponds to the ``x`` coordinate. The
+        The axis index of ``f`` that corresponds to the ``x`` coordinate. The
         default is 0.
 
     Returns

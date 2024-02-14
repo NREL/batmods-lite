@@ -35,7 +35,7 @@ def x_ptr(domain: object, keys: list[str]) -> dict:
         model domain modules. The domain should already have ``ptr`` and
         ``Nx`` attributes. The ``ptr`` attribute is a dictionary where the
         keys are variable names and the values are the indices for the first
-        occurence of that variable. ``Nx`` is the number of ``x`` control
+        occurrence of that variable. ``Nx`` is the number of ``x`` control
         volumes.
 
     keys : list[str]
@@ -72,7 +72,7 @@ def r_ptr(domain: object, keys: list[str]) -> None:
         model domain modules. The domain should already have ``ptr`` and
         ``Nr`` attributes. The ``ptr`` attribute is a dictionary where the
         keys are variable names and the values are the indices for the first
-        occurence of that variable. ``Nr`` is the number of ``r`` control
+        occurrence of that variable. ``Nr`` is the number of ``r`` control
         volumes.
 
     keys : list[str]
@@ -109,7 +109,7 @@ def xr_ptr(domain: object, keys: list[str]) -> None:
         model domain modules. The domain should already have ``ptr``, ``Nx``,
         and ``Nr`` attributes. The ``ptr`` attribute is a dictionary where the
         keys are variable names and the values are the indices for the first
-        occurence of that variable. ``Nx`` and ``Nr`` are the number of ``x``
+        occurrence of that variable. ``Nx`` and ``Nr`` are the number of ``x``
         and ``r`` control volumes, respectively.
 
     keys : list[str]
