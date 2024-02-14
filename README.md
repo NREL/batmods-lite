@@ -19,7 +19,7 @@
 ## Summary
 Battery Analysis and Training Models for Optimization and Degradation Studies (BATMODS) is a Python package with an API for pre-built battery models. The original purpose of the package was to quickly generate synthetic data for machine learning models to train with. However, the models are generally useful for any battery simulations or analysis. BATMODS-lite includes the following: 
 
-1) A libary and API for pre-built battery models
+1) A library and API for pre-built battery models
 2) Kinetic/transport properties for common battery materials
 
 ## Installing
