@@ -29,7 +29,7 @@ After downloading or cloning the BATMODS-lite repo files onto your local machine
 
 1) ``conda create -n batmods python=3.10``
 2) ``conda activate batmods``
-3) ``conda install scikits.odes``
+3) ``conda install -c conda-forge scikits.odes``
 4) ``pip install .`` or ``pip install -e .``
 
 **Notes:**
