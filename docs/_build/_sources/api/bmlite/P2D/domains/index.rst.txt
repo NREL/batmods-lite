@@ -83,6 +83,7 @@ Classes
                       R_s       represenatative particle radius [m] (*float*)
                       eps_el    electrolyte volume fraction [-] (*float*)
                       eps_CBD   carbon binder domain volume fraction [-] (*float*)
+                      eps_void  void volume fraction [-] (*float*)
                       p_sol     solid Bruggeman factor, ``eps_s**p_sol`` [-] (*float*)
                       p_liq     liquid Bruggeman factor, ``eps_el**p_liq`` [-] (*float*)
                       alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
@@ -175,14 +176,14 @@ Classes
       Updates any secondary/dependent parameters. For the ``Electrode``
       class, this initializes the material class, and sets the following:
 
-      * Solid-phase volume fraction [-]:
-          ``eps_s = 1 - eps_el``
+      * Void-phase volume fraction [-]:
+          ``eps_void = 1 - eps_s - eps_el``
       * Activate material volume fraction [-]:
-          ``eps_AM = 1 - eps_el - eps_CBD``
+          ``eps_AM = eps_s - eps_CBD``
       * Solid-phase conductivity [S/m]:
-          ``sigma_s = 10*eps_s``
+          ``sigma_s = 10 * eps_s``
       * Specific particle surface area [m^2/m^3]:
-          ``A_s = eps_AM / R_s``
+          ``A_s = 3 * eps_AM / R_s``
 
       :returns: *None.*
 

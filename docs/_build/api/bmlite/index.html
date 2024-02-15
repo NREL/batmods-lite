@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=96227a4f" />
@@ -376,8 +376,22 @@ key). To view the type hints and brief descriptions, type an open parenthesis
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="P2D/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.P2D</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="SPM/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.SPM</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="P2D/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.P2D</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="P2D/solutions/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.P2D.solutions</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="P2D/dae/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.P2D.dae</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="P2D/domains/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.P2D.domains</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="P2D/postutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.P2D.postutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="P2D/roots/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.P2D.roots</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="SPM/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.SPM</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="SPM/solutions/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.SPM.solutions</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SPM/dae/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.SPM.dae</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SPM/domains/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.SPM.domains</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SPM/postutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.SPM.postutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="SPM/roots/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.SPM.roots</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="materials/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.materials</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="plotutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bmlite.plotutils</span></code></a></li>
 </ul>
@@ -488,7 +502,7 @@ partial list of options/defaults is given below:</p>
 <td><p>unknown variable set (<code class="docutils literal notranslate"><span class="pre">{'y0',</span> <span class="pre">'yp0',</span> <span class="pre">None}</span></code>, <code class="docutils literal notranslate"><span class="pre">'yp0'</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p>algidx</p></td>
-<td><p>algebraic variable indicies in y (<em>list[int]</em>, <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></td>
+<td><p>algebraic variable indices in y (<em>list[int]</em>, <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p>max_t_step</p></td>
 <td><p>maximum time step [s] (<em>float</em>, 0. -&gt; unrestricted)</p></td>

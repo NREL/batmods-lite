@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=96227a4f" />
@@ -380,10 +380,10 @@ their verification processes are unique.</p>
 <td><p>Constant current solution for SPM simulations.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#bmlite.SPM.solutions.CPSolution" title="bmlite.SPM.solutions.CPSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CPSolution</span></code></a></p></td>
-<td><p>Constant power solution for SPM simuations.</p></td>
+<td><p>Constant power solution for SPM simulations.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#bmlite.SPM.solutions.CVSolution" title="bmlite.SPM.solutions.CVSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CVSolution</span></code></a></p></td>
-<td><p>Constant voltage solution for SPM simuations.</p></td>
+<td><p>Constant voltage solution for SPM simulations.</p></td>
 </tr>
 </tbody>
 </table>
@@ -805,7 +805,7 @@ that the calculated current was within tolerance of the boundary
 condition. In addition, this method checks the anodic and cathodic
 Faradaic currents against the current at each time step and the
 solid-phase lithium conservation.</p>
-<p>If the verificaion returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
+<p>If the verification returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
 using <code class="docutils literal notranslate"><span class="pre">plotflag</span></code>. Any subplots shaded grey failed their test.
 Failures generally suggest that the solver’s relative and/or absolute
 tolerance should be adjusted, and/or that the discretization should be
@@ -830,7 +830,7 @@ default is <code class="docutils literal notranslate"><span class="pre">False</s
 <dl class="py class">
 <dt class="sig sig-object py" id="bmlite.SPM.solutions.CPSolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bmlite.SPM.solutions.</span></span><span class="sig-name descname"><span class="pre">CPSolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bmlite/SPM/solutions/_cp_solution.html#CPSolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmlite.SPM.solutions.CPSolution" title="Link to this definition">#</a></dt>
-<dd><p>Constant power solution for SPM simuations.</p>
+<dd><p>Constant power solution for SPM simulations.</p>
 <p>Base: <a class="reference internal" href="#bmlite.SPM.solutions.BaseSolution" title="bmlite.SPM.solutions.BaseSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSolution</span></code></a></p>
 <p>When initialized, a copy of the SPM simulation object and experimental
 details for the solution instance are stored, all other instance
@@ -865,7 +865,7 @@ that the calculated power was within tolerance of the boundary
 condition. In addition, this method checks the anodic and cathodic
 Faradaic currents against the current at each time step and the
 solid-phase lithium conservation.</p>
-<p>If the verificaion returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
+<p>If the verification returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
 using <code class="docutils literal notranslate"><span class="pre">plotflag</span></code>. Any subplots shaded grey failed their test.
 Failures generally suggest that the solver’s relative and/or absolute
 tolerance should be adjusted, and/or that the discretization should be
@@ -890,7 +890,7 @@ default is <code class="docutils literal notranslate"><span class="pre">False</s
 <dl class="py class">
 <dt class="sig sig-object py" id="bmlite.SPM.solutions.CVSolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bmlite.SPM.solutions.</span></span><span class="sig-name descname"><span class="pre">CVSolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bmlite/SPM/solutions/_cv_solution.html#CVSolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmlite.SPM.solutions.CVSolution" title="Link to this definition">#</a></dt>
-<dd><p>Constant voltage solution for SPM simuations.</p>
+<dd><p>Constant voltage solution for SPM simulations.</p>
 <p>Base: <a class="reference internal" href="#bmlite.SPM.solutions.BaseSolution" title="bmlite.SPM.solutions.BaseSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSolution</span></code></a></p>
 <p>When initialized, a copy of the SPM simulation object and experimental
 details for the solution instance are stored, all other instance
@@ -925,7 +925,7 @@ that the calculated voltage was within tolerance of the boundary
 condition. In addition, this method checks the anodic and cathodic
 Faradaic currents against the current at each time step and the
 solid-phase lithium conservation.</p>
-<p>If the verificaion returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
+<p>If the verification returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
 using <code class="docutils literal notranslate"><span class="pre">plotflag</span></code>. Any subplots shaded grey failed their test.
 Failures generally suggest that the solver’s relative and/or absolute
 tolerance should be adjusted, and/or that the discretization should be

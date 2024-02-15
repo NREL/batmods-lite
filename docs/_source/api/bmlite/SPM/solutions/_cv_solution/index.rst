@@ -24,7 +24,7 @@ Classes
 
 
 
-   Constant voltage solution for SPM simuations.
+   Constant voltage solution for SPM simulations.
 
    Base: :class:`~bmlite.SPM.solutions.BaseSolution`
 
@@ -56,7 +56,7 @@ Classes
       Faradaic currents against the current at each time step and the
       solid-phase lithium conservation.
 
-      If the verificaion returns ``False``, you can see which checks failed
+      If the verification returns ``False``, you can see which checks failed
       using ``plotflag``. Any subplots shaded grey failed their test.
       Failures generally suggest that the solver's relative and/or absolute
       tolerance should be adjusted, and/or that the discretization should be

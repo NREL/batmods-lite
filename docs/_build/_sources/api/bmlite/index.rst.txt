@@ -38,7 +38,7 @@ Subpackages
 -----------
 .. toctree::
    :titlesonly:
-   :maxdepth: 1
+   :maxdepth: 3
 
    P2D/index.rst
    SPM/index.rst
@@ -131,7 +131,7 @@ Functions
                       rootfn       root/event function (*Callable*, ``None``)
                       nr_rootfns   number of events in ``'rootfn'`` (*int*, ``0``)
                       initcond     unknown variable set (``{'y0', 'yp0', None}``, ``'yp0'``)
-                      algidx       algebraic variable indicies in y (*list[int]*, ``None``)
+                      algidx       algebraic variable indices in y (*list[int]*, ``None``)
                       max_t_step   maximum time step [s] (*float*, 0. -> unrestricted)
                       ============ =========================================================
    :type \*\*kwargs: dict, optional

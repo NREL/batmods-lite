@@ -56,7 +56,7 @@ Functions
 
 
 
-.. py:class:: Simulation(yamlfile = 'default_SPM')
+.. py:class:: Simulation(yamlfile = 'graphite_nmc532')
 
 
 

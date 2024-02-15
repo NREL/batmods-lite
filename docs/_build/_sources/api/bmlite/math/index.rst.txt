@@ -49,7 +49,7 @@ Functions
    :param f: Dependent variable values that correspond to the control volumes'
              interface coordinates along ``axis``.
    :type f: ND array
-   :param axis: The axis index of ``f`` that cooresponds to the ``rm`` and ``rp``
+   :param axis: The axis index of ``f`` that corresponds to the ``rm`` and ``rp``
                 interface coordinate values. The default is 0.
    :type axis: int, optional
 
@@ -90,7 +90,7 @@ Functions
    :param f: Dependent variable values that correspond to the control volumes'
              interface coordinates along ``axis``.
    :type f: ND array
-   :param axis: The axis index of ``f`` that cooresponds to the ``xm`` and ``xp``
+   :param axis: The axis index of ``f`` that corresponds to the ``xm`` and ``xp``
                 interface coordinate values. The default is 0.
    :type axis: int, optional
 
@@ -111,7 +111,7 @@ Functions
    :param f: Dependent variable values that correspond to the ``r`` coordinate
              locations along ``axis``.
    :type f: ND array
-   :param axis: The axis index of ``f`` that cooresponds to the ``r`` coordinate
+   :param axis: The axis index of ``f`` that corresponds to the ``r`` coordinate
                 values. The default is 0.
    :type axis: int, optional
 
@@ -133,7 +133,7 @@ Functions
    :param f: Dependent variable values that correspond to the ``x`` coordinate
              locations along ``axis``.
    :type f: ND array
-   :param axis: The axis index of ``f`` that cooresponds to the ``x`` coordinate
+   :param axis: The axis index of ``f`` that corresponds to the ``x`` coordinate
                 values. The default is 0.
    :type axis: int, optional
 
@@ -152,9 +152,9 @@ Functions
    :param rp: Coordinate values for the control voluemes' "plus" interfaces.
    :type rp: 1D array
    :param f: Dependent variable values that correspond to the control volumes'
-             center coordiantes along ``axis``.
+             center coordinates along ``axis``.
    :type f: ND array
-   :param axis: The axis index of ``f`` that cooresponds to the ``x`` coordinate. The
+   :param axis: The axis index of ``f`` that corresponds to the ``x`` coordinate. The
                 default is 0.
    :type axis: int, optional
 
@@ -173,9 +173,9 @@ Functions
    :param xp: Coordinate values for the control voluemes' "plus" interfaces.
    :type xp: 1D array
    :param f: Dependent variable values that correspond to the control volumes'
-             center coordiantes along ``axis``.
+             center coordinates along ``axis``.
    :type f: ND array
-   :param axis: The axis index of ``f`` that cooresponds to the ``x`` coordinate. The
+   :param axis: The axis index of ``f`` that corresponds to the ``x`` coordinate. The
                 default is 0.
    :type axis: int, optional
 

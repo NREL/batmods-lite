@@ -86,7 +86,7 @@
    "id": "080f940c-ef2a-4b48-8466-13d4ec148424",
    "metadata": {},
    "source": [
-    "As defined above, this experiment will apply an external voltage of 3.8 V accross the battery. The simulation will run from ``t = 0`` to ``t = 1350`` seconds, saving the state at ``Nt = 150`` equally discretized time steps. The ``run_CV()`` outputs a solution class (named ``sol`` below). "
+    "As defined above, this experiment will apply an external voltage of 3.8 V across the battery. The simulation will run from ``t = 0`` to ``t = 1350`` seconds, saving the state at ``Nt = 150`` equally discretized time steps. The ``run_CV()`` outputs a solution class (named ``sol`` below). "
    ]
   },
   {

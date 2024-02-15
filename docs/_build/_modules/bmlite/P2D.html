@@ -29,7 +29,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=96227a4f" />
@@ -355,7 +355,7 @@ document.write(`
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_yamlfile&#39;</span><span class="p">,</span> <span class="s1">&#39;_yamlpath&#39;</span><span class="p">,</span> <span class="s1">&#39;_flags&#39;</span><span class="p">,</span> <span class="s1">&#39;bat&#39;</span><span class="p">,</span> <span class="s1">&#39;el&#39;</span><span class="p">,</span> <span class="s1">&#39;an&#39;</span><span class="p">,</span> <span class="s1">&#39;sep&#39;</span><span class="p">,</span>
                  <span class="s1">&#39;ca&#39;</span><span class="p">,</span> <span class="s1">&#39;sv_0&#39;</span><span class="p">,</span> <span class="s1">&#39;svdot_0&#39;</span><span class="p">,</span> <span class="s1">&#39;lband&#39;</span><span class="p">,</span> <span class="s1">&#39;uband&#39;</span><span class="p">,</span> <span class="s1">&#39;algidx&#39;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yamlfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;default_P2D&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yamlfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;graphite_nmc532&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Make a P2D simulation capable of running various experiments.</span>
 
@@ -404,7 +404,7 @@ document.write(`
         <span class="k">if</span> <span class="n">yamlfile</span> <span class="ow">in</span> <span class="n">defaults</span><span class="p">:</span>
             <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/default_sims/&#39;</span> <span class="o">+</span> <span class="n">yamlfile</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[BatMods WARNING]</span><span class="se">\n</span><span class="s1">&#39;</span>
-                  <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">P2D Simulation: Using a default yaml</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                  <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">P2D Simulation: Using default </span><span class="si">{</span><span class="n">yamlfile</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">yamlpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">yamlfile</span><span class="p">):</span>

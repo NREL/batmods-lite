@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=96227a4f" />
@@ -461,25 +461,28 @@ keys and descriptions are given below:</p>
 <tr class="row-even"><td><p>eps_CBD</p></td>
 <td><p>carbon binder domain volume fraction [-] (<em>float</em>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>alpha_a</p></td>
+<tr class="row-odd"><td><p>eps_void</p></td>
+<td><p>Void volume fraction [-] (<em>float</em>)</p></td>
+</tr>
+<tr class="row-even"><td><p>alpha_a</p></td>
 <td><p>Butler-Volmer anodic symmetry factor [-] (<em>float</em>)</p></td>
 </tr>
-<tr class="row-even"><td><p>alpha_c</p></td>
+<tr class="row-odd"><td><p>alpha_c</p></td>
 <td><p>Butler-Volmer cathodic symmetry factor [-] (<em>float</em>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>Li_max</p></td>
+<tr class="row-even"><td><p>Li_max</p></td>
 <td><p>max solid-phase lithium concentraion [kmol/m^3] (<em>float</em>)</p></td>
 </tr>
-<tr class="row-even"><td><p>x_0</p></td>
+<tr class="row-odd"><td><p>x_0</p></td>
 <td><p>initial solid-phase intercalation fraction [-] (<em>float</em>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>i0_deg</p></td>
+<tr class="row-even"><td><p>i0_deg</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">i0</span></code> degradation factor [-] (<em>float</em>)</p></td>
 </tr>
-<tr class="row-even"><td><p>Ds_deg</p></td>
+<tr class="row-odd"><td><p>Ds_deg</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Ds</span></code> degradation factor [-] (<em>float</em>)</p></td>
 </tr>
-<tr class="row-odd"><td><p>material</p></td>
+<tr class="row-even"><td><p>material</p></td>
 <td><p>class name from <code class="docutils literal notranslate"><span class="pre">bmlite.materials</span></code> [-] (<em>str</em>)</p></td>
 </tr>
 </tbody>
@@ -586,17 +589,17 @@ At present, only a uniform mesh is supported.</p>
 class, this initializes the material class, and sets the following:</p>
 <ul class="simple">
 <li><dl class="simple">
-<dt>Solid-phase volume fraction [-]:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">eps_s</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">eps_el</span></code></p>
+<dt>Void-phase volume fraction [-]:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">eps_void</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">eps_s</span> <span class="pre">-</span> <span class="pre">eps_el</span></code></p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Activate material volume fraction [-]:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">eps_AM</span> <span class="pre">=</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">eps_el</span> <span class="pre">-</span> <span class="pre">eps_CBD</span></code></p>
+<dt>Activate material volume fraction [-]:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">eps_AM</span> <span class="pre">=</span> <span class="pre">eps_s</span> <span class="pre">-</span> <span class="pre">eps_CBD</span></code></p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>Specific particle surface area [m^2/m^3]:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">A_s</span> <span class="pre">=</span> <span class="pre">eps_AM</span> <span class="pre">/</span> <span class="pre">R_s</span></code></p>
+<dt>Specific particle surface area [m^2/m^3]:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">A_s</span> <span class="pre">=</span> <span class="pre">3</span> <span class="pre">*</span> <span class="pre">eps_AM</span> <span class="pre">/</span> <span class="pre">R_s</span></code></p>
 </dd>
 </dl>
 </li>

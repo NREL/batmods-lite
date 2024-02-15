@@ -372,7 +372,7 @@ document.write(`
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[BatMods WARNING]
-	SPM Simulation: Using a default yaml
+	SPM Simulation: Using default graphite_nmc532.yaml
 </pre></div>
 </div>
 </div>
@@ -409,7 +409,7 @@ exp = {
 </div>
 </div>
 </div>
-<p>As defined above, this experiment will apply an external voltage of 3.8 V accross the battery. The simulation will run from <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">=</span> <span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">=</span> <span class="pre">1350</span></code> seconds, saving the state at <code class="docutils literal notranslate"><span class="pre">Nt</span> <span class="pre">=</span> <span class="pre">150</span></code> equally discretized time steps. The <code class="docutils literal notranslate"><span class="pre">run_CV()</span></code> outputs a solution class (named <code class="docutils literal notranslate"><span class="pre">sol</span></code> below).</p>
+<p>As defined above, this experiment will apply an external voltage of 3.8 V across the battery. The simulation will run from <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">=</span> <span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">=</span> <span class="pre">1350</span></code> seconds, saving the state at <code class="docutils literal notranslate"><span class="pre">Nt</span> <span class="pre">=</span> <span class="pre">150</span></code> equally discretized time steps. The <code class="docutils literal notranslate"><span class="pre">run_CV()</span></code> outputs a solution class (named <code class="docutils literal notranslate"><span class="pre">sol</span></code> below).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">sol</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">run_CV</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span>
@@ -448,7 +448,7 @@ Solution(classname = CVSolution,
          success = True,
          onroot = False,
          message = Successful function return.,
-         solvetime = 1.018 s)
+         solvetime = 0.851 s)
 </pre></div>
 </div>
 <img alt="../_images/03a436bf728ad60f5c358a103b3159ea5a226037894be635a7bf9737ce792c57.png" src="../_images/03a436bf728ad60f5c358a103b3159ea5a226037894be635a7bf9737ce792c57.png" />

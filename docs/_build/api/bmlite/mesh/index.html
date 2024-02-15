@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=96227a4f" />
@@ -428,9 +428,9 @@ vectorize expressions.</p>
 model domain modules. The domain should already have <code class="docutils literal notranslate"><span class="pre">ptr</span></code> and
 <code class="docutils literal notranslate"><span class="pre">Nr</span></code> attributes. The <code class="docutils literal notranslate"><span class="pre">ptr</span></code> attribute is a dictionary where the
 keys are variable names and the values are the indices for the first
-occurance of that variable. <code class="docutils literal notranslate"><span class="pre">Nr</span></code> is the number of <code class="docutils literal notranslate"><span class="pre">r</span></code> control
+occurrence of that variable. <code class="docutils literal notranslate"><span class="pre">Nr</span></code> is the number of <code class="docutils literal notranslate"><span class="pre">r</span></code> control
 volumes.</p></li>
-<li><p><strong>keys</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of the varialbe names defined in the <code class="docutils literal notranslate"><span class="pre">r</span></code> direction. This
+<li><p><strong>keys</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of the variable names defined in the <code class="docutils literal notranslate"><span class="pre">r</span></code> direction. This
 list should be a subset of the domain’s existing <code class="docutils literal notranslate"><span class="pre">ptr</span></code> keys.</p></li>
 </ul>
 </dd>
@@ -485,9 +485,9 @@ vectorize expressions.</p>
 model domain modules. The domain should already have <code class="docutils literal notranslate"><span class="pre">ptr</span></code> and
 <code class="docutils literal notranslate"><span class="pre">Nx</span></code> attributes. The <code class="docutils literal notranslate"><span class="pre">ptr</span></code> attribute is a dictionary where the
 keys are variable names and the values are the indices for the first
-occurance of that variable. <code class="docutils literal notranslate"><span class="pre">Nx</span></code> is the number of <code class="docutils literal notranslate"><span class="pre">x</span></code> control
+occurrence of that variable. <code class="docutils literal notranslate"><span class="pre">Nx</span></code> is the number of <code class="docutils literal notranslate"><span class="pre">x</span></code> control
 volumes.</p></li>
-<li><p><strong>keys</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of the varialbe names defined in the <code class="docutils literal notranslate"><span class="pre">x</span></code> direction. This
+<li><p><strong>keys</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of the variable names defined in the <code class="docutils literal notranslate"><span class="pre">x</span></code> direction. This
 list should be a subset of the domain’s existing <code class="docutils literal notranslate"><span class="pre">ptr</span></code> keys.</p></li>
 </ul>
 </dd>
@@ -513,9 +513,9 @@ makes it easier to vectorize expressions.</p>
 model domain modules. The domain should already have <code class="docutils literal notranslate"><span class="pre">ptr</span></code>, <code class="docutils literal notranslate"><span class="pre">Nx</span></code>,
 and <code class="docutils literal notranslate"><span class="pre">Nr</span></code> attributes. The <code class="docutils literal notranslate"><span class="pre">ptr</span></code> attribute is a dictionary where the
 keys are variable names and the values are the indices for the first
-occurance of that variable. <code class="docutils literal notranslate"><span class="pre">Nx</span></code> and <code class="docutils literal notranslate"><span class="pre">Nr</span></code> are the number of <code class="docutils literal notranslate"><span class="pre">x</span></code>
+occurrence of that variable. <code class="docutils literal notranslate"><span class="pre">Nx</span></code> and <code class="docutils literal notranslate"><span class="pre">Nr</span></code> are the number of <code class="docutils literal notranslate"><span class="pre">x</span></code>
 and <code class="docutils literal notranslate"><span class="pre">r</span></code> control volumes, respectively.</p></li>
-<li><p><strong>keys</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of the varialbe names defined in both the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">r</span></code>
+<li><p><strong>keys</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of the variable names defined in both the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">r</span></code>
 directions. This list should be a subset of the domain’s existing
 <code class="docutils literal notranslate"><span class="pre">ptr</span></code> keys.</p></li>
 </ul>

@@ -29,7 +29,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=96227a4f" />
@@ -562,6 +562,7 @@ document.write(`
 <span class="sd">            R_s       represenatative particle radius [m] (*float*)</span>
 <span class="sd">            eps_el    electrolyte volume fraction [-] (*float*)</span>
 <span class="sd">            eps_CBD   carbon binder domain volume fraction [-] (*float*)</span>
+<span class="sd">            eps_void  void volume fraction [-] (*float*)</span>
 <span class="sd">            p_sol     solid Bruggeman factor, ``eps_s**p_sol`` [-] (*float*)</span>
 <span class="sd">            p_liq     liquid Bruggeman factor, ``eps_el**p_liq`` [-] (*float*)</span>
 <span class="sd">            alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)</span>
@@ -578,6 +579,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">Nr</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Nr&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">thick</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;thick&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">R_s</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;R_s&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_s</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eps_s&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eps_el</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eps_el&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eps_CBD</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;eps_CBD&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">p_sol</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;p_sol&#39;</span><span class="p">)</span>
@@ -599,14 +601,14 @@ document.write(`
 <span class="sd">        Updates any secondary/dependent parameters. For the ``Electrode``</span>
 <span class="sd">        class, this initializes the material class, and sets the following:</span>
 
-<span class="sd">        * Solid-phase volume fraction [-]:</span>
-<span class="sd">            ``eps_s = 1 - eps_el``</span>
+<span class="sd">        * Void-phase volume fraction [-]:</span>
+<span class="sd">            ``eps_void = 1 - eps_s - eps_el``</span>
 <span class="sd">        * Activate material volume fraction [-]:</span>
-<span class="sd">            ``eps_AM = 1 - eps_el - eps_CBD``</span>
+<span class="sd">            ``eps_AM = eps_s - eps_CBD``</span>
 <span class="sd">        * Solid-phase conductivity [S/m]:</span>
-<span class="sd">            ``sigma_s = 10*eps_s``</span>
+<span class="sd">            ``sigma_s = 10 * eps_s``</span>
 <span class="sd">        * Specific particle surface area [m^2/m^3]:</span>
-<span class="sd">            ``A_s = eps_AM / R_s``</span>
+<span class="sd">            ``A_s = 3 * eps_AM / R_s``</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -615,10 +617,10 @@ document.write(`
 
         <span class="kn">from</span> <span class="nn">..</span> <span class="kn">import</span> <span class="n">materials</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">eps_s</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_el</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">eps_AM</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_el</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_CBD</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_s</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_s</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">A_s</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_AM</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">R_s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_void</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_s</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_el</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_AM</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_s</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_CBD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_s</span> <span class="o">=</span> <span class="mf">10.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A_s</span> <span class="o">=</span> <span class="mf">3.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_AM</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">R_s</span>
 
         <span class="n">ActiveMaterial</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">materials</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_material</span> <span class="o">=</span> <span class="n">ActiveMaterial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_c</span><span class="p">,</span>

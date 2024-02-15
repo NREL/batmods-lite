@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=96227a4f" />
@@ -380,10 +380,10 @@ their verification processes are unique.</p>
 <td><p>Constant current solution for P2D simulations.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#bmlite.P2D.solutions.CPSolution" title="bmlite.P2D.solutions.CPSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CPSolution</span></code></a></p></td>
-<td><p>Constant power solution for P2D simuations.</p></td>
+<td><p>Constant power solution for P2D simulations.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#bmlite.P2D.solutions.CVSolution" title="bmlite.P2D.solutions.CVSolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CVSolution</span></code></a></p></td>
-<td><p>Constant voltage solution for P2D simuations.</p></td>
+<td><p>Constant voltage solution for P2D simulations.</p></td>
 </tr>
 </tbody>
 </table>
@@ -709,7 +709,7 @@ descriptions.</p>
 <td><p>electrolyte Li+ at t, x [kmol/m^3] (<em>2D array</em>)</p></td>
 </tr>
 <tr class="row-odd"><td><p>ie</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">i_el</span></code> at t, x boundarys [A/m^2] (<em>2D array</em>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">i_el</span></code> at t, x boundaries [A/m^2] (<em>2D array</em>)</p></td>
 </tr>
 <tr class="row-even"><td><p>j_a</p></td>
 <td><p>Faradaic current at t, x_a [kmol/m^2/s] (<em>2D array</em>)</p></td>
@@ -822,7 +822,7 @@ of the 2D and 3D arrays is given with the value descriptions.</p>
 <td><p>electrolyte Li+ at t, x [kmol/m^3] (<em>2D array</em>)</p></td>
 </tr>
 <tr class="row-odd"><td><p>ie</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">i_el</span></code> at t, x boundarys [A/m^2] (<em>2D array</em>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">i_el</span></code> at t, x boundaries [A/m^2] (<em>2D array</em>)</p></td>
 </tr>
 <tr class="row-even"><td><p>j_a</p></td>
 <td><p>Faradaic current at t, x_a [kmol/m^2/s] (<em>2D array</em>)</p></td>
@@ -883,7 +883,7 @@ condition. In addition, this method checks the anodic and cathodic
 Faradaic currents against the current at each time step, the
 through-current in each control volume, and the Li-ion and solid-phase
 lithium conservation.</p>
-<p>If the verificaion returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
+<p>If the verification returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
 using <code class="docutils literal notranslate"><span class="pre">plotflag</span></code>. Any subplots shaded grey failed their test.
 Failures generally suggest that the solver’s relative and/or absolute
 tolerance should be adjusted, and/or that the discretization should be
@@ -911,7 +911,7 @@ default is <code class="docutils literal notranslate"><span class="pre">False</s
 <dl class="py class">
 <dt class="sig sig-object py" id="bmlite.P2D.solutions.CPSolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bmlite.P2D.solutions.</span></span><span class="sig-name descname"><span class="pre">CPSolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bmlite/P2D/solutions/_cp_solution.html#CPSolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmlite.P2D.solutions.CPSolution" title="Link to this definition">#</a></dt>
-<dd><p>Constant power solution for P2D simuations.</p>
+<dd><p>Constant power solution for P2D simulations.</p>
 <p>Base: <a class="reference internal" href="#bmlite.P2D.solutions.BaseSolution" title="bmlite.P2D.solutions.BaseSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSolution</span></code></a></p>
 <p>When initialized, a copy of the P2D simulation object and experimental
 details for the solution instance are stored, all other instance
@@ -947,7 +947,7 @@ condition. In addition, this method checks the anodic and cathodic
 Faradaic currents against the current at each time step, the
 through-current in each control volume, and the Li-ion and solid-phase
 lithium conservation.</p>
-<p>If the verificaion returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
+<p>If the verification returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
 using <code class="docutils literal notranslate"><span class="pre">plotflag</span></code>. Any subplots shaded grey failed their test.
 Failures generally suggest that the solver’s relative and/or absolute
 tolerance should be adjusted, and/or that the discretization should be
@@ -975,7 +975,7 @@ default is <code class="docutils literal notranslate"><span class="pre">False</s
 <dl class="py class">
 <dt class="sig sig-object py" id="bmlite.P2D.solutions.CVSolution">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bmlite.P2D.solutions.</span></span><span class="sig-name descname"><span class="pre">CVSolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/bmlite/P2D/solutions/_cv_solution.html#CVSolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmlite.P2D.solutions.CVSolution" title="Link to this definition">#</a></dt>
-<dd><p>Constant voltage solution for P2D simuations.</p>
+<dd><p>Constant voltage solution for P2D simulations.</p>
 <p>Base: <a class="reference internal" href="#bmlite.P2D.solutions.BaseSolution" title="bmlite.P2D.solutions.BaseSolution"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSolution</span></code></a></p>
 <p>When initialized, a copy of the P2D simulation object and experimental
 details for the solution instance are stored, all other instance
@@ -1011,7 +1011,7 @@ condition. In addition, this method checks the anodic and cathodic
 Faradaic currents against the current at each time step, the
 through-current in each control volume, and the Li-ion and solid-phase
 lithium conservation.</p>
-<p>If the verificaion returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
+<p>If the verification returns <code class="docutils literal notranslate"><span class="pre">False</span></code>, you can see which checks failed
 using <code class="docutils literal notranslate"><span class="pre">plotflag</span></code>. Any subplots shaded grey failed their test.
 Failures generally suggest that the solver’s relative and/or absolute
 tolerance should be adjusted, and/or that the discretization should be
