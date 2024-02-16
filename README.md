@@ -1,14 +1,14 @@
 <picture>
   <source media='(prefers-color-scheme: dark)' srcset='./images/dark.svg'
   style='width: 75%; min-width: 250px; max-width: 500px;'>
-  <img alt='BatMods-lite logo' src='./images/light.svg'
+  <img alt='BATMODS-lite logo' src='./images/light.svg'
   style='width: 75%; min-width: 250px; max-width: 500px;'>
 </picture> 
 
 [![CI][ci-b]][ci-l] ![tests][test-b] ![coverage][cov-b] [![pep8][pep-b]][pep-l]
 
-[ci-b]: https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml/badge.svg
-[ci-l]: https://github.com/NREL/BatMods-lite/actions/workflows/ci.yaml
+[ci-b]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yaml/badge.svg
+[ci-l]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yaml
 
 [test-b]: ./images/tests.svg
 [cov-b]: ./images/coverage.svg

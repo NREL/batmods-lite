@@ -255,6 +255,9 @@ class Electrode(object):
         self.sigma_s = 10. * self.eps_s
         self.A_s = 3. * self.eps_AM / self.R_s
 
+        if self.eps_void < 0.:
+            raise ValueError('eps_s + eps_el > 1.0')
+
         ActiveMaterial = getattr(materials, self.material)
         self._material = ActiveMaterial(self.alpha_a, self.alpha_c,
                                         self.Li_max)

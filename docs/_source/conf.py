@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'BatMods-lite'
+project = 'BATMODS-lite'
 copyright = '2023, Corey R. Randall'
 author = 'Corey R. Randall'
 release = '0.0.1'
@@ -77,7 +77,7 @@ html_theme_options = {'logo': {'image_light': '_static/light_notag.svg',
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 
 napoleon_use_rtype = False
-napoleon_custom_sections = ['BatMods-lite', 
+napoleon_custom_sections = ['BATMODS-lite', 
                             'How to use the documentation', 
                             'Viewing documentation using IPython',
                             'Material Properties Package',

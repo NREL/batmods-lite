@@ -2,7 +2,7 @@
 Plotting Utilities
 ------------------
 A module with functions for plotting data and formatting figures. Functions
-here are generally useful for all models in BatMods-lite. More specific plots
+here are generally useful for all models in BATMODS-lite. More specific plots
 are written within the ``postutils`` modules of their respective model.
 """
 

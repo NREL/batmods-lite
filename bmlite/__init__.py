@@ -1,5 +1,5 @@
 """
-BatMods-lite
+BATMODS-lite
 ============
 Battery Analysis and Training Models for Optimization and Degradation Studies
 (BATMODS) is a Python package with an API for pre-built battery models. The

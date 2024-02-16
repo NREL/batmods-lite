@@ -5,7 +5,7 @@ from bmlite import __version__
 
 here = os.path.dirname(__file__)
 with open(here + '/requirements.txt') as f:
-      install_requires = f.readlines()
+    install_requires = f.readlines()
 
 setup(
       name='batmods-lite',
