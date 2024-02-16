@@ -405,7 +405,7 @@ class BaseSolution(object):
         sol_dict['phie'] = el_sol['phie']
 
         sol_dict['cs_a'] = an_sol['cs']
-        sol_dict['cs_c'] = ca_sol['xs']
+        sol_dict['cs_c'] = ca_sol['cs']
 
         sol_dict['j_a'] = self.postvars['sdot_an']
         sol_dict['j_c'] = self.postvars['sdot_ca']
