@@ -8,10 +8,10 @@ so the ``'band'`` linear solver option can be used in the ``IDASolver`` class.
 
 """
 
-from numpy import ndarray as _ndarray
+import numpy as np
 
 
-def bandwidth(sim: object) -> tuple[int | _ndarray]:
+def bandwidth(sim: object) -> tuple[int | np.ndarray]:
     """
     Determine the DAE system's bandwidth and Jacobian pattern.
 
@@ -37,8 +37,6 @@ def bandwidth(sim: object) -> tuple[int | _ndarray]:
         Residual function Jacobian pattern, as an array of ones and zeros.
 
     """
-
-    import numpy as np
 
     # Jacobian size
     N = sim._sv0.size
@@ -102,8 +100,8 @@ def bandwidth(sim: object) -> tuple[int | _ndarray]:
     return lband, uband, j_pat
 
 
-def residuals(t: float, sv: _ndarray, svdot: _ndarray, res: _ndarray,
-              inputs: tuple[object, dict]) -> None | tuple[_ndarray]:
+def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
+              inputs: tuple[object, dict]) -> None | tuple[np.ndarray]:
     """
     The DAE residuals ``res = M*y' - f(t, y)`` for the SPM model.
 
@@ -145,9 +143,8 @@ def residuals(t: float, sv: _ndarray, svdot: _ndarray, res: _ndarray,
 
     """
 
-    import numpy as np
-
     from .. import Constants
+    from ..math import grad_r, div_r
 
     c = Constants()
 
@@ -164,37 +161,32 @@ def residuals(t: float, sv: _ndarray, svdot: _ndarray, res: _ndarray,
     phi_el = sv[el.ptr['phi_el']]
     phi_ca = sv[ca.ptr['phi_ed']]
 
-    Li_an = sv[an.r_ptr['Li_ed']] * an.Li_max
-    Li_ca = sv[ca.r_ptr['Li_ed']] * ca.Li_max
+    xs_an = sv[an.r_ptr['Li_ed']]
+    xs_ca = sv[ca.r_ptr['Li_ed']]
+
+    Li_an = xs_an*an.Li_max
+    Li_ca = xs_ca*ca.Li_max
 
     # Anode -------------------------------------------------------------------
 
     # Reaction current
-    eta = phi_an - phi_el - an.get_Eeq(Li_an[-1] / an.Li_max, T)
+    eta = phi_an - phi_el - an.get_Eeq(xs_an[-1], T)
 
-    i0 = an.get_i0(Li_an[-1] / an.Li_max, el.Li_0, T)
-    sdot_an = i0 / c.F * (np.exp(an.alpha_a * c.F * eta / c.R / T)
-                          - np.exp(-an.alpha_c * c.F * eta / c.R / T))
+    i0 = an.get_i0(xs_an[-1], el.Li_0, T)
+    sdot_an = i0 / c.F * (  np.exp( an.alpha_a * c.F * eta / c.R / T)
+                          - np.exp(-an.alpha_c * c.F * eta / c.R / T)  )
 
     # Weighted solid particle properties
-    wt_m = 0.5 * (an.rp[:-1] - an.rm[:-1]) / (an.r[1:] - an.r[:-1])
-    wt_p = 0.5 * (an.rp[1:] - an.rm[1:]) / (an.r[1:] - an.r[:-1])
+    wt_m = 0.5*(an.rp[:-1] - an.rm[:-1]) / (an.r[1:] - an.r[:-1])
+    wt_p = 0.5*(an.rp[1:] - an.rm[1:]) / (an.r[1:] - an.r[:-1])
 
-    Ds_an = wt_m * an.get_Ds(Li_an[:-1] / an.Li_max, T) \
-          + wt_p * an.get_Ds(Li_an[1:] / an.Li_max, T)
+    Ds_an = wt_m*an.get_Ds(xs_an[:-1], T) + wt_p*an.get_Ds(xs_an[1:], T)
 
     # Solid-phase COM (differential)
-    Nm_ed = np.zeros(an.Nr)
-    Np_ed = np.zeros(an.Nr)
+    Js_an = np.concat([[0.], Ds_an*grad_r(an.r, Li_an), [-sdot_an]])
 
-    Np_ed[:-1] = Ds_an * (Li_an[1:] - Li_an[:-1]) / (an.r[1:] - an.r[:-1])
-    Nm_ed[1:] = Np_ed[:-1]
-
-    Np_ed[-1] = -sdot_an
-
-    res[an.r_ptr['Li_ed']] = an.Li_max * svdot[an.r_ptr['Li_ed']] \
-                           - (an.rp**2 * Np_ed - an.rm**2 * Nm_ed) \
-                           / an.r**2 / (an.rp - an.rm)
+    res[an.r_ptr['Li_ed']] = an.Li_max*svdot[an.r_ptr['Li_ed']] \
+                           - div_r(an.rm, an.rp, Js_an)
 
     # Solid-phase COC (algebraic)
     res[an.ptr['phi_ed']] = phi_an - 0.
@@ -202,63 +194,59 @@ def residuals(t: float, sv: _ndarray, svdot: _ndarray, res: _ndarray,
     # Cathode -----------------------------------------------------------------
 
     # Reaction current
-    eta = phi_ca - phi_el - ca.get_Eeq(Li_ca[-1] / ca.Li_max, T)
+    eta = phi_ca - phi_el - ca.get_Eeq(xs_ca[-1], T)
 
-    i0 = ca.get_i0(Li_ca[-1] / ca.Li_max, el.Li_0, T)
-    sdot_ca = i0 / c.F * (np.exp(ca.alpha_a * c.F * eta / c.R / T)
-                          - np.exp(-ca.alpha_c * c.F * eta / c.R / T))
+    i0 = ca.get_i0(xs_ca[-1], el.Li_0, T)
+    sdot_ca = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
+                          - np.exp(-ca.alpha_c*c.F*eta / c.R / T)  )
 
     # Weighted solid particle properties
-    wt_m = 0.5 * (ca.rp[:-1] - ca.rm[:-1]) / (ca.r[1:] - ca.r[:-1])
-    wt_p = 0.5 * (ca.rp[1:] - ca.rm[1:]) / (ca.r[1:] - ca.r[:-1])
+    wt_m = 0.5*(ca.rp[:-1] - ca.rm[:-1]) / (ca.r[1:] - ca.r[:-1])
+    wt_p = 0.5*(ca.rp[1:] - ca.rm[1:]) / (ca.r[1:] - ca.r[:-1])
 
-    Ds_ca = wt_m * ca.get_Ds(Li_ca[:-1] / ca.Li_max, T) \
-          + wt_p * ca.get_Ds(Li_ca[1:] / ca.Li_max, T)
+    Ds_ca = wt_m*ca.get_Ds(xs_ca[:-1], T) + wt_p*ca.get_Ds(xs_ca[1:], T)
 
     # Solid-phase COM (differential)
-    Nm_ed = np.zeros(ca.Nr)
-    Np_ed = np.zeros(ca.Nr)
+    Js_ca = np.concat([[0.], Ds_ca*grad_r(ca.r, Li_ca), [-sdot_ca]])
 
-    Np_ed[:-1] = Ds_ca * (Li_ca[1:] - Li_ca[:-1]) / (ca.r[1:] - ca.r[:-1])
-    Nm_ed[1:] = Np_ed[:-1]
-
-    Np_ed[-1] = -sdot_ca
-
-    res[ca.r_ptr['Li_ed']] = ca.Li_max * svdot[ca.r_ptr['Li_ed']] \
-                           - (ca.rp**2 * Np_ed - ca.rm**2 * Nm_ed) \
-                           / ca.r**2 / (ca.rp - ca.rm)
+    res[ca.r_ptr['Li_ed']] = ca.Li_max*svdot[ca.r_ptr['Li_ed']] \
+                           - div_r(ca.rm, ca.rp, Js_ca)
 
     # External current [A/m^2]
-    i_ext = -sdot_an * an.A_s * an.thick * c.F
+    i_ext = -sdot_an*an.A_s*an.thick*c.F
 
     # Boundary conditions -----------------------------------------------------
     mode = exp['mode']
     units = exp['units']
     value = exp['value']
 
+    voltage_V = phi_ca
+    current_A = i_ext*bat.area
+    power_W = current_A*voltage_V
+
     # Cathode - Solid-phase COC (algebraic)
     # Electrolyte - potential (algebraic)
     if mode == 'current' and units == 'A':
-        res[ca.ptr['phi_ed']] = sdot_ca * ca.A_s * ca.thick * c.F \
+        res[ca.ptr['phi_ed']] = sdot_ca*ca.A_s*ca.thick*c.F \
                               - value(t) / bat.area
-        res[el.ptr['phi_el']] = sdot_an * an.A_s * an.thick * c.F \
+        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick*c.F \
                               + value(t) / bat.area
 
     elif mode == 'current' and units == 'C':
-        res[ca.ptr['phi_ed']] = sdot_ca * ca.A_s * ca.thick * c.F \
-                              - value(t) * bat.cap / bat.area
-        res[el.ptr['phi_el']] = sdot_an * an.A_s * an.thick * c.F \
-                              + value(t) * bat.cap / bat.area
+        res[ca.ptr['phi_ed']] = sdot_ca*ca.A_s*ca.thick*c.F \
+                              - value(t)*bat.cap / bat.area
+        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick*c.F \
+                              + value(t)*bat.cap / bat.area
 
     elif mode == 'voltage':
-        res[ca.ptr['phi_ed']] = phi_ca - value(t)
-        res[el.ptr['phi_el']] = sdot_an * an.A_s * an.thick \
-                              + sdot_ca * ca.A_s * ca.thick
+        res[ca.ptr['phi_ed']] = voltage_V - value(t)
+        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick \
+                              + sdot_ca*ca.A_s*ca.thick
 
     elif mode == 'power':
-        res[ca.ptr['phi_ed']] = i_ext*bat.area*phi_ca - value(t)
-        res[el.ptr['phi_el']] = sdot_an * an.A_s * an.thick \
-                              + sdot_ca * ca.A_s * ca.thick
+        res[ca.ptr['phi_ed']] = power_W - value(t)
+        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick \
+                              + sdot_ca*ca.A_s*ca.thick
 
     # Events tracking ---------------------------------------------------------
     total_time = sim._t0 + t
@@ -267,10 +255,10 @@ def residuals(t: float, sv: _ndarray, svdot: _ndarray, res: _ndarray,
         'time_s': total_time,
         'time_min': total_time / 60.,
         'time_h': total_time / 3600.,
-        'current_A': i_ext*bat.area,
-        'current_C': i_ext*bat.area / bat.cap,
-        'voltage_V': phi_ca,
-        'power_W': i_ext*bat.area*phi_ca,
+        'current_A': current_A,
+        'current_C': current_A / bat.cap,
+        'voltage_V': voltage_V,
+        'power_W': power_W,
     }
 
     # Returns -----------------------------------------------------------------
