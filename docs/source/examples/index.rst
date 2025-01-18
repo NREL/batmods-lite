@@ -14,12 +14,7 @@ Examples
             :numbered:
             :titlesonly:
 
-            SPM_templates.ipynb
-            SPM_constant_current.ipynb
-            SPM_constant_voltage.ipynb
-            SPM_constant_power.ipynb
-            SPM_roots.ipynb
-            SPM_parallel_simulations.ipynb
+            SPM_tutorial.ipynb
 
    .. grid-item-card:: Pseudo-2D (P2D) Model
          :class-footer: border-0
@@ -32,9 +27,4 @@ Examples
             :numbered:
             :titlesonly:
 
-            P2D_templates.ipynb
-            P2D_constant_current.ipynb
-            P2D_constant_voltage.ipynb
-            P2D_constant_power.ipynb
-            P2D_roots.ipynb
-            P2D_parallel_simulations.ipynb
+            P2D_tutorial.ipynb

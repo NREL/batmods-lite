@@ -19,31 +19,13 @@ Functions
 
 .. autoapisummary::
 
-   bmlite.SPM.postutils.current
    bmlite.SPM.postutils.intercalation
-   bmlite.SPM.postutils.ivp
    bmlite.SPM.postutils.pixels
-   bmlite.SPM.postutils.post
    bmlite.SPM.postutils.potentials
-   bmlite.SPM.postutils.power
-   bmlite.SPM.postutils.voltage
 
 
 Module Contents
 ---------------
-
-.. py:function:: current(sol, ax = None)
-
-   Plot current density vs. time.
-
-   :param sol: A single particle model solution object.
-   :type sol: SPM Solution object
-   :param ax: An ``axis`` instance from a ``matplotlib`` figure. The default is
-              ``None``. If not specified, a new figure is made.
-   :type ax: object, optional
-
-   :returns: *None.*
-
 
 .. py:function:: intercalation(sol)
 
@@ -55,44 +37,14 @@ Module Contents
    :returns: *None.*
 
 
-.. py:function:: ivp(sol)
-
-   Subplots for current, voltage, and power.
-
-   :param sol: A single particle model solution object.
-   :type sol: SPM Solution object
-
-   :returns: *None.*
-
-
 .. py:function:: pixels(sol)
 
    Makes pixel plots for most 2D (space/time) variables.
 
-   :param sol: A pseudo-2D model solution object.
-   :type sol: P2D Solution object
-
-   :returns: *None.*
-
-
-.. py:function:: post(sol)
-
-   Run post processing to determine secondary variables.
-
    :param sol: A single particle model solution object.
    :type sol: SPM Solution object
 
-   :returns: **postvars** (*dict*) -- Post processed variables, as described below.
-
-             ========= ========================================================
-             Key       Value [units] (*type*)
-             ========= ========================================================
-             res       DAE residual at t (row) for y (col) [units] (*2D array*)
-             sdot_an   anode Faradaic current at t [kmol/m^2/s] (*1D array*)
-             sdot_ca   cathode Faradaic current at t [kmol/m^2/s] (*1D array*)
-             i_ext     external current density at t [A/m^2] (*1D array*)
-             A*h/m^2   areal capacity at t [A*h/m^2] (*1D array*)
-             ========= ========================================================
+   :returns: *None.*
 
 
 .. py:function:: potentials(sol)
@@ -101,32 +53,6 @@ Module Contents
 
    :param sol: A single particle model solution object.
    :type sol: SPM Solution object
-
-   :returns: *None.*
-
-
-.. py:function:: power(sol, ax = None)
-
-   Plot power density vs. time.
-
-   :param sol: A single particle model solution object.
-   :type sol: SPM Solution object
-   :param ax: An ``axis`` instance from a ``matplotlib`` figure. The default is
-              ``None``. If not specified, a new figure is made.
-   :type ax: object, optional
-
-   :returns: *None.*
-
-
-.. py:function:: voltage(sol, ax = None)
-
-   Plot cell voltage vs. time.
-
-   :param sol: A single particle model solution object.
-   :type sol: SPM Solution object
-   :param ax: An ``axis`` instance from a ``matplotlib`` figure. The default is
-              ``None``. If not specified, a new figure is made.
-   :type ax: object, optional
 
    :returns: *None.*
 

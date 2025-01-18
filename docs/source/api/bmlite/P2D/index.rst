@@ -14,15 +14,6 @@ bmlite.P2D
 
 
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 1
-
-   /api/bmlite/P2D/solutions/index
-
-
 Submodules
 ----------
 
@@ -32,7 +23,6 @@ Submodules
    /api/bmlite/P2D/dae/index
    /api/bmlite/P2D/domains/index
    /api/bmlite/P2D/postutils/index
-   /api/bmlite/P2D/roots/index
 
 
 Classes
@@ -40,7 +30,9 @@ Classes
 
 .. autoapisummary::
 
+   bmlite.P2D.CycleSolution
    bmlite.P2D.Simulation
+   bmlite.P2D.StepSolution
 
 
 Functions
@@ -53,6 +45,46 @@ Functions
 
 Package Contents
 ----------------
+
+.. py:class:: CycleSolution(*soln, t_shift = 0.001)
+
+
+
+   All-step solution.
+
+   A solution instance with all experiment steps stitch together into
+   a single cycle.
+
+   :param \*soln: All unpacked StepSolution instances to stitch together. The given
+                  steps should be given in the same sequential order that they were
+                  run.
+   :type \*soln: StepSolution
+   :param t_shift: Time (in seconds) to shift step solutions by when stitching them
+                   together. If zero the end time of each step overlaps the starting
+                   time of its following step. The default is 1e-3.
+   :type t_shift: float
+
+
+   .. py:method:: get_steps(idx)
+
+      Return a subset of the solution.
+
+      :param idx: The step index (int) or first/last indices (tuple) to return.
+      :type idx: int | tuple
+
+      :returns: :class:`StepSolution` | :class:`CycleSolution` -- The returned solution subset. A StepSolution is returned if 'idx'
+                is an int, and a CycleSolution will be returned for the range of
+                requested steps when 'idx' is a tuple.
+
+
+
+   .. py:property:: solvetime
+      :type: str
+
+      Print a statement specifying how long IDASolver spent integrating.
+
+      :returns: **solvetime** (*str*) -- An f-string with the total solver integration time in seconds.
+
 
 .. py:class:: Simulation(yamlfile = 'graphite_nmc532')
 
@@ -134,142 +166,116 @@ Package Contents
 
 
 
-   .. py:method:: run_CC(exp, **kwargs)
+   .. py:method:: run(expr, reset_state = True, t_shift = 0.001)
 
-      Runs a constant current experiment specified by the details given in
-      the experiment dictionary ``exp``.
+      Run a full experiment.
 
-      :param exp: The constant current experimental details. Required keys and
-                  descriptions are listed below:
+      :param expr: An experiment instance.
+      :type expr: Experiment
+      :param reset_state: If True (default), the internal state of the model will be reset
+                          back to a rested condition at 'soc0' at the end of all steps. When
+                          False, the state does not reset. Instead it will update to match
+                          the final state of the last experimental step.
+      :type reset_state: bool
+      :param t_shift: Time (in seconds) to shift step solutions by when stitching them
+                      together. If zero the end time of each step overlaps the starting
+                      time of its following step. The default is 1e-3.
+      :type t_shift: float
 
-                  =========== ==============================================
-                  Key         Value [units] (*type*)
-                  =========== ==============================================
-                  C_rate      C-rate (+ charge, - discharge) [1/h] (*float*)
-                  t_min       minimum time [s] (*float*)
-                  t_max       maximum time [s] (*float*)
-                  Nt          number of time discretizations [-] (*int*)
-                  =========== ==============================================
-      :type exp: dict
-      :param \*\*kwargs: The keyword arguments specify the Sundials IDA solver options. A
-                         partial list of options/defaults is given below:
+      :returns: :class:`~bmlite.P2D.CycleSolution` -- A stitched solution with all experimental steps.
 
-                         ============= =================================================
-                         Key           Description (*type* or {options}, default)
-                         ============= =================================================
-                         rtol          relative tolerance (*float*, 1e-6)
-                         atol          absolute tolerance (*float*, 1e-9)
-                         linsolver     linear solver (``{'dense', 'band'}``, ``'band'``)
-                         lband         width of the lower band (*int*, ``self.lband``)
-                         uband         width of the upper band (*int*, ``self.uband``)
-                         max_t_step    maximum time step (*float*, 0. -> unrestricted)
-                         rootfn        root/event function (*Callable*, ``None``)
-                         nr_rootfns    number of events in ``'rootfn'`` (*int*, 0)
-                         ============= =================================================
-      :type \*\*kwargs: dict, optional
+      .. warning::
 
-      :returns: **sol** (*CCSolution object*) -- Solution class with the returned variable values, messages, exit
-                flags, etc. from the IDA solver. The returned ``CCSolution``
-                instance includes post processing, plotting, and saving methods.
+         The default behavior resets the model's internal state back to a rested
+         condition at 'soc0' by calling the ``pre()`` method at the end of all
+         steps. This means that if you run a second experiment afterward, it
+         will not start where the previous one left off. Instead, it will start
+         from the original rested condition that the model initialized with. You
+         can bypass this by using ``reset_state=False``, which keeps the state
+         at the end of the final experimental step.
 
-      .. seealso:: :obj:`bmlite.IDASolver`, :obj:`bmlite.P2D.solutions.CCSolution`
+      .. seealso::
+
+         :obj:`Experiment`
+             Build an experiment.
+
+         :obj:`CycleSolution`
+             Wrapper for an all-steps solution.
 
 
 
-   .. py:method:: run_CP(exp, **kwargs)
+   .. py:method:: run_step(expr, stepidx)
 
-      Runs a constant power experiment specified by the details given in
-      the experiment dictionary ``exp``.
+      Run a single experimental step.
 
-      :param exp: The constant power experimental details. Required keys and
-                  descriptions are listed below:
+      :param expr: An experiment instance.
+      :type expr: Experiment
+      :param stepidx: Step index to run. The first step has index 0.
+      :type stepidx: int
 
-                  ======== ========================================================
-                  Key      Value [units] (*type*)
-                  ======== ========================================================
-                  P_ext    external power (+ charge, - discharge) [W/m^2] (*float*)
-                  t_min    minimum time [s] (*float*)
-                  t_max    maximum time [s] (*float*)
-                  Nt       number of time discretizations [-] (*int*)
-                  ======== ========================================================
-      :type exp: dict
-      :param \*\*kwargs: The keyword arguments specify the Sundials IDA solver options. A
-                         partial list of options/defaults is given below:
+      :returns: :class:`~bmlite.P2D.StepSolution` -- Solution to the experimental step.
 
-                         ============= =================================================
-                         Key           Description (*type* or {options}, default)
-                         ============= =================================================
-                         rtol          relative tolerance (*float*, 1e-6)
-                         atol          absolute tolerance (*float*, 1e-9)
-                         linsolver     linear solver (``{'dense', 'band'}``, ``'band'``)
-                         lband         width of the lower band (*int*, ``self.lband``)
-                         uband         width of the upper band (*int*, ``self.uband``)
-                         max_t_step    maximum time step (*float*, 0. -> unrestricted)
-                         rootfn        root/event function (*Callable*, ``None``)
-                         nr_rootfns    number of events in ``'rootfn'`` (*int*, 0)
-                         ============= =================================================
-      :type \*\*kwargs: dict, optional
+      .. warning::
 
-      :returns: **sol** (*CPSolution object*) -- Solution class with the returned variable values, messages, exit
-                flags, etc. from the IDA solver. The returned ``CPSolution``
-                instance includes post processing, plotting, and saving methods.
+         The model's internal state is changed at the end of each experimental
+         step. Consequently, you should not run steps out of order. You should
+         always start with ``stepidx = 0`` and then progress to the subsequent
+         steps afterward. Run ``pre()`` after your last step to reset the state
+         back to a rested condition at 'soc0', if needed. Alternatively, you
+         can continue running experiments back-to-back without a pre-processing
+         in between if you want the following experiment to pick up from the
+         same state that the last experiment ended.
 
-      .. seealso:: :obj:`bmlite.IDASolver`, :obj:`bmlite.P2D.solutions.CPSolution`
+      .. seealso::
+
+         :obj:`Experiment`
+             Build an experiment.
+
+         :obj:`StepSolution`
+             Wrapper for a single-step solution.
+
+      .. rubric:: Notes
+
+      Using the ``run()`` loops through all steps in an experiment and then
+      stitches their solutions together. Most of the time, this is more
+      convenient. However, advantages for running step-by-step is that it
+      makes it easier to fine tune solver options, and allows for analyses
+      or control decisions in the middle of an experiment.
 
 
 
-   .. py:method:: run_CV(exp, **kwargs)
+.. py:class:: StepSolution(sim, idasoln, timer)
 
-      Runs a constant voltage experiment specified by the details given in
-      the experiment dictionary ``exp``.
 
-      :param exp: The constant voltage experimental details. Required keys and
-                  descriptions are listed below:
 
-                  =========== ==========================================
-                  Key         Value [units] (*type*)
-                  =========== ==========================================
-                  V_ext       externally applied voltage [V] (*float*)
-                  t_min       minimum time [s] (*float*)
-                  t_max       maximum time [s] (*float*)
-                  Nt          number of time discretizations [-] (*int*)
-                  =========== ==========================================
-      :type exp: dict
-      :param \*\*kwargs: The keyword arguments specify the Sundials IDA solver options. A
-                         partial list of options/defaults is given below:
+   Single-step solution.
 
-                         ============= =================================================
-                         Key           Description (*type* or {options}, default)
-                         ============= =================================================
-                         rtol          relative tolerance (*float*, 1e-6)
-                         atol          absolute tolerance (*float*, 1e-9)
-                         linsolver     linear solver (``{'dense', 'band'}``, ``'band'``)
-                         lband         width of the lower band (*int*, ``self.lband``)
-                         uband         width of the upper band (*int*, ``self.uband``)
-                         max_t_step    maximum time step (*float*, 0. -> unrestricted)
-                         rootfn        root/event function (*Callable*, ``None``)
-                         nr_rootfns    number of events in ``'rootfn'`` (*int*, 0)
-                         ============= =================================================
-      :type \*\*kwargs: dict, optional
+   A solution instance for a single experimental step.
 
-      :returns: **sol** (*CVSolution object*) -- Solution class with the returned variable values, messages, exit
-                flags, etc. from the IDA solver. The returned ``CVSolution``
-                instance includes post processing, plotting, and saving methods.
+   :param sim: The simulation instance that was run to produce the solution.
+   :type sim: Simulation
+   :param idasoln: The unformatted solution returned by IDASolver.
+   :type idasoln: IDAResult
+   :param timer: Amount of time it took for IDASolver to perform the integration.
+   :type timer: float
 
-      .. seealso:: :obj:`bmlite.IDASolver`, :obj:`bmlite.P2D.solutions.CVSolution`
 
+   .. py:property:: solvetime
+      :type: str
+
+      Print a statement specifying how long IDASolver spent integrating.
+
+      :returns: **solvetime** (*str*) -- An f-string with the solver integration time in seconds.
 
 
 .. py:function:: templates(sim = None, exp = None)
 
-   Print simulation and/or experiment templates. If both ``sim`` and ``exp``
-   are ``None``, a list of available templates will be printed. Otherwise, if
-   a name or index is given, that template will print to the console.
+   Print simulation templates. If ``sim`` is ``None``, a list of available
+   templates will be printed. Otherwise, if a name or index is given, that
+   template will print to the console.
 
    :param sim: Simulation template file name or index. The default is ``None``.
    :type sim: str | int, optional
-   :param exp: Experiment template file name or index. The default is ``None``.
-   :type exp: str | int, optional
 
    :returns: *None.*
 

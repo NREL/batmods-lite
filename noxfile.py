@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import importlib
 
 import nox
 
@@ -90,13 +91,13 @@ def run_pytest(session: nox.Session) -> None:
 
     """
 
-    import bmlite as bm
-    source_files = os.path.dirname(bm.__file__)
+    package = importlib.util.find_spec('bmlite')
+    coverage_folder = os.path.dirname(package.origin)
 
     if 'no-reports' in session.posargs:
         command = [
             'pytest',
-            f'--cov={source_files}',  # works for editable and site-packages
+            f'--cov={coverage_folder}',  # for editable or site-packages
             'tests/',
         ]
     else:
