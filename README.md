@@ -5,7 +5,10 @@
   style='width: 75%; min-width: 250px; max-width: 500px;'>
 </picture> 
 
-[![CI][ci-b]][ci-l] ![tests][test-b] ![coverage][cov-b] [![pep8][pep-b]][pep-l]
+[![CI][ci-b]][ci-l] &nbsp;
+![tests][test-b] &nbsp;
+![coverage][cov-b] &nbsp;
+[![pep8][pep-b]][pep-l]
 
 [ci-b]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yaml/badge.svg
 [ci-l]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yaml
@@ -22,62 +25,64 @@ Battery Analysis and Training Models for Optimization and Degradation Studies (B
 1) A library and API for pre-built battery models
 2) Kinetic/transport properties for common battery materials
 
-## Installing
-We recommend using [Anaconda](https://www.anaconda.com/download) to create and manage your Python virtual environments. The following directions assume you are using Anaconda. 
+## Installation
+BATMODS-lite is only available via GitHub. Please clone the repo or download the files. Also, make sure you have a Python installation with a version >=3.10. If you are new to Python, we recommend using [Anaconda](https://www.anaconda.com/download) to set up your installation. 
 
-After downloading or cloning the BATMODS-lite repo files onto your local machine, open Anaconda Prompt (Windows) or Terminal (MacOS/Linux) and run the following to: (1) create an environment named "batmods," (2) activate your new environment, (3) install scikits.odes, and (4) install BATMODS-lite. 
+Once the files are availabe on your machine, use your terminal to navigate into the folder and execute one of the following depending on your installation preference.
 
-1) ``conda create -n batmods python=3.10``
-2) ``conda activate batmods``
-3) ``conda install -c conda-forge scikits.odes``
-4) ``pip install .`` or ``pip install -e .``
-
-**Notes:**
-* You can replace "batmods" in steps (1) and (2) with your preferred environment name.
-
-* Step (1) specifies Python 3.10 for your new environment. BATMODS-lite is continuously tested using 3.10. However, the package generally works with versions >=3.8 and <= 3.11. The newest version (3.12) is not yet supported due to the scikits.odes dependency.
-
-* Step (3) installs scikits.odes separately using  ``conda install`` on purpose. Installing scikits.odes via ``pip`` complicates the setup by requiring extra pre-installed software and compilers, as covered in the [scikits.odes documentation](https://scikits-odes.readthedocs.io/en/latest/).
-
-* The ``-e`` flag in step (4) installs BATMODS-lite in "editable" mode. Use this if you plan to make changes to the package.
-
-* The path in step (4) assumes you already used ``cd`` to move into the directory that includes the BATMODS-lite "setup.py" file. If this is not true, please ``cd`` into the correct directory, or change the path accordingly.
-
-## Get Started
-You are now ready to start running models. Run the following from your favorite terminal/IDE to see helpful documentation, examples, and more:
-
-```python
-import bmlite as bm
-
-bm.docs()
+```
+pip install .             (basic installation)
+pip install -e .[dev]     (editable installtion with developer options)
 ```
 
-Or, run the following mini script to simulate the default single particle model (SPM) in a constant 2C discharge experiment for 1350 seconds. The returned solution ``sol`` includes post processing/plotting methods. The final line below plots the current, voltage, and power vs. time.
+The editable installation is useful if you plan to make changes to your local package. It ensures that any changes are immediately availabe each time the package is imported, without needing to reinstall. The developer options will likely be helpful if you are modifying the package. For more info on pre-build developer routines look at `noxfile.py`.
+
+## Get Started
+The API is organized around three main classes that allow you to construct simulations, define experiments, and interact with solutions. Two basic examples are given below. These demonstrate a 2C discharge for both the single particle model (SPM) and pseudo-2D (P2D) model. Note that the experiment class interfaces with all simulations. The simulations and their respective solutions, however, will depend on the model subpackage they are loaded from.
 
 ```python
+# Single particle model example
 import bmlite as bm
 
 sim = bm.SPM.Simulation()
 
-exp = {'C_rate': -2.0, 
-       't_min': 0.0,
-       't_max': 1350.0,
-       'Nt': 150
-       }
+expr = bm.Experiment()
+expr.add_step('current_C', -2., (1350., 150))
 
-sol = sim.run_CC(exp)
-sol.plot('ivp')
+soln = sim.run(expr)
+soln.simple_plot('time_s', 'voltage_V')
+```
+
+```python
+# Pseudo-2D model example
+import bmlite as bm
+
+sim = bm.P2D.Simulation()
+
+expr = bm.Experiment()
+expr.add_step('current_C', -2., (1350., 150))
+
+soln = sim.run(expr)
+soln.simple_plot('time_s', 'voltage_V')
 ```
 
 **Notes:**
-* If you are new to Python, check out [Spyder IDE](https://www.spyder-ide.org/). Spyder is a powerful interactive development environment (IDE). BATMODS-lite is programmed almost entirely using the Spyder IDE. 
+* If you are new to Python, check out [Spyder IDE](https://www.spyder-ide.org/). Spyder is a powerful interactive development environment (IDE) that can make programming in Python more approachable to new users.
 
-* You can install Spyder using ``conda install spyder``. Afterward, you can find the application on your system, or run ``spyder`` in Anaconda Prompt or Terminal to open an instance.
-
-## Formatting
-BATMODS-lite code mostly follows the [PEP8 style guide](https://www.python.org/dev/peps/pep-0008). However, we allow adding extra spaces around parentheses or brackets, and under- or over-indenting multi-line expressions when it improves readability or avoids the 80-character line limit. 
-
-Be aware that it is the authors' preference to not adopt the more opinionated [black formatting style](https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html). Please avoid autoformatting any files in this style if you plan to contribute.
+## Citing this Work
 
 ## Acknowledgements
-This work was authored by the National Renewable Energy Laboratory (NREL), operated by Alliance for Sustainable Energy, LLC, for the U.S. Department of Energy (DOE) under Contract No. DE-AC36-08GO28308. This work was supported by funding from DOE's Vehicle Technologies Office (VTO) and Advanced Scientific Computing Research (ASCR) program. The research was performed using computational resources sponsored by the Department of Energy's Office of Energy Efficiency and Renewable Energy and located at the National Renewable Energy Laboratory. The views expressed in the repository do not necessarily represent the views of the DOE or the U.S. Government.
+
+## Contributing
+If you plan to contribute, please use `nox` to ensure the package is developed and tested in a consistent way between local copies and continuous integration (CI) runs. You can read through sessions in `noxfile.py` to see what all functionality is already set up for you. In a brief overview, the following shows how to lint, spellcheck, and run tests.
+
+```
+nox -s linter
+nox -s codespell
+nox -s tests
+```
+
+All of these and more are run with `nox -s pre-commit` which should be used before all commits back to the remote repository. Running the pre-commit session locally saves time by helping to catch errors that may occur during the CI builds and tests.
+
+## Disclaimer
+This work was authored by the National Renewable Energy Laboratory (NREL), operated by Alliance for Sustainable Energy, LLC, for the U.S. Department of Energy (DOE). The views expressed in the repository do not necessarily represent the views of the DOE or the U.S. Government.
