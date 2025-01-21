@@ -180,7 +180,7 @@ class Electrolyte(object):
 
 class Electrode(object):
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, name: str, **kwargs) -> None:
         """
         A class for the electrode-specific attributes and methods.
 
@@ -189,6 +189,8 @@ class Electrode(object):
 
         Parameters
         ----------
+        name : str
+            Name of the electrode, must be either 'anode' or 'cathode'.
         **kwargs : dict, required
             Keyword arguments to set the electrode attributes. The required
             keys and descriptions are given below:
@@ -215,6 +217,11 @@ class Electrode(object):
             ========= ========================================================
 
         """
+
+        if name not in ['anode', 'cathode']:
+            raise ValueError("'name' must be either 'anode' or 'cathode'.")
+
+        self.name = name
 
         self.Nx = kwargs.get('Nx')
         self.Nr = kwargs.get('Nr')

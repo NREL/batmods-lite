@@ -162,7 +162,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     phi_ca = sv[ca.ptr['phi_ed']]
 
     xs_an = sv[an.r_ptr['Li_ed']]
-    xs_ca = sv[ca.r_ptr['Li_ed']]
+    xs_ca = np.flip(sv[ca.r_ptr['Li_ed']])
 
     Li_an = xs_an*an.Li_max
     Li_ca = xs_ca*ca.Li_max
@@ -210,7 +210,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     Js_ca = np.concat([[0.], Ds_ca*grad_r(ca.r, Li_ca), [-sdot_ca]])
 
     res[ca.r_ptr['Li_ed']] = ca.Li_max*svdot[ca.r_ptr['Li_ed']] \
-                           - div_r(ca.rm, ca.rp, Js_ca)
+                           - np.flip(div_r(ca.rm, ca.rp, Js_ca))
 
     # External current [A/m^2]
     i_ext = -sdot_an*an.A_s*an.thick*c.F

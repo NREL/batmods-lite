@@ -82,9 +82,9 @@ class Simulation(object):
 
         self.bat = Battery(**yamldict['battery'])
         self.el = Electrolyte(**yamldict['electrolyte'])
-        self.an = Electrode(**yamldict['anode'])
+        self.an = Electrode('anode', **yamldict['anode'])
         self.sep = Separator(**yamldict['separator'])
-        self.ca = Electrode(**yamldict['cathode'])
+        self.ca = Electrode('cathode', **yamldict['cathode'])
 
         # Function output flags
         self._flags = {}

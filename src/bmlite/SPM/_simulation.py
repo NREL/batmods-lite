@@ -82,8 +82,8 @@ class Simulation(object):
 
         self.bat = Battery(**yamldict['battery'])
         self.el = Electrolyte(**yamldict['electrolyte'])
-        self.an = Electrode(**yamldict['anode'])
-        self.ca = Electrode(**yamldict['cathode'])
+        self.an = Electrode('anode', **yamldict['anode'])
+        self.ca = Electrode('cathode', **yamldict['cathode'])
 
         # Function output flags
         self._flags = {}
@@ -124,8 +124,8 @@ class Simulation(object):
 
         # Make meshes/pointers
         self.an.make_mesh()
-        self.ca.make_mesh(pshift=self.an.ptr['shift'])
-        self.el.make_mesh(pshift=self.an.ptr['shift'] + self.ca.ptr['shift'])
+        self.el.make_mesh(pshift=self.an.ptr['shift'])
+        self.ca.make_mesh(pshift=self.an.ptr['shift'] + self.el.ptr['shift'])
 
         # Initialize potentials [V]
         self.an.phi_0 = 0.
@@ -137,12 +137,12 @@ class Simulation(object):
 
         # Initialize sv and svdot
         self._t0 = 0.
-        self._sv0 = np.hstack([self.an.sv0(), self.ca.sv0(), self.el.sv0()])
+        self._sv0 = np.hstack([self.an.sv0(), self.el.sv0(), self.ca.sv0()])
         self._svdot0 = np.zeros_like(self._sv0)
 
         # Algebraic indices
-        self._algidx = self.an.algidx().tolist() + self.ca.algidx().tolist() \
-                     + self.el.algidx().tolist()
+        self._algidx = self.an.algidx().tolist() + self.el.algidx().tolist() \
+                     + self.ca.algidx().tolist()
 
         # Determine the bandwidth
         # self._lband, self._uband, _ = bandwidth(self)

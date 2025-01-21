@@ -1,14 +1,15 @@
 """
 Domains Module
 --------------
-Contains classes to construct the battery for P2D simulations. Each class reads
+Contains classes to construct the battery for SPM simulations. Each class reads
 in keyword arguments that define parameters relevant to its specific domain.
 For example, the area and temperature are ``Battery`` level parameters because
-they are the same everywhere, but the discretizations ``Nx`` and ``Nr`` may be
-different for the anode, separator, and cathode domains.
+they are the same everywhere, but the discretization ``Nr`` may be different
+for the anode and cathode domains.
+
 """
 
-from numpy import ndarray as _ndarray
+import numpy as np
 
 
 class Battery(object):
@@ -30,6 +31,7 @@ class Battery(object):
             temp   temperature [K] (*float*)
             area   area normal to the current collectors [m^2] (*float*)
             ====== =====================================================
+
         """
 
         self.cap = kwargs.get('cap')
@@ -46,6 +48,7 @@ class Battery(object):
         Returns
         -------
         None.
+
         """
         pass
 
@@ -67,6 +70,7 @@ class Electrolyte(object):
             ======== ==============================================
             li_0     initial Li+ concentration [kmol/m^3] (*float*)
             ======== ==============================================
+
         """
 
         self.Li_0 = kwargs.get('Li_0', 1.2)
@@ -79,6 +83,7 @@ class Electrolyte(object):
         Returns
         -------
         None.
+
         """
         pass
 
@@ -90,11 +95,11 @@ class Electrolyte(object):
 
         self.ptr['shift'] = 1
 
-    def sv0(self) -> _ndarray:
+    def sv0(self) -> np.ndarray:
         import numpy as np
         return np.array([self.phi_0])
 
-    def algidx(self) -> _ndarray:
+    def algidx(self) -> np.ndarray:
         import numpy as np
         return np.hstack([self.ptr['phi_el']])
 
@@ -108,7 +113,7 @@ class Electrolyte(object):
 
 class Electrode(object):
 
-    def __init__(self, **kwargs):
+    def __init__(self, name: str, **kwargs):
         """
         A class for the electrode-specific attributes and methods.
 
@@ -117,6 +122,8 @@ class Electrode(object):
 
         Parameters
         ----------
+        name : str
+            Name of the electrode, must be either 'anode' or 'cathode'.
         **kwargs : dict, required
             Keyword arguments to set the electrode attributes. The required
             keys and descriptions are given below:
@@ -138,7 +145,13 @@ class Electrode(object):
             Ds_deg    ``Ds`` degradation factor [-] (*float*)
             material  class name from ``bmlite.materials`` [-] (*str*)
             ========= =========================================================
+
         """
+
+        if name not in ['anode', 'cathode']:
+            raise ValueError("'name' must be either 'anode' or 'cathode'.")
+
+        self.name = name
 
         self.Nr = kwargs.get('Nr')
         self.thick = kwargs.get('thick')
@@ -171,6 +184,7 @@ class Electrode(object):
         Returns
         -------
         None.
+
         """
 
         from .. import materials
@@ -185,7 +199,7 @@ class Electrode(object):
         Material = getattr(materials, self.material)
         self._material = Material(self.alpha_a, self.alpha_c, self.Li_max)
 
-    def get_Ds(self, x: float | _ndarray, T: float) -> float | _ndarray:
+    def get_Ds(self, x: float | np.ndarray, T: float) -> float | np.ndarray:
         """
         Calculate the lithium diffusivity in the solid phase given the local
         intercalation fraction ``x`` and temperature ``T``.
@@ -194,7 +208,6 @@ class Electrode(object):
         ----------
         x : float | 1D array
             Lithium intercalation fraction [-].
-
         T : float
             Battery temperature [K].
 
@@ -202,6 +215,7 @@ class Electrode(object):
         -------
         Ds : float | 1D array
             Lithium diffusivity in the solid phase [m^2/s].
+
         """
 
         return self.Ds_deg * self._material.get_Ds(x, T)
@@ -216,10 +230,8 @@ class Electrode(object):
         ----------
         x : float
             Lithium intercalation fraction at ``r = R_s`` [-].
-
         C_Li : float
             Lithium ion concentration in the local electrolyte [kmol/m^3].
-
         T : float
             Battery temperature [K].
 
@@ -227,6 +239,7 @@ class Electrode(object):
         -------
         i0 : float
             Exchange current density [A/m^2].
+
         """
 
         return self.i0_deg * self._material.get_i0(x, C_Li, T)
@@ -240,7 +253,6 @@ class Electrode(object):
         ----------
         x : float
             Lithium intercalation fraction at ``r = R_s`` [-].
-
         T : float
             Battery temperature [K].
 
@@ -270,6 +282,7 @@ class Electrode(object):
         See also
         --------
         batmods.mesh.r_ptr, batmods.mesh.uniform_mesh
+
         """
 
         from ..mesh import r_ptr, uniform_mesh
@@ -278,25 +291,30 @@ class Electrode(object):
         self.rm, self.rp, self.r = uniform_mesh(self.R_s, self.Nr)
 
         # Pointers
-        # [[ptr_an], [ptr_ca], phi_el]
-        # ptr_an and ptr_ca -> [[Li_ed(0->R_s)], phi_ed]
+        # [[ptr_an], phi_el, [ptr_ca]]
+        # ptr_an -> [[Li_ed(0->R_s)], phi_ed]
+        # ptr_ca -> [phi_ed, [Li_ed(R_s->0)]]
 
         self.ptr = {}
-        self.ptr['Li_ed'] = 0 + pshift
+        if self.name == 'anode':
+            self.ptr['Li_ed'] = 0 + pshift
+            self.ptr['phi_ed'] = self.ptr['Li_ed'] + self.Nr
+        elif self.name == 'cathode':
+            self.ptr['phi_ed'] = 0 + pshift
+            self.ptr['Li_ed'] = self.ptr['phi_ed'] + 1
+
         self.ptr['r_off'] = 1
-
-        self.ptr['phi_ed'] = self.ptr['Li_ed'] + self.Nr
-
         self.ptr['shift'] = self.Nr + 1
 
         r_ptr(self, ['Li_ed'])
 
     def sv0(self):
-        import numpy as np
-        return np.hstack([self.x_0 * np.ones(self.Nr), self.phi_0])
+        if self.name == 'anode':
+            return np.hstack([self.x_0*np.ones(self.Nr), self.phi_0])
+        elif self.name == 'cathode':
+            return np.hstack([self.phi_0, self.x_0*np.ones(self.Nr)])
 
     def algidx(self):
-        import numpy as np
         return np.array([self.ptr['phi_ed']])
 
     def to_dict(self, sol: object) -> dict:

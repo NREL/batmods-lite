@@ -7,11 +7,11 @@ bmlite.SPM.domains
 
    .. rubric:: Domains Module
 
-   Contains classes to construct the battery for P2D simulations. Each class reads
+   Contains classes to construct the battery for SPM simulations. Each class reads
    in keyword arguments that define parameters relevant to its specific domain.
    For example, the area and temperature are ``Battery`` level parameters because
-   they are the same everywhere, but the discretizations ``Nx`` and ``Nr`` may be
-   different for the anode, separator, and cathode domains.
+   they are the same everywhere, but the discretization ``Nr`` may be different
+   for the anode and cathode domains.
 
 
 
@@ -57,7 +57,7 @@ Module Contents
 
 
 
-.. py:class:: Electrode(**kwargs)
+.. py:class:: Electrode(name, **kwargs)
 
 
 
@@ -67,6 +67,8 @@ Module Contents
    This class is used to build both the anode and cathode for P2D
    simulations.
 
+   :param name: Name of the electrode, must be either 'anode' or 'cathode'.
+   :type name: str
    :param \*\*kwargs: Keyword arguments to set the electrode attributes. The required
                       keys and descriptions are given below:
 

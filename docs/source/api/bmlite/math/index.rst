@@ -32,154 +32,138 @@ Functions
 Module Contents
 ---------------
 
-.. py:function:: div_r(rm, rp, f, axis = 0)
+.. py:function:: div_r(rm, rp, f, axis = -1)
 
-   The divergence of vector field ``f`` in the spherical ``r`` direction.
+   Return spherical r-divergence.
 
-   If ``f`` is a multi-dimensional array (i.e., greater than 1D), then
-   ``axis`` should specify the dimension that is consistent with the
-   specified ``r`` array.
-
-   :param rm: Coordinate values for the control volumes' "minus" interfaces.
-   :type rm: 1D array
-   :param rp: Coordinate values for the control volumes' "plus" interfaces.
-   :type rp: 1D array
-   :param f: Dependent variable values that correspond to the control volumes'
-             interface coordinates along ``axis``.
-   :type f: ND array
-   :param axis: The axis index of ``f`` that corresponds to the ``rm`` and ``rp``
-                interface coordinate values. The default is 0.
+   :param rm: Independent variable values at "minus" boundaries.
+   :type rm: 1D np.array
+   :param rp: Independent variable values at "plus" boundaries.
+   :type rp: 1D np.array
+   :param f: Dependent variable evaluated at r boundaries.
+   :type f: np.array
+   :param axis: f dimension corresponding to r. The default is -1.
    :type axis: int, optional
 
-   :returns: **df_dr** (*ND array*) -- The divergence ``1/r**2 * d(r**2 * f)/dr``. Note that the shape of
-             ``df_dr`` will be reduced by one, compared to ``f``, along ``axis``.
+   :returns: **df_dr** (*np.array*) -- The divergence ``1/r**2 * d(r**2 * f)/dr``. The shape is one fewer
+             than ``f`` along the specified axis.
 
 
-.. py:function:: div_x(xm, xp, f, axis = 0)
+.. py:function:: div_x(xm, xp, f, axis = -1)
 
-   The divergence of vector field ``f`` in the ``x`` direction.
+   Return Cartesian x-divergence.
 
-   Although ``x`` is used here as the variable name, this function is equally
-   valid for any other Cartesian coordinate. If ``f`` is a multi-dimensional
-   array (i.e., greater than 1D), then ``axis`` should specify the dimension
-   that is consistent with the specified ``x`` array.
+   :param xm: Independent variable values at "minus" boundaries.
+   :type xm: 1D np.array
+   :param xp: Independent variable values at "plus" boundaries.
+   :type xp: 1D np.array
+   :param f: Dependent variable evaluated at x boundaries.
+   :type f: np.array
+   :param axis: f dimension corresponding to x. The default is -1.
+   :type axis: int, optional
 
-   To get the total divergence for an N-dimensional array, you will have to
-   add together the divergence components. For example,
+   :returns: **df_dx** (*np.array*) -- The divergence ``df/dx``. The shape is one fewer than ``f`` along the
+             specified axis.
+
+   .. rubric:: Notes
+
+   This function is valid for any Cartesian direction, not just x. To get
+   the 2D or 3D divergence, you have to evaluate and add the separate terms.
+   For example,
 
    .. code-block:: python
 
        div_f = div_x(xm, xp, fx, 0) + div_x(ym, yp, fy, 1)
              + div_x(zm, zp, fz, 2)
 
-   where ``fx`` is a vector field evaluated at all ``x`` interfaces that
-   intersect the ``y`` and ``z`` control volume centers, ``fy`` is a vector
-   field evaluated at all ``y`` interfaces that intersect the ``x`` and ``z``
-   control volume centers, and ``fz`` is a vector field evaluated at all
-   ``z`` interfaces that intersect the ``x`` and ``y`` control volume centers.
-   Therefore, if ``(x, y, z)`` has shape ``(n, m, p)`` then ``fx``, ``fy``,
-   and ``fz`` have the respective shapes ``(n+1, m, p)``, ``(n+1, m+1, p)``,
-   and ``(n+1, m, p+1)``
+   The ``fx``, ``fy``, and ``fz`` terms must be evaluated at the ``x``, ``y``,
+   and ``z`` boundaries, respectively. For example, a grid with (Nx, Ny, Nz)
+   volume discretizations will have an ``fx`` with shape (Nx + 1, Ny, Nz)
+   because the number of boundaries is always one greater than the number of
+   volumes.
 
-   :param xm: Coordinate values for the control volumes' "minus" interfaces.
-   :type xm: 1D array
-   :param xp: Coordinate values for the control voluemes' "plus" interfaces.
-   :type xp: 1D array
-   :param f: Dependent variable values that correspond to the control volumes'
-             interface coordinates along ``axis``.
-   :type f: ND array
-   :param axis: The axis index of ``f`` that corresponds to the ``xm`` and ``xp``
-                interface coordinate values. The default is 0.
+
+.. py:function:: grad_r(r, f, axis = -1)
+
+   Return spherical r-gradient.
+
+   :param r: Independent variable values.
+   :type r: 1D np.array
+   :param f: Dependent variable values.
+   :type f: np.array
+   :param axis: f dimension corresponding to r. The default is -1.
    :type axis: int, optional
 
-   :returns: **df_dx** (*ND array*) -- The divergence ``df/dx``. Note that the shape of ``df_dx`` will be
-             reduced by one, compared to ``f``, along ``axis``.
+   :returns: **df_dr** (*np.array*) -- The gradient ``df/dr``. The shape is one fewer than ``f`` along the
+             specified axis.
 
 
-.. py:function:: grad_r(r, f, axis = 0)
+.. py:function:: grad_x(x, f, axis = -1)
 
-   The gradient of ``f`` in the spherical ``r`` direction.
+   Return Cartesian x-gradient.
 
-   If ``f`` is a multi-dimensional array (i.e., greater than 1D), then
-   ``axis`` should specify the dimension that is consistent with the
-   specified ``r`` array.
-
-   :param r: Coordinate values for the independent variable.
-   :type r: 1D array
-   :param f: Dependent variable values that correspond to the ``r`` coordinate
-             locations along ``axis``.
-   :type f: ND array
-   :param axis: The axis index of ``f`` that corresponds to the ``r`` coordinate
-                values. The default is 0.
+   :param x: Independent variable values.
+   :type x: 1D np.array
+   :param f: Dependent variable values.
+   :type f: np.array
+   :param axis: f dimension corresponding to x. The default is -1.
    :type axis: int, optional
 
-   :returns: **df_dr** (*ND array*) -- The gradient ``df/dr``. Note that the shape of ``df_dr`` will be
-             reduced by one, compared to ``f``, along ``axis``.
+   :returns: **df_dx** (*np.array*) -- The gradient ``df/dx``. The shape is one fewer than ``f`` along the
+             specified axis.
+
+   .. rubric:: Notes
+
+   This function is valid for any Cartesian direction, not just x.
 
 
-.. py:function:: grad_x(x, f, axis = 0)
+.. py:function:: int_r(rm, rp, f, axis = -1)
 
-   The gradient of ``f`` in the ``x`` direction.
+   Return spherical r-integral.
 
-   Although ``x`` is used here as the variable name, this function is equally
-   valid for any other Cartesian coordinate. If ``f`` is a multi-dimensional
-   array (i.e., greater than 1D), then ``axis`` should specify the dimension
-   that is consistent with the specified ``x`` array.
-
-   :param x: Coordinate values for the independent variable.
-   :type x: 1D array
-   :param f: Dependent variable values that correspond to the ``x`` coordinate
-             locations along ``axis``.
-   :type f: ND array
-   :param axis: The axis index of ``f`` that corresponds to the ``x`` coordinate
-                values. The default is 0.
+   :param rm: Independent variable values at "minus" boundaries.
+   :type rm: 1D np.array
+   :param rp: Independent variable values at "plus" boundaries.
+   :type rp: 1D nb.array
+   :param f: Dependent variable evaluated at r centers.
+   :type f: np.array
+   :param axis: f dimension corresponding to r. The default is -1.
    :type axis: int, optional
 
-   :returns: **df_dx** (*ND array*) -- The gradient ``df/dx``. Note that the shape of ``df_dx`` will be
-             reduced by one, compared to ``f``, along ``axis``.
+   :returns: **int_r** (*np.array*) -- The result of integration. The dimension of the result is one fewer
+             than ``f`` along the specified axis.
+
+   .. rubric:: Notes
+
+   The result is over all spherical dimensions (r, theta, phi) assuming ``f``
+   is independent of theta and phi.
+
+   The integral is written for numerical results from finite volume solutions.
+   Integration is performed over meshed control volumes, where ``f[i]`` is
+   assumed uniform within a volume defined by ``rm[i] < r < rp[i]``.
 
 
-.. py:function:: int_r(rm, rp, f, axis = 0)
+.. py:function:: int_x(xm, xp, f, axis = -1)
 
-   Integral of ``f`` with respect to the spherical ``r`` assuming ``f``
-   is uniform within each control volume ``i`` defined by the bounds
-   ``rm[i] <= r[i] <= rp[i]``.
+   Return Cartesian x-integral.
 
-   :param rm: Coordinate values for the control volumes' "minus" interfaces.
-   :type rm: 1D array
-   :param rp: Coordinate values for the control voluemes' "plus" interfaces.
-   :type rp: 1D array
-   :param f: Dependent variable values that correspond to the control volumes'
-             center coordinates along ``axis``.
-   :type f: ND array
-   :param axis: The axis index of ``f`` that corresponds to the ``x`` coordinate. The
-                default is 0.
+   :param xm: Independent variable values at "minus" boundaries.
+   :type xm: 1D np.array
+   :param xp: Independent variable values at "plus" boundaries.
+   :type xp: 1D np.array
+   :param f: Dependent variable evaluated at x centers.
+   :type f: np.array
+   :param axis: f dimension corresponding to x. The default is -1.
    :type axis: int, optional
 
-   :returns: **int_r** (*float | ND array*) -- The result of integration. If ``f`` is 1D, the returned value will be
-             a scalar. Otherwise, an array with one fewer dimensions than ``f`` will
-             be returned.
+   :returns: **int_x** (*np.array*) -- The result of integration. The dimension of the result is one fewer
+             than ``f`` along the specified axis.
 
+   .. rubric:: Notes
 
-.. py:function:: int_x(xm, xp, f, axis = 0)
-
-   Integral of ``f`` with respect to ``x`` assuming ``f`` is uniform within
-   each control volume ``i`` defined by the bounds ``xm[i] <= x[i] <= xp[i]``.
-
-   :param xm: Coordinate values for the control volumes' "minus" interfaces.
-   :type xm: 1D array
-   :param xp: Coordinate values for the control voluemes' "plus" interfaces.
-   :type xp: 1D array
-   :param f: Dependent variable values that correspond to the control volumes'
-             center coordinates along ``axis``.
-   :type f: ND array
-   :param axis: The axis index of ``f`` that corresponds to the ``x`` coordinate. The
-                default is 0.
-   :type axis: int, optional
-
-   :returns: **int_x** (*float | ND array*) -- The result of integration. If ``f`` is 1D, the returned value will be
-             a scalar. Otherwise, an array with one fewer dimensions than ``f`` will
-             be returned.
+   The integral is written for numerical results from finite volume solutions.
+   Integration is performed over meshed control volumes, where ``f[i]`` is
+   assumed uniform within a volume defined by ``xm[i] < x < xp[i]``.
 
 
 .. py:function:: param_combinations(params, values)
