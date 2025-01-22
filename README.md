@@ -47,7 +47,7 @@ import bmlite as bm
 sim = bm.SPM.Simulation()
 
 expr = bm.Experiment()
-expr.add_step('current_C', -2., (1350., 150))
+expr.add_step('current_C', 2., (1350., 150))
 
 soln = sim.run(expr)
 soln.simple_plot('time_s', 'voltage_V')
@@ -60,7 +60,7 @@ import bmlite as bm
 sim = bm.P2D.Simulation()
 
 expr = bm.Experiment()
-expr.add_step('current_C', -2., (1350., 150))
+expr.add_step('current_C', 2., (1350., 150))
 
 soln = sim.run(expr)
 soln.simple_plot('time_s', 'voltage_V')
