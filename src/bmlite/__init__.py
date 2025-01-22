@@ -42,9 +42,9 @@ from . import P2D
 from . import SPM
 
 # Other submodules/subpackages
-from . import math
-from . import mesh
+from . import mathutils
 from . import materials
+from . import mesh
 from . import plotutils
 
 __version__ = '0.0.2'
@@ -57,8 +57,8 @@ __all__ = [
     '_templates',
     'P2D',
     'SPM',
-    'math',
-    'mesh',
+    'mathutils',
     'materials',
+    'mesh',
     'plotutils',
 ]

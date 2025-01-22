@@ -32,7 +32,7 @@ class BaseSolution(IDAResult):
         """
 
         self.vars = {}
-        self.postvars = False
+        self._postvars = False
 
     def __repr__(self) -> str:  # pragma: no cover
         """
@@ -78,16 +78,14 @@ class BaseSolution(IDAResult):
 
         return readable
 
-    # TODO
-    # def post(self) -> None:
-    #     from ..postutils import post
-    #     postvars = post(self)
+    def post(self) -> None:
+        from .postutils import post
+        postvars = post(self)
 
-    #     self.vars['current_A'] = postvars['current_A']
-    #     self.vars['current_C'] = postvars['current_C']
+        self.vars['an']['sdot'] = postvars['sdot_an']
+        self.vars['ca']['sdot'] = postvars['sdot_ca']
 
-    #     self.vars['an']['sdot'] = postvars['sdot_an']
-    #     self.vars['ca']['sdot'] = postvars['sdot_ca']
+        self._postvars = True
 
     def simple_plot(self, x: str, y: str, **kwargs) -> None:
         """
@@ -124,62 +122,44 @@ class BaseSolution(IDAResult):
         if not plt.isinteractive():
             atexit.register(plt.show)
 
-    # TODO
-    # def complex_plot(self, *args: str) -> None:
-    #     """
-    #     Generates requested plots based on ``*args``.
+    def complex_plot(self, *args: str) -> None:
+        """
+        Generates requested plots based on ``*args``.
 
-    #     Parameters
-    #     ----------
-    #     *args : str
-    #         Use any number of the following arguments to see the described
-    #         plots:
+        Parameters
+        ----------
+        *args : str
+            Use any number of the following arguments to see the described
+            plots:
 
-    #         ================= ===============================================
-    #         arg               Plot description
-    #         ================= ===============================================
-    #         'potentials'      anode, cathode, and electrolyte potentials [V]
-    #         'intercalation'   anode/cathode particle Li fractions vs. r and t
-    #         'pixels'          pixel plots for solid Li concentrations
-    #         ================= ===============================================
+            ================= ===============================================
+            arg               Plot description
+            ================= ===============================================
+            'potentials'      anode, cathode, and electrolyte potentials [V]
+            'intercalation'   anode/cathode particle Li fractions vs. r and t
+            'pixels'          pixel plots for solid Li concentrations
+            ================= ===============================================
 
-    #     Returns
-    #     -------
-    #     None.
+        Returns
+        -------
+        None.
 
-    #     """
+        """
 
-    #     if not self.postvars:
-    #         self.post()
-    #         self.postvars = True
+        if not self._postvars:
+            self.post()
 
-    #     if 'current' in args:
-    #         from ..postutils import current
-    #         current(self)
+        if 'potentials' in args:
+            from .postutils import potentials
+            potentials(self)
 
-    #     if 'voltage' in args:
-    #         from ..postutils import voltage
-    #         voltage(self)
+        if 'intercalation' in args:
+            from .postutils import intercalation
+            intercalation(self)
 
-    #     if 'power' in args:
-    #         from ..postutils import power
-    #         power(self)
-
-    #     if 'ivp' in args:
-    #         from ..postutils import ivp
-    #         ivp(self)
-
-    #     if 'potentials' in args:
-    #         from ..postutils import potentials
-    #         potentials(self)
-
-    #     if 'intercalation' in args:
-    #         from ..postutils import intercalation
-    #         intercalation(self)
-
-    #     if 'pixels' in args:
-    #         from ..postutils import pixels
-    #         pixels(self)
+        if 'pixels' in args:
+            from .postutils import pixels
+            pixels(self)
 
     def to_dict(self) -> dict:
         """
@@ -212,6 +192,9 @@ class BaseSolution(IDAResult):
 
         """
 
+        if not self._postvars:
+            self.post()
+
         vars = {
             'r_a': self.vars['an']['r'],
             'r_c': self.vars['ca']['r'],
@@ -221,8 +204,8 @@ class BaseSolution(IDAResult):
             'phis_c': self.vars['ca']['phis'],
             'cs_c': self.vars['ca']['cs'],
             'phie': self.vars['el']['phie'],
-            # 'j_a': self.vars['an']['sdot'],  # TODO
-            # 'j_c': self.vars['ca']['sdot'],  # TODO
+            'j_a': self.vars['an']['sdot'],
+            'j_c': self.vars['ca']['sdot'],
         }
 
         return vars
@@ -298,23 +281,24 @@ class BaseSolution(IDAResult):
         ca = sim.ca.to_dict(self)
         el = sim.el.to_dict(self)
 
-        time = self.t
-        voltage = ca['phis']
-        current = np.zeros_like(time)  # TODO
-
         # domain variables
         self.vars['an'] = an
         self.vars['ca'] = ca
         self.vars['el'] = el
 
         # stored time
+        time = self.t
+
         self.vars['time_s'] = time
         self.vars['time_min'] = time / 60.
         self.vars['time_h'] = time / 3600.
 
         # common variables
+        voltage = ca['phis']
+        current = sim.ca._boundary_current(self)
+
         self.vars['current_A'] = current
-        self.vars['current_C'] = current*sim.bat.cap
+        self.vars['current_C'] = current / sim.bat.cap
         self.vars['voltage_V'] = voltage
         self.vars['power_W'] = current*voltage
 

@@ -11,6 +11,7 @@
 ### Optimizations
 - Replaced `scikits-odes` solver with `scikit-sundae` to improve installation
 - Sped up SPM by flipping cathode pointers so that bandwidth is reduced to +/- 2
+- Use a generic `bandwidth` function instead of having one per model subpackage
 
 ### Bug Fixes
 

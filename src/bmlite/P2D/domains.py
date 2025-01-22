@@ -209,7 +209,7 @@ class Electrode(object):
             p_liq     liquid Bruggeman factor, ``eps_el**p_liq`` [-] (*float*)
             alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
             alpha_c   Butler-Volmer cathodic symmetry factor [-] (*float*)
-            Li_max    max solid-phase Li concentraion [kmol/m^3] (*float*)
+            Li_max    max solid-phase Li concentration [kmol/m^3] (*float*)
             x_0       initial solid-phase intercalation [-] (*float*)
             i0_deg    ``i0`` degradation factor [-] (*float*)
             Ds_deg    ``Ds`` degradation factor [-] (*float*)

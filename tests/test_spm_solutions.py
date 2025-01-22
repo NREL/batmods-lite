@@ -22,7 +22,7 @@ def soln():
     return soln
 
 
-def test_step_and_cycle_solutions(soln):
+def test_step_solution(soln):
 
     # solvetime works
     step_soln = soln.get_steps(0)
@@ -37,6 +37,15 @@ def test_step_and_cycle_solutions(soln):
         step_soln.simple_plot('time_h', 'voltage_V')
         plt.close('all')
 
+    # complex plots
+    args = ('potentials', 'intercalation', 'pixels')
+    with plt.ioff():
+        step_soln.complex_plot(*args)
+        plt.close('all')
+
+
+def test_cycle_solution(soln):
+
     # solvetime works and times stacked correctly
     cycle_soln = soln.get_steps((0, 1))
     assert cycle_soln.solvetime
@@ -49,4 +58,10 @@ def test_step_and_cycle_solutions(soln):
     # good plot
     with plt.ioff():
         cycle_soln.simple_plot('time_h', 'voltage_V')
+        plt.close('all')
+
+    # complex plots
+    args = ('potentials', 'intercalation', 'pixels')
+    with plt.ioff():
+        cycle_soln.complex_plot(*args)
         plt.close('all')

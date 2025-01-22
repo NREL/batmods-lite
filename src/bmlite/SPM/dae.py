@@ -11,95 +11,6 @@ so the ``'band'`` linear solver option can be used in the ``IDASolver`` class.
 import numpy as np
 
 
-def bandwidth(sim: object) -> tuple[int | np.ndarray]:
-    """
-    Determine the DAE system's bandwidth and Jacobian pattern.
-
-    Numerically determines the bandwidth and Jacobian pattern of the residual
-    function by perturbating each ``y`` and ``yp`` term and determining which
-    ``dres/dy`` and ``dres/dy'`` terms are non-zero. The bandwidth is required
-    to use the "band" option for IDA's linear solver, which speeds up each
-    integration step compared to the "dense" linear solver.
-
-    Parameters
-    ----------
-    inputs : SPM Simulation object
-        An instance of the SPM model simulation. See
-        :class:`bmlite.SPM.Simulation`.
-
-    Returns
-    -------
-    lband : int
-        Lower bandwidth from the residual function's Jacobian pattern.
-    uband : int
-        Upper bandwidth from the residual function's Jacobian pattern.
-    j_pat : 2D array
-        Residual function Jacobian pattern, as an array of ones and zeros.
-
-    """
-
-    # Jacobian size
-    N = sim._sv0.size
-
-    # Fake OCV experiment
-    expr = {
-        'mode': 'current',
-        'units': 'C',
-        'value': lambda t: 0.,
-    }
-
-    # Perturbed variables
-    jac = np.zeros([N, N])
-    sv = sim._sv0.copy()
-    svdot = sim._svdot0.copy()
-    res = np.zeros_like(sv)
-
-    residuals(0, sv, svdot, res, (sim, expr))
-    res_0 = res.copy()
-
-    for j in range(N):
-        dsv = np.copy(sv)
-        res = np.copy(res)
-        svdot = np.copy(svdot)
-
-        dsv[j] = sv[j] + max(1e-6, 1e-6*sv[j])
-        residuals(0, dsv, svdot, res, (sim, expr))
-        dres = res_0 - res
-
-        jac[:, j] = dres
-
-    for j in range(N):
-        sv = np.copy(sv)
-        res = np.copy(res)
-        dsvdot = np.copy(svdot)
-
-        dsvdot[j] = svdot[j] + max(1e-6, 1e-6*svdot[j])
-        residuals(0., sv, dsvdot, res, (sim, expr))
-        dres = res_0 - res
-
-        jac[:, j] += dres
-
-    # Find lband and uband
-    lband = 0
-    uband = 0
-
-    for i in range(jac.shape[0]):
-
-        l_inds = np.where(abs(jac[i, :i]) > 0)[0]
-        if len(l_inds) >= 1 and i - l_inds[0] > lband:
-            lband = int(i - l_inds[0])
-
-        u_inds = i + np.where(abs(jac[i, i:]) > 0)[0]
-        if len(u_inds) >= 1 and u_inds[-1] - i > uband:
-            uband = int(u_inds[-1] - i)
-
-    # Make Jacobian pattern of zeros and ones
-    j_pat = np.zeros_like(jac)
-    j_pat[jac != 0] = 1
-
-    return lband, uband, j_pat
-
-
 def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
               inputs: tuple[object, dict]) -> None | tuple[np.ndarray]:
     """
@@ -136,22 +47,18 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
         ========== =======================================================
         Variable   Description [units] (*type*)
         ========== =======================================================
-        res        residuals ``res = M*y' - f(t, y)`` [units] (*1D array*)
         sdot_an    anode Li+ production rate [kmol/m^3/s] (*float*)
         sdot_ca    cathode Li+ production rate [kmol/m^3/s] (*float*)
         ========== =======================================================
 
     """
 
-    from .. import Constants
-    from ..math import grad_r, div_r
-
-    c = Constants()
+    from ..mathutils import grad_r, div_r
 
     # Break inputs into separate objects
     sim, exp = inputs
 
-    bat, el, an, ca = sim.bat, sim.el, sim.an, sim.ca
+    c, bat, el, an, ca = sim.c, sim.bat, sim.el, sim.an, sim.ca
 
     # Simulation temperature
     T = bat.temp
@@ -173,14 +80,11 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     eta = phi_an - phi_el - an.get_Eeq(xs_an[-1], T)
 
     i0 = an.get_i0(xs_an[-1], el.Li_0, T)
-    sdot_an = i0 / c.F * (  np.exp( an.alpha_a * c.F * eta / c.R / T)
-                          - np.exp(-an.alpha_c * c.F * eta / c.R / T)  )
+    sdot_an = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
+                          - np.exp(-an.alpha_c*c.F*eta / c.R / T)  )
 
     # Weighted solid particle properties
-    wt_m = 0.5*(an.rp[:-1] - an.rm[:-1]) / (an.r[1:] - an.r[:-1])
-    wt_p = 0.5*(an.rp[1:] - an.rm[1:]) / (an.r[1:] - an.r[:-1])
-
-    Ds_an = wt_m*an.get_Ds(xs_an[:-1], T) + wt_p*an.get_Ds(xs_an[1:], T)
+    Ds_an = an._wtm*an.get_Ds(xs_an[:-1], T) + an._wtp*an.get_Ds(xs_an[1:], T)
 
     # Solid-phase COM (differential)
     Js_an = np.concat([[0.], Ds_an*grad_r(an.r, Li_an), [-sdot_an]])
@@ -201,10 +105,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
                           - np.exp(-ca.alpha_c*c.F*eta / c.R / T)  )
 
     # Weighted solid particle properties
-    wt_m = 0.5*(ca.rp[:-1] - ca.rm[:-1]) / (ca.r[1:] - ca.r[:-1])
-    wt_p = 0.5*(ca.rp[1:] - ca.rm[1:]) / (ca.r[1:] - ca.r[:-1])
-
-    Ds_ca = wt_m*ca.get_Ds(xs_ca[:-1], T) + wt_p*ca.get_Ds(xs_ca[1:], T)
+    Ds_ca = ca._wtm*ca.get_Ds(xs_ca[:-1], T) + ca._wtp*ca.get_Ds(xs_ca[1:], T)
 
     # Solid-phase COM (differential)
     Js_ca = np.concat([[0.], Ds_ca*grad_r(ca.r, Li_ca), [-sdot_ca]])

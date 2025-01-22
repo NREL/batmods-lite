@@ -19,7 +19,9 @@ def test_fake_yaml():
 
 
 def test_j_pattern(sim):
-    lband, uband = sim.j_pattern()
+    with plt.ioff():
+        lband, uband = sim.j_pattern(return_bands=True)
+
     assert sim._lband == lband
     assert sim._uband == uband
 

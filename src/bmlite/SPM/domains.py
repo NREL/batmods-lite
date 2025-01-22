@@ -139,7 +139,7 @@ class Electrode(object):
             eps_void  Void volume fraction [-] (*float*)
             alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
             alpha_c   Butler-Volmer cathodic symmetry factor [-] (*float*)
-            Li_max    max solid-phase lithium concentraion [kmol/m^3] (*float*)
+            Li_max    max solid-phase lithium concentration [kmol/m^3] (*float*)
             x_0       initial solid-phase intercalation fraction [-] (*float*)
             i0_deg    ``i0`` degradation factor [-] (*float*)
             Ds_deg    ``Ds`` degradation factor [-] (*float*)
@@ -151,7 +151,7 @@ class Electrode(object):
         if name not in ['anode', 'cathode']:
             raise ValueError("'name' must be either 'anode' or 'cathode'.")
 
-        self.name = name
+        self._name = name
 
         self.Nr = kwargs.get('Nr')
         self.thick = kwargs.get('thick')
@@ -290,16 +290,20 @@ class Electrode(object):
         # Mesh locations
         self.rm, self.rp, self.r = uniform_mesh(self.R_s, self.Nr)
 
+        self._wtm = 0.5*(self.rp[:-1] - self.rm[:-1]) / np.diff(self.r)
+
+        self._wtp = 0.5*(self.rp[1:] - self.rm[1:]) / np.diff(self.r)
+
         # Pointers
         # [[ptr_an], phi_el, [ptr_ca]]
         # ptr_an -> [[Li_ed(0->R_s)], phi_ed]
         # ptr_ca -> [phi_ed, [Li_ed(R_s->0)]]
 
         self.ptr = {}
-        if self.name == 'anode':
+        if self._name == 'anode':
             self.ptr['Li_ed'] = 0 + pshift
             self.ptr['phi_ed'] = self.ptr['Li_ed'] + self.Nr
-        elif self.name == 'cathode':
+        elif self._name == 'cathode':
             self.ptr['phi_ed'] = 0 + pshift
             self.ptr['Li_ed'] = self.ptr['phi_ed'] + 1
 
@@ -309,9 +313,9 @@ class Electrode(object):
         r_ptr(self, ['Li_ed'])
 
     def sv0(self):
-        if self.name == 'anode':
+        if self._name == 'anode':
             return np.hstack([self.x_0*np.ones(self.Nr), self.phi_0])
-        elif self.name == 'cathode':
+        elif self._name == 'cathode':
             return np.hstack([self.phi_0, self.x_0*np.ones(self.Nr)])
 
     def algidx(self):
@@ -321,6 +325,8 @@ class Electrode(object):
 
         phis = sol.y[:, self.ptr['phi_ed']]
         xs = sol.y[:, self.r_ptr['Li_ed']]
+        if self._name == 'cathode':
+            xs = np.flip(xs, axis=1)
 
         ed_sol = {
             'r': self.r,
@@ -330,3 +336,30 @@ class Electrode(object):
         }
 
         return ed_sol
+
+    def _boundary_current(self, soln):
+        sim = soln._sim
+
+        bat, el = sim.bat, sim.el
+
+        c, T = sim.c, bat.temp
+
+        if self._name == 'anode':
+            sign, ed = -1., 'an'
+        elif self._name == 'cathode':
+            sign, ed = +1., 'ca'
+
+        phis = soln.vars[ed]['phis']
+        xs = soln.vars[ed]['xs'][:, -1]
+        phie = soln.vars['el']['phie']
+
+        eta = phis - phie - self.get_Eeq(xs, T)
+
+        i0 = self.get_i0(xs, el.Li_0, T)
+        sdot = i0 / c.F * (  np.exp( self.alpha_a*c.F*eta / c.R / T)
+                           - np.exp(-self.alpha_c*c.F*eta / c.R / T)  )
+
+        i_ext = sign*sdot*self.A_s*self.thick*c.F
+        current_A = i_ext*bat.area
+
+        return current_A

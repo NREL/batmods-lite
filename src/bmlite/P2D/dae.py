@@ -11,95 +11,6 @@ so the ``'band'`` linear solver option can be used in the ``IDASolver`` class.
 import numpy as np
 
 
-def bandwidth(sim: object) -> tuple[int | np.ndarray]:
-    """
-    Determine the DAE system's bandwidth and Jacobian pattern.
-
-    Numerically determines the bandwidth and Jacobian pattern of the residual
-    function by perturbating each ``y`` and ``yp`` term and determining which
-    ``dres/dy`` and ``dres/dy'`` terms are non-zero. The bandwidth is required
-    to use the "band" option for IDA's linear solver, which speeds up each
-    integration step compared to the "dense" linear solver.
-
-    Parameters
-    ----------
-    inputs : P2D Simulation object
-        An instance of the P2D model simulation. See
-        :class:`bmlite.P2D.Simulation`.
-
-    Returns
-    -------
-    lband : int
-        Lower bandwidth from the residual function's Jacobian pattern.
-    uband : int
-        Upper bandwidth from the residual function's Jacobian pattern.
-    j_pat : 2D array
-        Residual function Jacobian pattern, as an array of ones and zeros.
-
-    """
-
-    # Jacobian size
-    N = sim._sv0.size
-
-    # Fake OCV experiment
-    expr = {
-        'mode': 'current',
-        'units': 'C',
-        'value': lambda t: 0.,
-    }
-
-    # Perturbed variables
-    jac = np.zeros([N, N])
-    sv = sim._sv0.copy()
-    svdot = sim._svdot0.copy()
-    res = np.zeros_like(sv)
-
-    residuals(0, sv, svdot, res, (sim, expr))
-    res_0 = res.copy()
-
-    for j in range(N):
-        dsv = np.copy(sv)
-        res = np.copy(res)
-        svdot = np.copy(svdot)
-
-        dsv[j] = sv[j] + max(1e-6, 1e-6*sv[j])
-        residuals(0, dsv, svdot, res, (sim, expr))
-        dres = res_0 - res
-
-        jac[:, j] = dres
-
-    for j in range(N):
-        sv = np.copy(sv)
-        res = np.copy(res)
-        dsvdot = np.copy(svdot)
-
-        dsvdot[j] = svdot[j] + max(1e-6, 1e-6*svdot[j])
-        residuals(0., sv, dsvdot, res, (sim, expr))
-        dres = res_0 - res
-
-        jac[:, j] += dres
-
-    # Find lband and uband
-    lband = 0
-    uband = 0
-
-    for i in range(jac.shape[0]):
-
-        l_inds = np.where(abs(jac[i, :i]) > 0)[0]
-        if len(l_inds) >= 1 and i - l_inds[0] > lband:
-            lband = int(i - l_inds[0])
-
-        u_inds = i + np.where(abs(jac[i, i:]) > 0)[0]
-        if len(u_inds) >= 1 and u_inds[-1] - i > uband:
-            uband = int(u_inds[-1] - i)
-
-    # Make Jacobian pattern of zeros and ones
-    j_pat = np.zeros_like(jac)
-    j_pat[jac != 0] = 1
-
-    return lband, uband, j_pat
-
-
 def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
               inputs: tuple[object, dict]) -> None | tuple[np.ndarray]:
     """
@@ -145,15 +56,12 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     """
 
-    from .. import Constants
-    from ..math import grad_r, div_r
-
-    c = Constants()
+    from ..mathutils import grad_r, div_r
 
     # Break inputs into separate objects
     sim, exp = inputs
 
-    bat, el, an, sep, ca = sim.bat, sim.el, sim.an, sim.sep, sim.ca
+    c, bat, el, an, sep, ca = sim.c, sim.bat, sim.el, sim.an, sim.sep, sim.ca
 
     # Simulation temperature
     T = bat.temp

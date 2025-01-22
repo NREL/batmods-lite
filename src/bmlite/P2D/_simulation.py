@@ -17,8 +17,10 @@ if TYPE_CHECKING:  # pragma: no cover
 
 class Simulation(object):
 
-    __slots__ = ['_yamlfile', '_yamlpath', '_flags', '_t0', '_sv0', '_svdot0',
-                 '_lband', '_uband', '_algidx', 'bat', 'el', 'an', 'sep', 'ca']
+    __slots__ = [
+        '_yamlfile', '_yamlpath', '_flags', '_t0', '_sv0', '_svdot0', '_lband',
+        '_uband', '_algidx', 'c', 'bat', 'el', 'an', 'sep', 'ca',
+    ]
 
     def __init__(self, yamlfile: str = 'graphite_nmc532') -> None:
         """
@@ -56,6 +58,7 @@ class Simulation(object):
 
         """
 
+        from .. import Constants
         from .domains import Battery, Electrolyte, Electrode, Separator
 
         if '.yaml' not in yamlfile:
@@ -80,6 +83,7 @@ class Simulation(object):
         yaml = YAML(typ='safe')
         yamldict = yaml.load(yamlpath)
 
+        self.c = Constants()
         self.bat = Battery(**yamldict['battery'])
         self.el = Electrolyte(**yamldict['electrolyte'])
         self.an = Electrode('anode', **yamldict['anode'])
@@ -154,42 +158,62 @@ class Simulation(object):
         self._lband = max(self.an.ptr['x_off'], self.ca.ptr['x_off']) + 1
         self._uband = max(self.an.ptr['x_off'], self.ca.ptr['x_off']) + 1
 
-    def j_pattern(self) -> None:
+    def j_pattern(self, plot: bool = True,
+                  return_bands: bool = False) -> tuple[int] | None:
         """
-        Plot the Jacobian pattern.
+        Determine the Jacobian pattern.
 
-        Runs the ``bmlite.P2D.dae.bandwidth`` function to determine and plot
-        the Jacobian pattern.
+        Parameters
+        ----------
+        plot : bool, optional
+            Whether or not to plot the Jacobian pattern. The default is True.
+        return_barnds : bool, optional
+            Whether or not to return the half bandwidths (lower, upper). The
+            default is False.
 
         Returns
         -------
         lband : int
-            Lower bandwidth from the residual function's Jacobian pattern.
+            The lower half bandwidth. Only returned if `return_bands=True`.
         uband : int
-            Upper bandwidth from the residual function's Jacobian pattern.
-
-        See also
-        --------
-        bmlite.P2D.dae.bandwidth
+            The upper half bandwidth. Only returned if `return_bands=True`.
 
         """
 
-        from .dae import bandwidth
+        from .dae import residuals
+        from .._core._idasolver import bandwidth
         from bmlite.plotutils import format_ticks, show
 
-        lband, uband, j_pat = bandwidth(self)
+        t0 = 0.
+        y0 = np.hstack([self.an.sv0(self.el), self.sep.sv0(self.el),
+                        self.ca.sv0(self.el)])
 
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=[4, 4],
-                               layout='constrained')
+        yp0 = np.zeros_like(y0)
 
-        ax.spy(j_pat)
-        ax.text(0.1, 0.2, 'lband: ' + str(lband), transform=ax.transAxes)
-        ax.text(0.1, 0.1, 'uband: ' + str(uband), transform=ax.transAxes)
+        step = {
+            'mode': 'current',
+            'units': 'C',
+            'value': lambda t: 0.,
+        }
 
-        format_ticks(ax)
-        show(fig)
+        userdata = (self, step)
 
-        return lband, uband
+        lband, uband, j_pat = bandwidth(residuals, t0, y0, yp0, userdata,
+                                        return_pattern=True)
+
+        if plot:
+            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=[4, 4],
+                                layout='constrained')
+
+            ax.spy(j_pat)
+            ax.text(0.1, 0.2, 'lband: ' + str(lband), transform=ax.transAxes)
+            ax.text(0.1, 0.1, 'uband: ' + str(uband), transform=ax.transAxes)
+
+            format_ticks(ax)
+            show(fig)
+
+        if return_bands:
+            return lband, uband
 
     def run_step(self, expr: Experiment, stepidx: int) -> StepSolution:
         """
