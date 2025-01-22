@@ -31,8 +31,6 @@ Module Contents
 
 .. py:class:: Battery(**kwargs)
 
-
-
    
    A class for battery-level attributes.
 
@@ -58,9 +56,7 @@ Module Contents
 
 
 
-.. py:class:: Electrode(**kwargs)
-
-
+.. py:class:: Electrode(name, **kwargs)
 
    
    A class for the electrode-specific attributes and methods.
@@ -68,6 +64,8 @@ Module Contents
    This class is used to build both the anode and cathode for P2D
    simulations.
 
+   :param name: Name of the electrode, must be either 'anode' or 'cathode'.
+   :type name: str
    :param \*\*kwargs: Keyword arguments to set the electrode attributes. The required
                       keys and descriptions are given below:
 
@@ -85,7 +83,7 @@ Module Contents
                       p_liq     liquid Bruggeman factor, ``eps_el**p_liq`` [-] (*float*)
                       alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
                       alpha_c   Butler-Volmer cathodic symmetry factor [-] (*float*)
-                      Li_max    max solid-phase Li concentraion [kmol/m^3] (*float*)
+                      Li_max    max solid-phase Li concentration [kmol/m^3] (*float*)
                       x_0       initial solid-phase intercalation [-] (*float*)
                       i0_deg    ``i0`` degradation factor [-] (*float*)
                       Ds_deg    ``Ds`` degradation factor [-] (*float*)
@@ -108,15 +106,13 @@ Module Contents
 
 
 
-   .. py:method:: get_Eeq(x, T)
+   .. py:method:: get_Eeq(x)
 
       Calculate the equilibrium potential given the surface intercalation
       fraction ``x`` at the particle surface and temperature ``T``.
 
       :param x: Lithium intercalation fraction at ``r = R_s`` [-].
       :type x: float | 1D array
-      :param T: Battery temperature [K].
-      :type T: float
 
       :returns: **Eeq** (*float | 1D array*) -- Equilibrium potential [V].
 
@@ -183,8 +179,6 @@ Module Contents
 
 
 .. py:class:: Electrolyte(**kwargs)
-
-
 
    
    A class for the electrolyte attributes and methods.
@@ -267,8 +261,6 @@ Module Contents
 
 
 .. py:class:: Separator(**kwargs)
-
-
 
    
    A class for the separator attributes and methods.

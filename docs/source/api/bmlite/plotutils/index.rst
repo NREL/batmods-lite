@@ -20,7 +20,6 @@ Functions
 
    bmlite.plotutils.format_ticks
    bmlite.plotutils.pixel
-   bmlite.plotutils.show
 
 
 Package Contents
@@ -54,16 +53,6 @@ Package Contents
    :type z: 2D array
    :param cblabel: The colorbar label.
    :type cblabel: str
-
-   :returns: *None.*
-
-
-.. py:function:: show(fig)
-
-   Display a figure according to the backend.
-
-   :param fig: A ``fig`` instance from a ``matplotlib`` figure.
-   :type fig: object
 
    :returns: *None.*
 

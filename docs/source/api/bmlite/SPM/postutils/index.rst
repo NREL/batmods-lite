@@ -21,39 +21,65 @@ Functions
 
    bmlite.SPM.postutils.intercalation
    bmlite.SPM.postutils.pixels
+   bmlite.SPM.postutils.post
    bmlite.SPM.postutils.potentials
 
 
 Module Contents
 ---------------
 
-.. py:function:: intercalation(sol)
+.. py:function:: intercalation(soln)
 
    Plots anode and cathode particle intercalation profiles vs. time.
 
-   :param sol: A single particle model solution object.
-   :type sol: SPM Solution object
+   :param soln: A single particle model solution object.
+   :type soln: Solution
 
    :returns: *None.*
 
+   .. seealso:: :obj:`~bmlite.SPM.solutions.StepSolution`, :obj:`~bmlite.SPM.solutions.CycleSolution`
 
-.. py:function:: pixels(sol)
+
+.. py:function:: pixels(soln)
 
    Makes pixel plots for most 2D (space/time) variables.
 
-   :param sol: A single particle model solution object.
-   :type sol: SPM Solution object
+   :param soln: A single particle model solution object.
+   :type soln: SPM Solution object
 
    :returns: *None.*
 
+   .. seealso:: :obj:`~bmlite.SPM.solutions.StepSolution`, :obj:`~bmlite.SPM.solutions.CycleSolution`
 
-.. py:function:: potentials(sol)
+
+.. py:function:: post(soln)
+
+   Run post processing to determine secondary variables.
+
+   :param soln: A single particle model solution object.
+   :type soln: Solution
+
+   :returns: **postvars** (*dict*) -- Post processed variables, as described below.
+
+             ========= ========================================================
+             Key       Value [units] (*type*)
+             ========= ========================================================
+             sdot_an   anode Faradaic current at t [kmol/m^2/s] (*1D array*)
+             sdot_ca   cathode Faradaic current at t [kmol/m^2/s] (*1D array*)
+             ========= ========================================================
+
+   .. seealso:: :obj:`~bmlite.SPM.solutions.StepSolution`, :obj:`~bmlite.SPM.solutions.CycleSolution`
+
+
+.. py:function:: potentials(soln)
 
    Plots anode, electrolyte, and cathode potentials vs. time.
 
-   :param sol: A single particle model solution object.
-   :type sol: SPM Solution object
+   :param soln: A single particle model solution object.
+   :type soln: Solution
 
    :returns: *None.*
+
+   .. seealso:: :obj:`~bmlite.SPM.solutions.StepSolution`, :obj:`~bmlite.SPM.solutions.CycleSolution`
 
 

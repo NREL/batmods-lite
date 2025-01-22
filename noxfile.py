@@ -157,6 +157,9 @@ def run_sphinx(session: nox.Session) -> None:
         if os.path.exists('source/api'):
             shutil.rmtree('source/api')
 
+        if os.path.exists('jupyter_execute'):
+            shutil.rmtree('jupyter_execute')
+
         os.chdir('..')
 
     run_spellcheck(session)

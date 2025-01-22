@@ -52,7 +52,7 @@ Submodules
 .. toctree::
    :maxdepth: 1
 
-   /api/bmlite/math/index
+   /api/bmlite/mathutils/index
    /api/bmlite/mesh/index
 
 
@@ -65,6 +65,14 @@ Classes
    bmlite.Experiment
    bmlite.IDAResult
    bmlite.IDASolver
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   bmlite.templates
 
 
 Package Contents
@@ -449,5 +457,24 @@ Package Contents
        soln.y[:, 1] *= 1e4  # scale y[1] so it is visible in the figure
        plt.semilogx(soln.t, soln.y)
        plt.show()
+
+
+.. py:function:: templates(model, file = None)
+
+   Print simulation templates.
+
+   If no input, a list of available templates will print. Otherwise, given
+   a file name or index, a template will print.
+
+   :param model: Model package name, e.g., 'SPM'. Input is case insensitive. All model
+                 names are converted to uppercase within this function.
+   :type model: str
+   :param file: File name or index. The default is None.
+   :type file: str | int, optional
+
+   :returns: *None.*
+
+   :raises AttributeError: 'model' is not a valid model package.
+   :raises FileNotFoundError: 'model' has no 'templates' directory.
 
 

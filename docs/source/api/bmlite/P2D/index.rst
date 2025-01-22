@@ -35,14 +35,6 @@ Classes
    bmlite.P2D.StepSolution
 
 
-Functions
----------
-
-.. autoapisummary::
-
-   bmlite.P2D.templates
-
-
 Package Contents
 ----------------
 
@@ -88,8 +80,6 @@ Package Contents
 
 .. py:class:: Simulation(yamlfile = 'graphite_nmc532')
 
-
-
    
    Make a P2D simulation capable of running various experiments.
 
@@ -117,7 +107,7 @@ Package Contents
 
    .. seealso::
 
-      :obj:`bmlite.P2D.templates`
+      :obj:`bmlite.templates`
           Get help making your own ``.yaml`` file by starting with the default template.
 
 
@@ -130,17 +120,18 @@ Package Contents
 
 
 
-   .. py:method:: j_pattern()
+   .. py:method:: j_pattern(plot = True, return_bands = False)
 
-      Plot the Jacobian pattern.
+      Determine the Jacobian pattern.
 
-      Runs the ``bmlite.P2D.dae.bandwidth`` function to determine and plot
-      the Jacobian pattern.
+      :param plot: Whether or not to plot the Jacobian pattern. The default is True.
+      :type plot: bool, optional
+      :param return_barnds: Whether or not to return the half bandwidths (lower, upper). The
+                            default is False.
+      :type return_barnds: bool, optional
 
-      :returns: * **lband** (*int*) -- Lower bandwidth from the residual function's Jacobian pattern.
-                * **uband** (*int*) -- Upper bandwidth from the residual function's Jacobian pattern.
-
-      .. seealso:: :obj:`bmlite.P2D.dae.bandwidth`
+      :returns: * **lband** (*int*) -- The lower half bandwidth. Only returned if `return_bands=True`.
+                * **uband** (*int*) -- The upper half bandwidth. Only returned if `return_bands=True`.
 
 
 
@@ -266,17 +257,5 @@ Package Contents
       Print a statement specifying how long IDASolver spent integrating.
 
       :returns: **solvetime** (*str*) -- An f-string with the solver integration time in seconds.
-
-
-.. py:function:: templates(sim = None, exp = None)
-
-   Print simulation templates. If ``sim`` is ``None``, a list of available
-   templates will be printed. Otherwise, if a name or index is given, that
-   template will print to the console.
-
-   :param sim: Simulation template file name or index. The default is ``None``.
-   :type sim: str | int, optional
-
-   :returns: *None.*
 
 

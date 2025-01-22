@@ -30,8 +30,6 @@ Module Contents
 
 .. py:class:: Battery(**kwargs)
 
-
-
    
    A class for battery-level attributes.
 
@@ -59,8 +57,6 @@ Module Contents
 
 .. py:class:: Electrode(name, **kwargs)
 
-
-
    
    A class for the electrode-specific attributes and methods.
 
@@ -83,7 +79,7 @@ Module Contents
                       eps_void  Void volume fraction [-] (*float*)
                       alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
                       alpha_c   Butler-Volmer cathodic symmetry factor [-] (*float*)
-                      Li_max    max solid-phase lithium concentraion [kmol/m^3] (*float*)
+                      Li_max    max solid-phase lithium concentration [kmol/m^3] (*float*)
                       x_0       initial solid-phase intercalation fraction [-] (*float*)
                       i0_deg    ``i0`` degradation factor [-] (*float*)
                       Ds_deg    ``Ds`` degradation factor [-] (*float*)
@@ -106,15 +102,13 @@ Module Contents
 
 
 
-   .. py:method:: get_Eeq(x, T)
+   .. py:method:: get_Eeq(x)
 
       Calculate the equilibrium potential given the surface intercalation
       fraction ``x`` at the particle surface and temperature ``T``.
 
       :param x: Lithium intercalation fraction at ``r = R_s`` [-].
       :type x: float
-      :param T: Battery temperature [K].
-      :type T: float
 
       :returns: **Eeq** (*float*) -- Equilibrium potential [V].
 
@@ -170,8 +164,6 @@ Module Contents
 
 
 .. py:class:: Electrolyte(**kwargs)
-
-
 
    
    A class for the electrolyte attributes and methods.

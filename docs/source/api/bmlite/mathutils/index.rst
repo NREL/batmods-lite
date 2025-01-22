@@ -1,7 +1,7 @@
-bmlite.math
-===========
+bmlite.mathutils
+================
 
-.. py:module:: bmlite.math
+.. py:module:: bmlite.mathutils
 
 .. autoapi-nested-parse::
 
@@ -20,13 +20,13 @@ Functions
 
 .. autoapisummary::
 
-   bmlite.math.div_r
-   bmlite.math.div_x
-   bmlite.math.grad_r
-   bmlite.math.grad_x
-   bmlite.math.int_r
-   bmlite.math.int_x
-   bmlite.math.param_combinations
+   bmlite.mathutils.div_r
+   bmlite.mathutils.div_x
+   bmlite.mathutils.grad_r
+   bmlite.mathutils.grad_x
+   bmlite.mathutils.int_r
+   bmlite.mathutils.int_x
+   bmlite.mathutils.param_combinations
 
 
 Module Contents
