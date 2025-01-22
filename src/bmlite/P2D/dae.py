@@ -33,30 +33,26 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     Returns
     -------
-    None
-        If no ``sim._flags`` are ``True``.
-    res : 1D array
-        Array of residuals if ``sim._flags['band'] = True``.
-    outputs : tuple[1D array]
-        If ``sim._flags['post'] = True`` then ``outputs`` is returned, which
-        includes post-processed values. These can help verify the governing
-        equations and boundary conditions are satisfied. They can also be
-        useful for interpreting causes of good/bad battery performance. The
-        order and description of the arrays is given below:
+    outputs : tuple[np.ndarray]
+        If the experimental step `mode` is set to `post`, then the following
+        post-processed variables will be returned in a tuple. Otherwise,
+        returns None.
 
-        ======== =============================================================
-        Variable Description [units] (*type*)
-        ======== =============================================================
-        res      residuals ``res = M*y' - f(t, y)`` [units] (*1D array*)
-        sdot_an  Li+ production rate at each x_a [kmol/m^3/s] (*1D array*)
-        sdot_ca  Li+ production rate at each x_c [kmol/m^3/s] (*1D array*)
-        sum_ip   ``i_ed + i_el`` at each "plus" interface [A/m^2] (*1D array*)
-        i_el_x   ``i_el`` at each x interface [A/m^2] (*1D array*)
-        ======== =============================================================
+        ========== ======================================================
+        Variable   Description [units] (*type*)
+        ========== ======================================================
+        div_i_an   divergence in anode volume [A/m3] (*1D array*)
+        div_i_sep  divergence in separator volume [A/m3] (*1D array*)
+        div_i_ca   divergence in cathode volume [A/m3] (*1D array*)
+        sdot_an    Li+ production at each x_a [kmol/m^3/s] (*1D array*)
+        sdot_ca    Li+ production at each x_c [kmol/m^3/s] (*1D array*)
+        sum_ip     i_ed + i_el at "plus" interfaces [A/m^2] (*1D array*)
+        i_el_x     i_el at each x interface [A/m^2] (*1D array*)
+        ========== ======================================================
 
     """
 
-    from ..mathutils import grad_r, div_r
+    from ..mathutils import grad_x, grad_r, div_r
 
     # Break inputs into separate objects
     sim, exp = inputs
@@ -132,14 +128,14 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Reaction terms ----------------------------------------------------------
 
     # Anode overpotentials and Li+ productions
-    eta = phi_an - phi_el_an - an.get_Eeq(xs_an[:, -1], T)
+    eta = phi_an - phi_el_an - an.get_Eeq(xs_an[:, -1])
 
     i0 = an.get_i0(xs_an[:, -1], Li_el_an, T)
     sdot_an = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
                           - np.exp(-an.alpha_c*c.F*eta / c.R / T)  )
 
     # Cathode overpotentials and Li+ productions
-    eta = phi_ca - phi_el_ca - ca.get_Eeq(xs_ca[:, -1], T)
+    eta = phi_ca - phi_el_ca - ca.get_Eeq(xs_ca[:, -1])
 
     i0 = ca.get_i0(xs_ca[:, -1], Li_el_ca, T)
     sdot_ca = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
@@ -178,7 +174,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     # Solid-phase currents w/ BCs at x = 0 and x = an.thick
     s_eff = an.sigma_s*an.eps_s**an.p_sol
-    ip_ed = -s_eff * (phi_an[1:] - phi_an[:-1]) / (an.x[1:] - an.x[:-1])
+    ip_ed = -s_eff*grad_x(an.x, phi_an)
 
     im_ed = np.concat([[-i_ext], ip_ed])
     ip_ed = np.concat([ip_ed, [0.]])
@@ -216,9 +212,10 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
                             - an.A_s*sdot_an*c.F
 
     # Store some outputs for verification
-    div_i_an = (ip_ed - im_ed + ip_el - im_el) / (an.xp - an.xm)
-    sum_ip = ip_el + ip_ed
-    i_el_x = im_el
+    if mode == 'post':
+        div_i_an = (ip_ed - im_ed + ip_el - im_el) / (an.xp - an.xm)
+        sum_ip = ip_el + ip_ed
+        i_el_x = im_el
 
     # Separator ---------------------------------------------------------------
 
@@ -241,9 +238,10 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
         / (sep.xp - sep.xm)
 
     # Store some outputs for verification
-    div_i_sep = (ip_el - im_el) / (sep.xp - sep.xm)
-    sum_ip = np.concat([sum_ip, ip_el])
-    i_el_x = np.concat([i_el_x, im_el])
+    if mode == 'post':
+        div_i_sep = (ip_el - im_el) / (sep.xp - sep.xm)
+        sum_ip = np.concat([sum_ip, ip_el])
+        i_el_x = np.concat([i_el_x, im_el])
 
     # Cathode -----------------------------------------------------------------
 
@@ -259,7 +257,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     # Solid-phase currents w/ BCs at x = sep.thick and x = ca.thick
     s_eff = ca.sigma_s*ca.eps_s**ca.p_sol
-    ip_ed = -s_eff*(phi_ca[1:] - phi_ca[:-1]) / (ca.x[1:] - ca.x[:-1])
+    ip_ed = -s_eff*grad_x(ca.x, phi_ca)
 
     im_ed = np.concat([[0.], ip_ed])
     ip_ed = np.concat([ip_ed, [-i_ext]])
@@ -268,8 +266,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     wt_m = 0.5*(ca.rp[:-1] - ca.rm[:-1]) / (ca.r[1:] - ca.r[:-1])
     wt_p = 0.5*(ca.rp[1:] - ca.rm[1:]) / (ca.r[1:] - ca.r[:-1])
 
-    Ds = wt_m*ca.get_Ds(Li_ca[:, :-1] / ca.Li_max, T) \
-       + wt_p*ca.get_Ds(Li_ca[:, 1:] / ca.Li_max, T)
+    Ds = wt_m*ca.get_Ds(xs_ca[:, :-1], T) + wt_p*ca.get_Ds(xs_ca[:, 1:], T)
 
     # Solid-phase radial diffusion
     Nk_ed = np.column_stack([
@@ -300,9 +297,10 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
                             - ca.A_s*sdot_ca*c.F
 
     # Store some outputs for verification
-    div_i_ca = (ip_ed - im_ed + ip_el - im_el) / (ca.xp - ca.xm)
-    sum_ip = np.concat([sum_ip, ip_el + ip_ed])
-    i_el_x = np.concat([i_el_x, im_el, [ip_el[-1]]])
+    if mode == 'post':
+        div_i_ca = (ip_ed - im_ed + ip_el - im_el) / (ca.xp - ca.xm)
+        sum_ip = np.concat([sum_ip, ip_el + ip_ed])
+        i_el_x = np.concat([i_el_x, im_el, [ip_el[-1]]])
 
     # Events tracking ---------------------------------------------------------
     total_time = sim._t0 + t
@@ -318,5 +316,5 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     }
 
     # Returns -----------------------------------------------------------------
-    if sim._flags['post']:
+    if mode == 'post':
         return div_i_an, div_i_sep, div_i_ca, sdot_an, sdot_ca, sum_ip, i_el_x

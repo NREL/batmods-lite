@@ -31,11 +31,3 @@ def test_j_pattern(sim):
 def test_copy(sim):
     sim2 = sim.copy()
     assert all(sim2._sv0 == sim._sv0)
-
-
-def test_templates():
-    bm.P2D.templates()
-    bm.P2D.templates(0)
-    bm.P2D.templates('graphite_nmc532')
-    bm.P2D.templates('graphite_nmc532.yaml')
-    assert True

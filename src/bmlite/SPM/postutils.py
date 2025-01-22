@@ -11,6 +11,7 @@ the following functions.
 from typing import TypeVar
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 from ._solutions import BaseSolution
 
@@ -50,9 +51,9 @@ def post(soln: Solution) -> dict:
     # Pull sim and exp from sol
     sim = soln._sim
     step = {
-        'mode': 'current',
+        'mode': 'post',
         'units': 'post',
-        'value': lambda t: 0.,
+        'value': 'post',
     }
 
     # Extract desired variables for each time
@@ -60,16 +61,11 @@ def post(soln: Solution) -> dict:
     sdot_ca = np.zeros_like(soln.t)
 
     # Turn on output from residuals
-    sim._flags['post'] = True
-
     for i, t in enumerate(soln.t):
         sv, svdot = soln.y[i, :], soln.yp[i, :]
 
         output = residuals(t, sv, svdot, np.zeros_like(sv), (sim, step))
         sdot_an[i], sdot_ca[i] = output
-
-    # Turn off output from residuals
-    sim._flags['post'] = False
 
     # Store outputs
     postvars = {
@@ -107,9 +103,6 @@ def _solid_phase_Li(soln: Solution) -> np.array:
 
     an, ca = soln._sim.an, soln._sim.ca
 
-    an_soln = an.to_dict(soln)
-    ca_soln = ca.to_dict(soln)
-
     # Initial total solid-phase lithium [kmol/m^2]
     Li_ed_0 = an.x_0*an.Li_max*an.eps_AM*an.thick \
             + ca.x_0*ca.Li_max*ca.eps_AM*ca.thick
@@ -123,9 +116,9 @@ def _solid_phase_Li(soln: Solution) -> np.array:
 
     for i in range(soln.t.size):
         Li_an[i] = an.thick*an.eps_AM / V_an \
-                 * int_r(an.rm, an.rp, an_soln['cs'][i, :])
+                 * int_r(an.rm, an.rp, soln.vars['an']['cs'][i, :])
         Li_ca[i] = ca.thick*ca.eps_AM / V_ca \
-                 * int_r(ca.rm, ca.rp, ca_soln['cs'][i, :])
+                 * int_r(ca.rm, ca.rp, soln.vars['ca']['cs'][i, :])
 
     # Total solid-phase lithium [kmol/m^2] vs. time [s]
     Li_ed_t = Li_an + Li_ca
@@ -152,8 +145,6 @@ def potentials(soln: Solution) -> None:
     ~bmlite.SPM.solutions.CycleSolution
 
     """
-
-    import matplotlib.pyplot as plt
 
     from ..plotutils import format_ticks, show
 
@@ -196,7 +187,6 @@ def intercalation(soln: Solution) -> None:
 
     """
 
-    import matplotlib.pyplot as plt
     import matplotlib.colors as clrs
 
     from ..plotutils import format_ticks, show
@@ -264,8 +254,6 @@ def pixels(soln: Solution) -> None:
     ~bmlite.SPM.solutions.CycleSolution
 
     """
-
-    import matplotlib.pyplot as plt
 
     from ..plotutils import pixel, show
 

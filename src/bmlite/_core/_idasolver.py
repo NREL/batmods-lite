@@ -8,7 +8,7 @@ import numpy as np
 from scipy import linalg
 from sksundae import ida
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from typing import Callable, Any
     from numpy.typing import ArrayLike
 

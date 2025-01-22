@@ -50,7 +50,7 @@ def test_graphite_fast(args):
     i0 = gr.get_i0(x, C_Li, T)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    Eeq = gr.get_Eeq(x, T)
+    Eeq = gr.get_Eeq(x)
     assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
 
     data.close()
@@ -70,16 +70,16 @@ def test_graphite_slow(args):
     i0 = gr.get_i0(x, C_Li, T)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    Eeq = gr.get_Eeq(x, T)
+    Eeq = gr.get_Eeq(x)
     assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
 
     data.close()
 
     with pytest.raises(ValueError):
-        gr.get_Eeq(gr.x_min - 0.01, T)
+        gr.get_Eeq(gr.x_min - 0.01)
 
     with pytest.raises(ValueError):
-        gr.get_Eeq(gr.x_max * np.ones(5) + 0.01, T)
+        gr.get_Eeq(gr.x_max * np.ones(5) + 0.01)
 
 
 def test_nmc_532_fast(args):
@@ -96,7 +96,7 @@ def test_nmc_532_fast(args):
     i0 = nmc.get_i0(x, C_Li, T)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    Eeq = nmc.get_Eeq(x, T)
+    Eeq = nmc.get_Eeq(x)
     assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
 
     data.close()
@@ -116,13 +116,13 @@ def test_nmc_532_slow(args):
     i0 = nmc.get_i0(x, C_Li, T)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
-    Eeq = nmc.get_Eeq(x, T)
+    Eeq = nmc.get_Eeq(x)
     assert np.allclose(Eeq / max(Eeq), data['Eeq'] / max(Eeq))
 
     data.close()
 
     with pytest.raises(ValueError):
-        nmc.get_Eeq(nmc.x_min - 0.01, T)
+        nmc.get_Eeq(nmc.x_min - 0.01)
 
     with pytest.raises(ValueError):
-        nmc.get_Eeq(nmc.x_max * np.ones(5) + 0.01, T)
+        nmc.get_Eeq(nmc.x_max * np.ones(5) + 0.01)

@@ -34,7 +34,7 @@ from ._core import (
     Experiment,
     IDASolver,
     IDAResult,
-    _templates,
+    templates,
 )
 
 # Model subpackages
@@ -54,7 +54,7 @@ __all__ = [
     'Experiment',
     'IDASolver',
     'IDAResult',
-    '_templates',
+    'templates',
     'P2D',
     'SPM',
     'mathutils',

@@ -1,7 +1,7 @@
 from numpy import ndarray as _ndarray
 
 
-class Gen2Electrolyte(object):
+class Gen2Electrolyte:
 
     def __init__(self) -> None:
         """

@@ -32,7 +32,7 @@ class BaseSolution(IDAResult):
         """
 
         self.vars = {}
-        self.postvars = False
+        self._postvars = False
 
     def __repr__(self) -> str:  # pragma: no cover
         """
@@ -78,16 +78,20 @@ class BaseSolution(IDAResult):
 
         return readable
 
-    # TODO
-    # def post(self) -> None:
-    #     from ..postutils import post
-    #     postvars = post(self)
+    def post(self) -> None:
+        from .postutils import post
+        postvars = post(self)
 
-    #     self.vars['current_A'] = postvars['current_A']
-    #     self.vars['current_C'] = postvars['current_C']
+        self.vars['an']['div_i'] = postvars['div_i_an']
+        self.vars['sep']['div_i'] = postvars['div_i_sep']
+        self.vars['ca']['div_i'] = postvars['div_i_ca']
 
-    #     self.vars['an']['sdot'] = postvars['sdot_an']
-    #     self.vars['ca']['sdot'] = postvars['sdot_ca']
+        self.vars['an']['sdot'] = postvars['sdot_an']
+        self.vars['ca']['sdot'] = postvars['sdot_ca']
+
+        self.vars['el']['ie'] = postvars['i_el_x']
+
+        self._postvars = True
 
     def simple_plot(self, x: str, y: str, **kwargs) -> None:
         """
@@ -124,9 +128,49 @@ class BaseSolution(IDAResult):
         if not plt.isinteractive():
             atexit.register(plt.show)
 
-    # TODO
-    # def complex_plot(self, *args: str) -> None:
-    #     pass
+    def complex_plot(self, *args: str) -> None:
+        """
+        Generates requested plots based on ``*args``.
+
+        Parameters
+        ----------
+        *args : str
+            Use any number of the following arguments to see the described
+            plots:
+
+            ============== ===============================================
+            arg            Description
+            ============== ===============================================
+            potentials     phase potentials [V]
+            electrolyte    liquid-phase concentrations [kmol/m3]
+            intercalation  solid-phase Li profiles [-]
+            pixels         pixel plots for a variety of variables
+            ============== ===============================================
+
+        Returns
+        -------
+        None.
+
+        """
+
+        if not self._postvars:
+            self.post()
+
+        if 'potentials' in args:
+            from .postutils import potentials
+            potentials(self)
+
+        if 'electrolyte' in args:
+            from .postutils import electrolyte
+            electrolyte(self)
+
+        if 'intercalation' in args:
+            from .postutils import intercalation
+            intercalation(self)
+
+        if 'pixels' in args:
+            from .postutils import pixels
+            pixels(self)
 
     def to_dict(self) -> dict:
         """
@@ -172,11 +216,14 @@ class BaseSolution(IDAResult):
 
         """
 
+        if not self._postvars:
+            self.post()
+
         vars = {
             'x_a': self.vars['an']['x'],
             'x_s': self.vars['sep']['x'],
             'x_c': self.vars['ca']['x'],
-            # 'x': ,  # TODO
+            'x': self.vars['el']['x'],
             'r_a': self.vars['an']['r'],
             'r_c': self.vars['ca']['r'],
             't': self.vars['time_s'],
@@ -190,11 +237,11 @@ class BaseSolution(IDAResult):
             'phis_c': self.vars['ca']['phis'],
             'ce_c': self.vars['ca']['ce'],
             'cs_c': self.vars['ca']['cs'],
-            # 'phie': ,  # TODO
-            # 'ce': ,  # TODO
-            # 'ie': ,  # TODO
-            # 'j_a': ,  # TODO
-            # 'j_c': ,  # TODO
+            'phie': self.vars['el']['phie'],
+            'ce': self.vars['el']['ce'],
+            'ie': self.vars['el']['ie'],
+            'j_a': self.vars['an']['sdot'],
+            'j_c': self.vars['ca']['sdot'],
         }
 
         return vars
@@ -252,8 +299,6 @@ class BaseSolution(IDAResult):
 
         import os
 
-        import numpy as np
-
         if '.npz' not in savename:
             savename += '.npz'
 
@@ -282,25 +327,32 @@ class BaseSolution(IDAResult):
         sep = sim.sep.to_dict(self)
         ca = sim.ca.to_dict(self)
 
-        time = self.t
-        voltage = ca['phis'][:, -1]
-        current = np.zeros_like(time)  # TODO
-
         # domain variables
         self.vars['an'] = an
         self.vars['sep'] = sep
         self.vars['ca'] = ca
 
+        self.vars['el'] = {
+            'x': np.concat([an['x'], sep['x'], ca['x']]),
+            'phie': np.concat([an['phie'], sep['phie'], ca['phie']], axis=1),
+            'ce': np.concat([an['ce'], sep['ce'], ca['ce']], axis=1),
+        }
+
         # stored time
-        self.vars['time_s'] = time
-        self.vars['time_min'] = time / 60.
-        self.vars['time_h'] = time / 3600.
+        time_s = self.t
+
+        self.vars['time_s'] = time_s
+        self.vars['time_min'] = time_s / 60.
+        self.vars['time_h'] = time_s / 3600.
 
         # common variables
-        self.vars['current_A'] = current
-        self.vars['current_C'] = current*sim.bat.cap
-        self.vars['voltage_V'] = voltage
-        self.vars['power_W'] = current*voltage
+        voltage_V = ca['phis'][:, -1]
+        current_A = sim.ca._boundary_current(self)
+
+        self.vars['current_A'] = current_A
+        self.vars['current_C'] = current_A / sim.bat.cap
+        self.vars['voltage_V'] = voltage_V
+        self.vars['power_W'] = current_A*voltage_V
 
 
 class StepSolution(BaseSolution):

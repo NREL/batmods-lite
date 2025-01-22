@@ -1,48 +1,60 @@
 import os
 
+import bmlite as bm
 
-def _templates(model__file__: str, model_name: str,
-               sim: str | int = None) -> None:
+
+def templates(model: str, file: str | int = None) -> None:
     """
-    Print simulation templates. If ``sim`` is ``None``, a list of available
-    templates will be printed. Otherwise, if a name or index is given, that
-    template will print to the console.
+    Print simulation templates.
+
+    If no input, a list of available templates will print. Otherwise, given
+    a file name or index, a template will print.
 
     Parameters
     ----------
-    model__file__ : str
-        The module ``__file__`` attribute. This sets the local path to make
-        sure templates are pulled from the correct model path.
-    model_name : str
-        Name for the model package. This ensures template lists are labeled
-        correctly.
-    sim : str | int, optional
-        Simulation template file name or index. The default is ``None``.
+    model : str
+        Model package name, e.g., 'SPM'. Input is case insensitive. All model
+        names are converted to uppercase within this function.
+    file : str | int, optional
+        File name or index. The default is None.
 
     Returns
     -------
     None.
 
+    Raises
+    ------
+    AttributeError
+        'model' is not a valid model package.
+    FileNotFoundError
+        'model' has no 'templates' directory.
+
     """
 
-    dirname = os.path.dirname(model__file__)
+    try:
+        path = getattr(bm, model.upper()).__path__[0]
+    except AttributeError:
+        raise AttributeError(f"{model=} is not a valid model package.")
 
-    simlist = os.listdir(dirname + '/default_sims/')
+    if not os.path.exists(path + '/templates/'):  # pragma: no cover
+        raise FileNotFoundError(f"{model=} has no 'templates' directory.")
 
-    if sim is None:
-        print('\nTemplates for ' + model_name + ' simulations:')
-        for i, file in enumerate(simlist):
-            print('- [' + str(i) + '] ' + file.removesuffix('.yaml'))
+    templates = os.listdir(path + '/templates/')
 
-    if isinstance(sim, str):
-        if '.yaml' not in sim:
-            sim += '.yaml'
+    if file is None:
 
-        simfile = sim
-    elif isinstance(sim, int):
-        simfile = simlist[sim]
+        print('='*30, model + ' templates:', '='*30, sep='\n')
+        for i, f in enumerate(templates):
+            print('  - [' + str(i) + '] ' + f.removesuffix('.yaml'))
 
-    if sim is not None:
-        print('\n' + '=' * 30 + '\n' + simfile + '\n' + '=' * 30)
-        with open(dirname + '/default_sims/' + simfile, 'r') as f:
-            print('\n' + f.read())
+    elif isinstance(file, str):
+        file = file if '.yaml' in file else file + '.yaml'
+
+    elif isinstance(file, int):
+        file = templates[file]
+
+    if file is not None:
+
+        print('='*30, file, '='*30, sep='\n')
+        with open(path + '/templates/' + file, 'r') as f:
+            print(f.read())

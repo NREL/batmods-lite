@@ -1,7 +1,7 @@
-from numpy import ndarray as _ndarray
+import numpy as np
 
 
-class GraphiteFast(object):
+class GraphiteFast:
 
     def __init__(self, alpha_a: float, alpha_c: float, Li_max: float) -> None:
         """
@@ -14,19 +14,18 @@ class GraphiteFast(object):
         ----------
         alpha_a : float
             Anodic symmetry factor in Butler-Volmer expression [-].
-
         alpha_c : float
             Cathodic symmetry factor in Butler-Volmer expression [-].
-
         Li_max : float
             Maximum lithium concentration in solid phase [kmol/m^3].
+
         """
 
         self.alpha_a = alpha_a
         self.alpha_c = alpha_c
         self.Li_max = Li_max
 
-    def get_Ds(self, x: float | _ndarray, T: float) -> float | _ndarray:
+    def get_Ds(self, x: float | np.ndarray, T: float) -> float | np.ndarray:
         """
         Calculate the lithium diffusivity in the solid phase given the local
         intercalation fraction ``x`` and temperature ``T``.
@@ -35,7 +34,6 @@ class GraphiteFast(object):
         ----------
         x : float | 1D array
             Lithium intercalation fraction [-].
-
         T : float
             Battery temperature [K].
 
@@ -43,9 +41,8 @@ class GraphiteFast(object):
         -------
         Ds : float | 1D array
             Lithium diffusivity in the solid phase [m^2/s].
-        """
 
-        import numpy as np
+        """
 
         from .. import Constants
 
@@ -58,8 +55,8 @@ class GraphiteFast(object):
 
         return Ds
 
-    def get_i0(self, x: float | _ndarray, C_Li: float | _ndarray,
-               T: float) -> float | _ndarray:
+    def get_i0(self, x: float | np.ndarray, C_Li: float | np.ndarray,
+               T: float) -> float | np.ndarray:
         """
         Calculate the exchange current density given the intercalation
         fraction ``x`` at the particle surface, the local lithium ion
@@ -71,10 +68,8 @@ class GraphiteFast(object):
         ----------
         x : float | 1D array
             Lithium intercalation fraction at ``r = R_s`` [-].
-
         C_Li : float | 1D array
             Lithium ion concentration in the local electrolyte [kmol/m^3].
-
         T : float
             Battery temperature [K].
 
@@ -82,9 +77,8 @@ class GraphiteFast(object):
         -------
         i0 : float | 1D array
             Exchange current density [A/m^2].
-        """
 
-        import numpy as np
+        """
 
         from .. import Constants
 
@@ -96,26 +90,21 @@ class GraphiteFast(object):
 
         return i0
 
-    def get_Eeq(self, x: float | _ndarray, T: float) -> float | _ndarray:
+    def get_Eeq(self, x: float | np.ndarray) -> float | np.ndarray:
         """
-        Calculate the equilibrium potential given the intercalation fraction
-        ``x`` at the particle surface and temperature ``T``.
+        Calculate the equilibrium potential given the intercalation fraction.
 
         Parameters
         ----------
         x : float | 1D array
             Lithium intercalation fraction at ``r = R_s`` [-].
 
-        T : float
-            Battery temperature [K].
-
         Returns
         -------
         Eeq : float | 1D array
             Equilibrium potential [V].
-        """
 
-        import numpy as np
+        """
 
         x = np.atleast_1d(x)
 
@@ -185,3 +174,124 @@ class GraphiteFast(object):
         Eeq[x > 1] = -10
 
         return Eeq.squeeze()
+
+
+class GraphiteSlow(GraphiteFast):
+
+    def __init__(self, alpha_a: float, alpha_c: float, Li_max: float) -> None:
+        """
+        Computationally fast Graphite kinetic and transport properties.
+
+        Differs from ``GraphiteSlow`` because the equilibrium potential is
+        not piecewise here, making it less accurate, but faster to evaluate.
+
+        Parameters
+        ----------
+        alpha_a : float
+            Anodic symmetry factor in Butler-Volmer expression [-].
+        alpha_c : float
+            Cathodic symmetry factor in Butler-Volmer expression [-].
+        Li_max : float
+            Maximum lithium concentration in solid phase [kmol/m^3].
+
+        """
+
+        import os
+
+        import pandas as pd
+        from scipy.interpolate import CubicSpline
+
+        super().__init__(alpha_a, alpha_c, Li_max)
+
+        csvfile = os.path.dirname(__file__) + '/data/graphite_ocv.csv'
+        df = pd.read_csv(csvfile).sort_values(by='x')
+
+        self.x_min = df['x'].min()
+        self.x_max = df['x'].max()
+        self._Eeq_spline = CubicSpline(df['x'], df['V'])
+
+    def get_Eeq(self, x: float | np.ndarray) -> float | np.ndarray:
+        """
+        Calculate the equilibrium potential given the intercalation fraction.
+
+        Parameters
+        ----------
+        x : float | 1D array
+            Lithium intercalation fraction at ``r = R_s`` [-].
+
+        Returns
+        -------
+        Eeq : float | 1D array
+            Equilibrium potential [V].
+
+        Raises
+        ------
+        ValueError :
+            x is out of bounds [x_min, x_max].
+
+        """
+
+        if isinstance(x, float):
+            if x < self.x_min or x > self.x_max:
+                raise ValueError(f'x is out of bounds [{self.x_min},'
+                                 f' {self.x_max}]')
+
+        if not isinstance(x, float):
+            if np.any(x < self.x_min) or np.any(x > self.x_max):
+                raise ValueError(f'x is out of bounds [{self.x_min},'
+                                 f' {self.x_max}]')
+
+        return self._Eeq_spline(x)
+
+
+class GraphiteSlowExtrap(GraphiteFast):
+
+    def __init__(self, alpha_a: float, alpha_c: float, Li_max: float) -> None:
+        """
+        Computationally fast Graphite kinetic and transport properties.
+
+        Differs from ``GraphiteSlow`` because the piecewise equilibrium
+        potential is extrapolated to be valid on the full [0, 1] range.
+
+        Parameters
+        ----------
+        alpha_a : float
+            Anodic symmetry factor in Butler-Volmer expression [-].
+        alpha_c : float
+            Cathodic symmetry factor in Butler-Volmer expression [-].
+        Li_max : float
+            Maximum lithium concentration in solid phase [kmol/m^3].
+
+        """
+
+        import os
+
+        import pandas as pd
+        from scipy.interpolate import CubicSpline
+
+        super().__init__(alpha_a, alpha_c, Li_max)
+
+        csvfile = os.path.dirname(__file__) + '/data/graphite_ocv_extrap.csv'
+        df = pd.read_csv(csvfile).sort_values(by='x')
+
+        self.x_min = df['x'].min()
+        self.x_max = df['x'].max()
+        self._Eeq_spline = CubicSpline(df['x'], df['V'])
+
+    def get_Eeq(self, x: float | np.ndarray) -> float | np.ndarray:
+        """
+        Calculate the equilibrium potential given the intercalation fraction.
+
+        Parameters
+        ----------
+        x : float | 1D array
+            Lithium intercalation fraction at ``r = R_s`` [-].
+
+        Returns
+        -------
+        Eeq : float | 1D array
+            Equilibrium potential [V].
+
+        """
+
+        return self._Eeq_spline(x)

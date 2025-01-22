@@ -10,7 +10,6 @@ plotting, and saving methods.
 
 from ._simulation import Simulation
 from ._solutions import StepSolution, CycleSolution
-from ._templates import templates
 
 from . import dae
 from . import domains
@@ -20,7 +19,6 @@ __all__ = [
     'Simulation',
     'StepSolution',
     'CycleSolution',
-    'templates',
     'dae',
     'domains',
     'postutils',

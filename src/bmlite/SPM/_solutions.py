@@ -133,7 +133,7 @@ class BaseSolution(IDAResult):
             plots:
 
             ================= ===============================================
-            arg               Plot description
+            arg               Description
             ================= ===============================================
             'potentials'      anode, cathode, and electrolyte potentials [V]
             'intercalation'   anode/cathode particle Li fractions vs. r and t
@@ -251,8 +251,6 @@ class BaseSolution(IDAResult):
 
         import os
 
-        import numpy as np
-
         if '.npz' not in savename:
             savename += '.npz'
 
@@ -287,20 +285,20 @@ class BaseSolution(IDAResult):
         self.vars['el'] = el
 
         # stored time
-        time = self.t
+        time_s = self.t
 
-        self.vars['time_s'] = time
-        self.vars['time_min'] = time / 60.
-        self.vars['time_h'] = time / 3600.
+        self.vars['time_s'] = time_s
+        self.vars['time_min'] = time_s / 60.
+        self.vars['time_h'] = time_s / 3600.
 
         # common variables
-        voltage = ca['phis']
-        current = sim.ca._boundary_current(self)
+        voltage_V = ca['phis']
+        current_A = sim.ca._boundary_current(self)
 
-        self.vars['current_A'] = current
-        self.vars['current_C'] = current / sim.bat.cap
-        self.vars['voltage_V'] = voltage
-        self.vars['power_W'] = current*voltage
+        self.vars['current_A'] = current_A
+        self.vars['current_C'] = current_A / sim.bat.cap
+        self.vars['voltage_V'] = voltage_V
+        self.vars['power_W'] = current_A*voltage_V
 
 
 class StepSolution(BaseSolution):

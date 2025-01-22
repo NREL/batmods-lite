@@ -9,10 +9,10 @@ different for the anode, separator, and cathode domains.
 
 """
 
-from numpy import ndarray as _ndarray
+import numpy as np
 
 
-class Battery(object):
+class Battery:
 
     def __init__(self, **kwargs) -> None:
         """
@@ -53,7 +53,7 @@ class Battery(object):
         pass
 
 
-class Electrolyte(object):
+class Electrolyte:
 
     def __init__(self, **kwargs) -> None:
         """
@@ -93,7 +93,7 @@ class Electrolyte(object):
         ElyteMaterial = getattr(materials, self.material)
         self._material = ElyteMaterial()
 
-    def get_D(self, C_Li: float | _ndarray, T: float) -> float | _ndarray:
+    def get_D(self, C_Li: float | np.ndarray, T: float) -> float | np.ndarray:
         """
         Calculate the lithium ion diffusivity in the electrolyte solution at
         concentration ``C_Li`` and temperature ``T``.
@@ -114,7 +114,7 @@ class Electrolyte(object):
 
         return self._material.get_D(C_Li, T)
 
-    def get_t0(self, C_Li: float | _ndarray, T: float) -> float | _ndarray:
+    def get_t0(self, C_Li: float | np.ndarray, T: float) -> float | np.ndarray:
         """
         Calculate the lithium ion transference number at concentration ``C_Li``
         and temperature ``T``.
@@ -135,7 +135,8 @@ class Electrolyte(object):
 
         return self._material.get_t0(C_Li, T)
 
-    def get_kappa(self, C_Li: float | _ndarray, T: float) -> float | _ndarray:
+    def get_kappa(self, C_Li: float | np.ndarray,
+                  T: float) -> float | np.ndarray:
         """
         Calculate the electrolyte conductivity at concentration ``C_Li`` and
         temperature ``T``.
@@ -156,7 +157,8 @@ class Electrolyte(object):
 
         return self._material.get_kappa(C_Li, T)
 
-    def get_gamma(self, C_Li: float | _ndarray, T: float) -> float | _ndarray:
+    def get_gamma(self, C_Li: float | np.ndarray,
+                  T: float) -> float | np.ndarray:
         """
         Calculate the electrolyte thermodynamic factor at concentration
         ``C_Li`` and temperature ``T``.
@@ -178,7 +180,7 @@ class Electrolyte(object):
         return self._material.get_gamma(C_Li, T)
 
 
-class Electrode(object):
+class Electrode:
 
     def __init__(self, name: str, **kwargs) -> None:
         """
@@ -276,7 +278,7 @@ class Electrode(object):
         self._material = ActiveMaterial(self.alpha_a, self.alpha_c,
                                         self.Li_max)
 
-    def get_Ds(self, x: float | _ndarray, T: float) -> float | _ndarray:
+    def get_Ds(self, x: float | np.ndarray, T: float) -> float | np.ndarray:
         """
         Calculate the lithium diffusivity in the solid phase given the local
         intercalation fraction ``x`` and temperature ``T``.
@@ -297,8 +299,8 @@ class Electrode(object):
 
         return self.Ds_deg * self._material.get_Ds(x, T)
 
-    def get_i0(self, x: float | _ndarray, C_Li: float | _ndarray,
-               T: float) -> float | _ndarray:
+    def get_i0(self, x: float | np.ndarray, C_Li: float | np.ndarray,
+               T: float) -> float | np.ndarray:
         """
         Calculate the exchange current density given the surface intercalation
         fraction ``x`` at the particle surface, the local lithium ion
@@ -324,7 +326,7 @@ class Electrode(object):
 
         return self.i0_deg * self._material.get_i0(x, C_Li, T)
 
-    def get_Eeq(self, x: float | _ndarray, T: float) -> float | _ndarray:
+    def get_Eeq(self, x: float | np.ndarray) -> float | np.ndarray:
         """
         Calculate the equilibrium potential given the surface intercalation
         fraction ``x`` at the particle surface and temperature ``T``.
@@ -333,8 +335,6 @@ class Electrode(object):
         ----------
         x : float | 1D array
             Lithium intercalation fraction at ``r = R_s`` [-].
-        T : float
-            Battery temperature [K].
 
         Returns
         -------
@@ -343,7 +343,7 @@ class Electrode(object):
 
         """
 
-        return self._material.get_Eeq(x, T)
+        return self._material.get_Eeq(x)
 
     def make_mesh(self, xshift: float = 0., pshift: int = 0) -> None:
         """
@@ -396,34 +396,94 @@ class Electrode(object):
         x_ptr(self, ['phi_ed', 'Li_el', 'phi_el'])
         xr_ptr(self, ['Li_ed'])
 
-    def sv0(self, el: object) -> _ndarray:
-        import numpy as np
+    def sv0(self, el: object) -> np.ndarray:
         return np.tile(np.hstack([self.x_0 * np.ones(self.Nr),
                                   self.phi_0, el.Li_0, el.phi_0]), self.Nx)
 
-    def algidx(self) -> _ndarray:
-        import numpy as np
+    def algidx(self) -> np.ndarray:
         return np.hstack([self.x_ptr['phi_ed'], self.x_ptr['phi_el']])
 
     def to_dict(self, sol: object) -> dict:
-        import numpy as np
 
-        ed_sol = {}
-        ed_sol['xs'] = np.zeros([sol.t.size, self.Nx, self.Nr])
+        xs = np.zeros([sol.t.size, self.Nx, self.Nr])
         for i in range(sol.t.size):
-            X_ed = sol.y[i, self.xr_ptr['Li_ed'].flatten()]
-            ed_sol['xs'][i, :, :] = X_ed.reshape([self.Nx, self.Nr])
+            xs_tmp = sol.y[i, self.xr_ptr['Li_ed'].flatten()]
+            xs[i, :, :] = xs_tmp.reshape([self.Nx, self.Nr])
 
-        ed_sol['cs'] = ed_sol['xs'] * self.Li_max
-
-        ed_sol['phis'] = sol.y[:, self.x_ptr['phi_ed']]
-        ed_sol['ce'] = sol.y[:, self.x_ptr['Li_el']]
-        ed_sol['phie'] = sol.y[:, self.x_ptr['phi_el']]
+        ed_sol = {
+            'x': self.x,
+            'r': self.r,
+            'xs': xs,
+            'cs': xs*self.Li_max,
+            'phis': sol.y[:, self.x_ptr['phi_ed']],
+            'ce': sol.y[:, self.x_ptr['Li_el']],
+            'phie': sol.y[:, self.x_ptr['phi_el']],
+        }
 
         return ed_sol
 
+    def _boundary_current(self, soln) -> np.ndarray:
+        """
+        Calculate and return the boundary current at all solution times.
 
-class Separator(object):
+        Parameters
+        ----------
+        soln : Solution
+            A SPM solution instance, step or cycle.
+
+        Returns
+        -------
+        current_A : np.ndarray
+            Boundary current, in amps.
+
+        """
+
+        sim = soln._sim
+
+        bat, an, ca = sim.bat, sim.an, sim.ca
+
+        c, T = sim.c, bat.temp
+
+        if self.name == 'anode':
+            phis = soln.vars['an']['phis']
+            xs = soln.vars['an']['xs'][:, :, -1]
+
+            phie = soln.vars['an']['phie']
+            ce = soln.vars['an']['ce']
+
+            eta = phis - phie - an.get_Eeq(xs)
+
+            i0 = an.get_i0(xs, ce, T)
+            sdot = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
+                               - np.exp(-an.alpha_c*c.F*eta / c.R / T)  )
+
+            i_ext = -sdot[:, 0]*an.A_s*c.F*(an.xp[0] - an.xm[0]) \
+                  + an.sigma_s*an.eps_s**an.p_sol \
+                      * (phis[:, 1] - phis[:, 0]) / (an.x[1] - an.x[0])
+
+        elif self.name == 'cathode':
+            phis = soln.vars['ca']['phis']
+            xs = soln.vars['ca']['xs'][:, :, -1]
+
+            phie = soln.vars['ca']['phie']
+            ce = soln.vars['ca']['ce']
+
+            eta = phis - phie - ca.get_Eeq(xs)
+
+            i0 = ca.get_i0(xs, ce, T)
+            sdot = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
+                               - np.exp(-ca.alpha_c*c.F*eta / c.R / T)  )
+
+            i_ext = sdot[:, -1]*ca.A_s*c.F*(ca.xp[-1] - ca.xm[-1]) \
+                  + ca.sigma_s*ca.eps_s**ca.p_sol \
+                      * (phis[:, -1] - phis[:, -2]) / (ca.x[-1] - ca.x[-2])
+
+        current_A = i_ext*bat.area
+
+        return current_A
+
+
+class Separator:
 
     def __init__(self, **kwargs) -> None:
         """
@@ -510,17 +570,19 @@ class Separator(object):
 
         x_ptr(self, ['Li_el', 'phi_el'])
 
-    def sv0(self, el: object) -> _ndarray:
+    def sv0(self, el: object) -> np.ndarray:
         import numpy as np
         return np.tile([el.Li_0, el.phi_0], self.Nx)
 
-    def algidx(self) -> _ndarray:
+    def algidx(self) -> np.ndarray:
         return self.x_ptr['phi_el']
 
     def to_dict(self, sol: object) -> dict:
 
-        sep_sol = {}
-        sep_sol['ce'] = sol.y[:, self.x_ptr['Li_el']]
-        sep_sol['phie'] = sol.y[:, self.x_ptr['phi_el']]
+        sep_sol = {
+            'x': self.x,
+            'ce': sol.y[:, self.x_ptr['Li_el']],
+            'phie': sol.y[:, self.x_ptr['phi_el']],
+        }
 
         return sep_sol

@@ -12,7 +12,7 @@ for the anode and cathode domains.
 import numpy as np
 
 
-class Battery(object):
+class Battery:
 
     def __init__(self, **kwargs) -> None:
         """
@@ -53,7 +53,7 @@ class Battery(object):
         pass
 
 
-class Electrolyte(object):
+class Electrolyte:
 
     def __init__(self, **kwargs) -> None:
         """
@@ -96,11 +96,9 @@ class Electrolyte(object):
         self.ptr['shift'] = 1
 
     def sv0(self) -> np.ndarray:
-        import numpy as np
         return np.array([self.phi_0])
 
     def algidx(self) -> np.ndarray:
-        import numpy as np
         return np.hstack([self.ptr['phi_el']])
 
     def to_dict(self, sol) -> dict:
@@ -111,7 +109,7 @@ class Electrolyte(object):
         return el_sol
 
 
-class Electrode(object):
+class Electrode:
 
     def __init__(self, name: str, **kwargs):
         """
@@ -244,7 +242,7 @@ class Electrode(object):
 
         return self.i0_deg * self._material.get_i0(x, C_Li, T)
 
-    def get_Eeq(self, x: float, T: float) -> float:
+    def get_Eeq(self, x: float) -> float:
         """
         Calculate the equilibrium potential given the surface intercalation
         fraction ``x`` at the particle surface and temperature ``T``.
@@ -253,16 +251,15 @@ class Electrode(object):
         ----------
         x : float
             Lithium intercalation fraction at ``r = R_s`` [-].
-        T : float
-            Battery temperature [K].
 
         Returns
         -------
         Eeq : float
             Equilibrium potential [V].
+
         """
 
-        return self._material.get_Eeq(x, T)
+        return self._material.get_Eeq(x)
 
     def make_mesh(self, pshift: int = 0):
         """
@@ -324,6 +321,7 @@ class Electrode(object):
     def to_dict(self, sol: object) -> dict:
 
         phis = sol.y[:, self.ptr['phi_ed']]
+
         xs = sol.y[:, self.r_ptr['Li_ed']]
         if self._name == 'cathode':
             xs = np.flip(xs, axis=1)
@@ -337,7 +335,22 @@ class Electrode(object):
 
         return ed_sol
 
-    def _boundary_current(self, soln):
+    def _boundary_current(self, soln) -> np.ndarray:
+        """
+        Calculate and return the boundary current at all solution times.
+
+        Parameters
+        ----------
+        soln : Solution
+            A SPM solution instance, step or cycle.
+
+        Returns
+        -------
+        current_A : np.ndarray
+            Boundary current, in amps.
+
+        """
+
         sim = soln._sim
 
         bat, el = sim.bat, sim.el
@@ -353,7 +366,7 @@ class Electrode(object):
         xs = soln.vars[ed]['xs'][:, -1]
         phie = soln.vars['el']['phie']
 
-        eta = phis - phie - self.get_Eeq(xs, T)
+        eta = phis - phie - self.get_Eeq(xs)
 
         i0 = self.get_i0(xs, el.Li_0, T)
         sdot = i0 / c.F * (  np.exp( self.alpha_a*c.F*eta / c.R / T)

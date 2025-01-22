@@ -15,12 +15,10 @@ if TYPE_CHECKING:  # pragma: no cover
     from ._solutions import StepSolution, CycleSolution
 
 
-class Simulation(object):
+class Simulation:
 
-    __slots__ = [
-        '_yamlfile', '_yamlpath', '_flags', '_t0', '_sv0', '_svdot0', '_lband',
-        '_uband', '_algidx', 'c', 'bat', 'el', 'an', 'ca',
-    ]
+    __slots__ = ['_yamlfile', '_yamlpath', '_t0', '_sv0', '_svdot0', '_lband',
+                 '_uband', '_algidx', 'c', 'bat', 'el', 'an', 'ca']
 
     def __init__(self, yamlfile: str = 'graphite_nmc532') -> None:
         """
@@ -64,9 +62,9 @@ class Simulation(object):
         if '.yaml' not in yamlfile:
             yamlfile += '.yaml'
 
-        defaults = os.listdir(os.path.dirname(__file__) + '/default_sims')
+        defaults = os.listdir(os.path.dirname(__file__) + '/templates')
         if yamlfile in defaults:
-            path = os.path.dirname(__file__) + '/default_sims/' + yamlfile
+            path = os.path.dirname(__file__) + '/templates/' + yamlfile
             print('\n[BatMods WARNING]\n'
                   f'\tSPM Simulation: Using default {yamlfile}\n')
             yamlpath = Path(path)
@@ -88,10 +86,6 @@ class Simulation(object):
         self.el = Electrolyte(**yamldict['electrolyte'])
         self.an = Electrode('anode', **yamldict['anode'])
         self.ca = Electrode('cathode', **yamldict['cathode'])
-
-        # Function output flags
-        self._flags = {}
-        self._flags['post'] = False
 
         # Pre process dependent parameters, mesh, etc.
         self.pre()
@@ -134,10 +128,10 @@ class Simulation(object):
         # Initialize potentials [V]
         self.an.phi_0 = 0.
 
-        self.el.phi_0 = -self.an.get_Eeq(self.an.x_0, self.bat.temp)
+        self.el.phi_0 = -self.an.get_Eeq(self.an.x_0)
 
-        self.ca.phi_0 = self.ca.get_Eeq(self.ca.x_0, self.bat.temp) \
-                      - self.an.get_Eeq(self.an.x_0, self.bat.temp)
+        self.ca.phi_0 = self.ca.get_Eeq(self.ca.x_0) \
+                      - self.an.get_Eeq(self.an.x_0)
 
         # Initialize sv and svdot
         self._t0 = 0.

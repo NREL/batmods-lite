@@ -33,23 +33,17 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     Returns
     -------
-    None
-        If no ``sim._flags`` are ``True``.
-    res : 1D array
-        Array of residuals if ``sim._flags['band'] = True``.
-    outputs : tuple[1D array]
-        If ``sim._flags['post'] = True`` then ``outputs`` is returned, which
-        includes post-processed values. These can help verify the governing
-        equations and boundary conditions are satisfied. They can also be
-        useful for interpreting causes of good/bad battery performance. The
-        order and description of the arrays is given below:
+    outputs : tuple[np.ndarray]
+        If the experimental step `mode` is set to `post`, then the following
+        post-processed variables will be returned in a tuple. Otherwise,
+        returns None.
 
-        ========== =======================================================
-        Variable   Description [units] (*type*)
-        ========== =======================================================
-        sdot_an    anode Li+ production rate [kmol/m^3/s] (*float*)
-        sdot_ca    cathode Li+ production rate [kmol/m^3/s] (*float*)
-        ========== =======================================================
+        ========= =================================================
+        Variable  Description [units] (*type*)
+        ========= =================================================
+        sdot_an   anode Li+ production [kmol/m^3/s] (*1D array*)
+        sdot_ca   cathode Li+ production [kmol/m^3/s] (*1D array*)
+        ========= =================================================
 
     """
 
@@ -77,7 +71,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Anode -------------------------------------------------------------------
 
     # Reaction current
-    eta = phi_an - phi_el - an.get_Eeq(xs_an[-1], T)
+    eta = phi_an - phi_el - an.get_Eeq(xs_an[-1])
 
     i0 = an.get_i0(xs_an[-1], el.Li_0, T)
     sdot_an = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
@@ -98,7 +92,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Cathode -----------------------------------------------------------------
 
     # Reaction current
-    eta = phi_ca - phi_el - ca.get_Eeq(xs_ca[-1], T)
+    eta = phi_ca - phi_el - ca.get_Eeq(xs_ca[-1])
 
     i0 = ca.get_i0(xs_ca[-1], el.Li_0, T)
     sdot_ca = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
@@ -163,5 +157,5 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     }
 
     # Returns -----------------------------------------------------------------
-    if sim._flags['post']:
+    if mode == 'post':
         return sdot_an, sdot_ca
