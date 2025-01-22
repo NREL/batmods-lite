@@ -7,6 +7,7 @@ from pathlib import Path
 from copy import deepcopy
 
 import numpy as np
+import ampworks as amp
 from ruamel.yaml import YAML
 import matplotlib.pyplot as plt
 
@@ -333,9 +334,12 @@ class Simulation:
 
         from ._solutions import CycleSolution
 
+        progbar = amp.utils.ProgressBar()
+
         solns = []
         for i in range(expr.num_steps):
             solns.append(self.run_step(expr, i))
+            progbar.update((i + 1) / expr.num_steps)
 
         soln = CycleSolution(*solns, t_shift=t_shift)
 

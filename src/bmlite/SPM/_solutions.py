@@ -477,15 +477,16 @@ class CycleSolution(BaseSolution):
         self._solns = soln
         self._sim = soln[0]._sim.copy()
 
+        t_size = np.sum([soln.t.size for soln in self._solns])
         sv_size = self._sim._sv0.size
 
         self.message = []
         self.success = []
         self.status = []
 
-        self.t = np.empty([0])
-        self.y = np.empty([0, sv_size])
-        self.yp = np.empty([0, sv_size])
+        self.t = np.empty([t_size])
+        self.y = np.empty([t_size, sv_size])
+        self.yp = np.empty([t_size, sv_size])
 
         self.t_events = None
         self.y_events = None
@@ -496,14 +497,18 @@ class CycleSolution(BaseSolution):
 
         self._timers = []
 
+        first = 0
         for soln in self._solns:
-            if self.t.size > 0:
-                shift_t = self.t[-1] + soln.t + t_shift
+            soln_size = soln.t.size
+            last = first + soln_size
+
+            if first > 0:
+                shift_t = self.t[first - 1] + soln.t + t_shift
             else:
                 shift_t = soln.t
 
-            if soln.t_events and self.t.size > 0:
-                shift_t_events = self.t[-1] + soln.t_events + t_shift
+            if soln.t_events and first > 0:
+                shift_t_events = self.t[first - 1] + soln.t_events + t_shift
             elif soln.t_events:
                 shift_t_events = soln.t_events
 
@@ -511,9 +516,11 @@ class CycleSolution(BaseSolution):
             self.success.append(soln.success)
             self.status.append(soln.status)
 
-            self.t = np.hstack([self.t, shift_t])
-            self.y = np.vstack([self.y, soln.y])
-            self.yp = np.vstack([self.yp, soln.yp])
+            self.t[first:last] = shift_t
+            self.y[first:last, :] = soln.y
+            self.yp[first:last, :] = soln.yp
+
+            first = last
 
             if soln.t_events:
                 if self.t_events is None:
@@ -521,9 +528,9 @@ class CycleSolution(BaseSolution):
                     self.y_events = soln.y_events
                     self.yp_events = soln.yp_events
                 else:
-                    self.t_events = np.hstack([self.t_events, shift_t_events])
-                    self.y_events = np.vstack([soln.y_events])
-                    self.yp_events = np.vstack([soln.yp_events])
+                    self.t_events = np.concat([self.t_events, shift_t_events])
+                    self.y_events = np.concat([self.y_events, soln.y_events])
+                    self.yp_events = np.concat([self.yp_events, soln.yp_events])
 
             self.nfev.append(soln.nfev)
             self.njev.append(soln.njev)
