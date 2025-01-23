@@ -7,7 +7,6 @@ from pathlib import Path
 from copy import deepcopy
 
 import numpy as np
-import ampworks as amp
 from ruamel.yaml import YAML
 import matplotlib.pyplot as plt
 
@@ -285,7 +284,7 @@ class Simulation:
         return soln
 
     def run(self, expr: Experiment, reset_state: bool = True,
-            t_shift: float = 1e-3) -> CycleSolution:
+            t_shift: float = 1e-3, bar: bool = False) -> CycleSolution:
         """
         Run a full experiment.
 
@@ -293,15 +292,18 @@ class Simulation:
         ----------
         expr : Experiment
             An experiment instance.
-        reset_state : bool
+        reset_state : bool, optional
             If True (default), the internal state of the model will be reset
             back to a rested condition at 'soc0' at the end of all steps. When
             False, the state does not reset. Instead it will update to match
             the final state of the last experimental step.
-        t_shift : float
+        t_shift : float, optional
             Time (in seconds) to shift step solutions by when stitching them
             together. If zero the end time of each step overlaps the starting
             time of its following step. The default is 1e-3.
+        bar : bool, optional
+            Displays a progress bar showing percentage of completed steps when
+            True. The default is False.
 
         Returns
         -------
@@ -325,14 +327,17 @@ class Simulation:
 
         """
 
+        from .._utils import ProgressBar
         from ._solutions import CycleSolution
 
-        progbar = amp.utils.ProgressBar()
+        progbar = ProgressBar(expr.num_steps)
 
         solns = []
         for i in range(expr.num_steps):
             solns.append(self.run_step(expr, i))
-            progbar.update((i + 1) / expr.num_steps)
+
+            if bar:
+                progbar.update(i+1)
 
         soln = CycleSolution(*solns, t_shift=t_shift)
 
