@@ -14,6 +14,7 @@ from ._solutions import StepSolution, CycleSolution
 from . import dae
 from . import domains
 from . import postutils
+from . import submodels
 
 __all__ = [
     'Simulation',
@@ -22,4 +23,5 @@ __all__ = [
     'dae',
     'domains',
     'postutils',
+    'submodels',
 ]

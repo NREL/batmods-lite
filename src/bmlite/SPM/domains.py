@@ -126,27 +126,28 @@ class Electrode:
             Keyword arguments to set the electrode attributes. The required
             keys and descriptions are given below:
 
-            ========= =========================================================
-            Key       Description [units] (type)
-            ========= =========================================================
-            Nr        number of ``r`` discretizations [-] (*int*)
-            thick     electrode thickness [m] (*float*)
-            R_s       represenatative particle radius [m] (*float*)
-            eps_el    electrolyte volume fraction [-] (*float*)
-            eps_CBD   carbon binder domain volume fraction [-] (*float*)
-            eps_void  Void volume fraction [-] (*float*)
-            alpha_a   Butler-Volmer anodic symmetry factor [-] (*float*)
-            alpha_c   Butler-Volmer cathodic symmetry factor [-] (*float*)
-            Li_max    max solid-phase lithium concentration [kmol/m^3] (*float*)
-            x_0       initial solid-phase intercalation fraction [-] (*float*)
-            i0_deg    ``i0`` degradation factor [-] (*float*)
-            Ds_deg    ``Ds`` degradation factor [-] (*float*)
-            material  class name from ``bmlite.materials`` [-] (*str*)
-            ========= =========================================================
+            ========== ======================================================
+            Key        Description [units] (type)
+            ========== ======================================================
+            Nr         number of ``r`` discretizations [-] (*int*)
+            thick      electrode thickness [m] (*float*)
+            R_s        represenatative particle radius [m] (*float*)
+            eps_el     electrolyte volume fraction [-] (*float*)
+            eps_CBD    carbon binder domain volume fraction [-] (*float*)
+            eps_void   Void volume fraction [-] (*float*)
+            alpha_a    Butler-Volmer anodic symmetry factor [-] (*float*)
+            alpha_c    Butler-Volmer cathodic symmetry factor [-] (*float*)
+            Li_max     max solid-phase Li concentration [kmol/m3] (*float*)
+            x_0        initial solid Li intercalation fraction [-] (*float*)
+            i0_deg     ``i0`` degradation factor [-] (*float*)
+            Ds_deg     ``Ds`` degradation factor [-] (*float*)
+            material   class name from ``bmlite.materials`` [-] (*str*)
+            submodels  ``submodels`` classes to include (*dict[dict]*)
+            ========== ======================================================
 
         """
 
-        from . import options
+        from . import submodels
 
         if name not in ['anode', 'cathode']:
             raise ValueError("'name' must be either 'anode' or 'cathode'.")
@@ -167,12 +168,12 @@ class Electrode:
         self.Ds_deg = kwargs.get('Ds_deg')
         self.material = kwargs.get('material')
 
-        self._options = {}
+        self._submodels = {}
 
-        all_options = kwargs.get('options', {})
-        if 'Hysteresis' in all_options:
-            Hysteresis, opt = options.Hysteresis, all_options['Hysteresis']
-            self._options['Hysteresis'] = Hysteresis(self, **opt)
+        all_submodels = kwargs.get('submodels', {})
+        if 'Hysteresis' in all_submodels:
+            Hysteresis, opt = submodels.Hysteresis, all_submodels['Hysteresis']
+            self._submodels['Hysteresis'] = Hysteresis(self, **opt)
 
         self.update()
 
@@ -312,8 +313,8 @@ class Electrode:
 
         # Pointers
         # [[ptr_an], phi_el, [ptr_ca]]
-        # ptr_an -> [[Li_ed(0->R_s)], phi_ed, hyst]
-        # ptr_ca -> [hyst, phi_ed, [Li_ed(R_s->0)]]
+        # ptr_an -> [[Li_ed(0->R_s)], phi_ed, ...]
+        # ptr_ca -> [..., phi_ed, [Li_ed(R_s->0)]]
 
         self.ptr = {}
         if self._name == 'anode':
@@ -324,14 +325,14 @@ class Electrode:
             self.ptr['phi_ed'] = 0 + pshift
             self.ptr['Li_ed'] = self.ptr['phi_ed'] + 1
 
-        for opt in self._options.values():
-            opt.make_mesh(pshift)
+        for model in self._submodels.values():
+            model.make_mesh(pshift)
 
-        opt_count = len(self._options)
+        submodel_count = len(self._submodels)
 
         self.ptr['r_off'] = 1
         self.ptr['start'] = pshift
-        self.ptr['size'] = self.Nr + 1 + opt_count
+        self.ptr['size'] = self.Nr + 1 + submodel_count
         self.ptr['shift'] = self.ptr['size']
 
         r_ptr(self, ['Li_ed'])
@@ -345,16 +346,16 @@ class Electrode:
         sv0[self.r_ptr['Li_ed'] - start] = self.x_0*np.ones(self.Nr)
         sv0[self.ptr['phi_ed'] - start] = self.phi_0
 
-        for opt in self._options.values():
-            opt.sv0(sv0)
+        for model in self._submodels.values():
+            model.sv0(sv0)
 
         return sv0
 
     def algidx(self):
 
         algidx = np.array([self.ptr['phi_ed']], dtype=int)
-        for opt in self._options.values():
-            opt.algidx(algidx)
+        for model in self._submodels.values():
+            model.algidx(algidx)
 
         return np.sort(algidx)
 
@@ -373,8 +374,8 @@ class Electrode:
             'cs': xs*self.Li_max,
         }
 
-        for opt in self._options.values():
-            outputs = opt.to_dict(sol)
+        for model in self._submodels.values():
+            outputs = model.to_dict(sol)
             ed_sol.update(outputs)
 
         return ed_sol
@@ -410,7 +411,7 @@ class Electrode:
         xs = soln.vars[ed]['xs'][:, -1]
         phie = soln.vars['el']['phie']
 
-        if 'Hysteresis' in self._options:
+        if 'Hysteresis' in self._submodels:
             hyst = self.M_hyst*soln.vars[ed]['hyst']
         else:
             hyst = 0.

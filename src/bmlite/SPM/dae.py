@@ -15,6 +15,7 @@ if not hasattr(np, 'concat'):  # pragma: no cover
 
 
 def sign(x):
+    """Return +1 for x >= 0, -1 for x < 0."""
     return (x >= 0).astype(float) * 2 - 1
 
 
@@ -69,13 +70,13 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     phi_el = sv[el.ptr['phi_el']]
     phi_ca = sv[ca.ptr['phi_ed']]
 
-    if 'Hysteresis' in an._options:
+    if 'Hysteresis' in an._submodels:
         hyst_an = sv[an.ptr['hyst']]
         Hyst_an = an.M_hyst*hyst_an
     else:
         Hyst_an = 0.
 
-    if 'Hysteresis' in ca._options:
+    if 'Hysteresis' in ca._submodels:
         hyst_ca = sv[ca.ptr['hyst']]
         Hyst_ca = ca.M_hyst*hyst_ca
     else:
@@ -111,7 +112,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     res[an.ptr['phi_ed']] = phi_an - 0.
 
     # Hysteresis (differential)
-    if 'Hysteresis' in an._options:
+    if 'Hysteresis' in an._submodels:
         res[an.ptr['hyst']] = svdot[an.ptr['hyst']] \
             - np.abs(sdot_an*c.F*an.g_hyst / 3600. / bat.cap) \
             * (sign(sdot_an) - hyst_an)
@@ -137,7 +138,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
                            - np.flip(div_r(ca.rm, ca.rp, Js_ca))
 
     # Hysteresis (differential)
-    if 'Hysteresis' in ca._options:
+    if 'Hysteresis' in ca._submodels:
         res[ca.ptr['hyst']] = svdot[ca.ptr['hyst']] \
             - np.abs(sdot_ca*c.F*ca.g_hyst / 3600. / bat.cap) \
             * (sign(sdot_ca) - hyst_ca)
