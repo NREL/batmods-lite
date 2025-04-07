@@ -148,15 +148,17 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     # Anode overpotentials and Li+ productions
     eta = phi_an - phi_el_an - (an.get_Eeq(xs_an[:, -1]) + Hyst_an)
+    fluxdir_an = -np.sign(eta)
 
-    i0 = an.get_i0(xs_an[:, -1], Li_el_an, T)
+    i0 = an.get_i0(xs_an[:, -1], Li_el_an, T, fluxdir_an)
     sdot_an = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
                           - np.exp(-an.alpha_c*c.F*eta / c.R / T)  )
 
     # Cathode overpotentials and Li+ productions
     eta = phi_ca - phi_el_ca - (ca.get_Eeq(xs_ca[:, -1]) + Hyst_ca)
+    fluxdir_ca = -np.sign(eta)
 
-    i0 = ca.get_i0(xs_ca[:, -1], Li_el_ca, T)
+    i0 = ca.get_i0(xs_ca[:, -1], Li_el_ca, T, fluxdir_ca)
     sdot_ca = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
                           - np.exp(-ca.alpha_c*c.F*eta / c.R / T)  )
 
@@ -202,7 +204,8 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     wt_m = 0.5*(an.rp[:-1] - an.rm[:-1]) / (an.r[1:] - an.r[:-1])
     wt_p = 0.5*(an.rp[1:] - an.rm[1:]) / (an.r[1:] - an.r[:-1])
 
-    Ds = wt_m*an.get_Ds(xs_an[:, :-1], T) + wt_p*an.get_Ds(xs_an[:, 1:], T)
+    Ds = wt_m*an.get_Ds(xs_an[:, :-1], T, fluxdir_an) \
+       + wt_p*an.get_Ds(xs_an[:, 1:], T, fluxdir_an)
 
     # Solid-phase radial diffusion
     Nk_ed = np.column_stack([
@@ -291,7 +294,8 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     wt_m = 0.5*(ca.rp[:-1] - ca.rm[:-1]) / (ca.r[1:] - ca.r[:-1])
     wt_p = 0.5*(ca.rp[1:] - ca.rm[1:]) / (ca.r[1:] - ca.r[:-1])
 
-    Ds = wt_m*ca.get_Ds(xs_ca[:, :-1], T) + wt_p*ca.get_Ds(xs_ca[:, 1:], T)
+    Ds = wt_m*ca.get_Ds(xs_ca[:, :-1], T, fluxdir_ca) \
+       + wt_p*ca.get_Ds(xs_ca[:, 1:], T, fluxdir_ca)
 
     # Solid-phase radial diffusion
     Nk_ed = np.column_stack([

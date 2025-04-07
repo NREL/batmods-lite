@@ -206,7 +206,8 @@ class Electrode:
         Material = getattr(materials, self.material)
         self._material = Material(self.alpha_a, self.alpha_c, self.Li_max)
 
-    def get_Ds(self, x: float | np.ndarray, T: float) -> float | np.ndarray:
+    def get_Ds(self, x: float | np.ndarray, T: float,
+               fluxdir: float) -> float | np.ndarray:
         """
         Calculate the lithium diffusivity in the solid phase given the local
         intercalation fraction ``x`` and temperature ``T``.
@@ -217,6 +218,10 @@ class Electrode:
             Lithium intercalation fraction [-].
         T : float
             Battery temperature [K].
+        fluxdir : float
+            Lithiation direction: +1 for lithiation, -1 for delithiation, 0 for
+            rest. Used for direction-dependent parameters. Ensure the zero case
+            is handled explicitly or via a default (lithiating or delithiating).
 
         Returns
         -------
@@ -225,9 +230,10 @@ class Electrode:
 
         """
 
-        return self.Ds_deg * self._material.get_Ds(x, T)
+        return self.Ds_deg * self._material.get_Ds(x, T, fluxdir)
 
-    def get_i0(self, x: float, C_Li: float, T: float) -> float:
+    def get_i0(self, x: float, C_Li: float, T: float,
+               fluxdir: float) -> float:
         """
         Calculate the exchange current density given the surface intercalation
         fraction ``x`` at the particle surface, the local lithium ion
@@ -241,6 +247,10 @@ class Electrode:
             Lithium ion concentration in the local electrolyte [kmol/m^3].
         T : float
             Battery temperature [K].
+        fluxdir : float
+            Lithiation direction: +1 for lithiation, -1 for delithiation, 0 for
+            rest. Used for direction-dependent parameters. Ensure the zero case
+            is handled explicitly or via a default (lithiating or delithiating).
 
         Returns
         -------
@@ -249,7 +259,7 @@ class Electrode:
 
         """
 
-        return self.i0_deg * self._material.get_i0(x, C_Li, T)
+        return self.i0_deg * self._material.get_i0(x, C_Li, T, fluxdir)
 
     def get_Eeq(self, x: float) -> float:
         """
@@ -406,8 +416,9 @@ class Electrode:
             hyst = 0.
 
         eta = phis - phie - (self.get_Eeq(xs) + hyst)
+        fluxdir = -np.sign(eta)
 
-        i0 = self.get_i0(xs, el.Li_0, T)
+        i0 = self.get_i0(xs, el.Li_0, T, fluxdir)
         sdot = i0 / c.F * (  np.exp( self.alpha_a*c.F*eta / c.R / T)
                            - np.exp(-self.alpha_c*c.F*eta / c.R / T)  )
 

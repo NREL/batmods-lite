@@ -91,13 +91,15 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     # Reaction current
     eta = phi_an - phi_el - (an.get_Eeq(xs_an[-1]) + Hyst_an)
+    fluxdir_an = -np.sign(eta)
 
-    i0 = an.get_i0(xs_an[-1], el.Li_0, T)
+    i0 = an.get_i0(xs_an[-1], el.Li_0, T, fluxdir_an)
     sdot_an = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
                           - np.exp(-an.alpha_c*c.F*eta / c.R / T)  )
 
     # Weighted solid particle properties
-    Ds_an = an._wtm*an.get_Ds(xs_an[:-1], T) + an._wtp*an.get_Ds(xs_an[1:], T)
+    Ds_an = an._wtm*an.get_Ds(xs_an[:-1], T, fluxdir_an) \
+          + an._wtp*an.get_Ds(xs_an[1:], T, fluxdir_an)
 
     # Solid-phase COM (differential)
     Js_an = np.concat([[0.], Ds_an*grad_r(an.r, Li_an), [-sdot_an]])
@@ -118,13 +120,15 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     # Reaction current
     eta = phi_ca - phi_el - (ca.get_Eeq(xs_ca[-1]) + Hyst_ca)
+    fluxdir_ca = -np.sign(eta)
 
-    i0 = ca.get_i0(xs_ca[-1], el.Li_0, T)
+    i0 = ca.get_i0(xs_ca[-1], el.Li_0, T, fluxdir_ca)
     sdot_ca = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
                           - np.exp(-ca.alpha_c*c.F*eta / c.R / T)  )
 
     # Weighted solid particle properties
-    Ds_ca = ca._wtm*ca.get_Ds(xs_ca[:-1], T) + ca._wtp*ca.get_Ds(xs_ca[1:], T)
+    Ds_ca = ca._wtm*ca.get_Ds(xs_ca[:-1], T, fluxdir_ca) \
+          + ca._wtp*ca.get_Ds(xs_ca[1:], T, fluxdir_ca)
 
     # Solid-phase COM (differential)
     Js_ca = np.concat([[0.], Ds_ca*grad_r(ca.r, Li_ca), [-sdot_ca]])

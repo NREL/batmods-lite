@@ -44,10 +44,10 @@ def test_graphite_fast(args):
 
     x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    Ds = gr.get_Ds(x, T)
+    Ds = gr.get_Ds(x, T, fluxdir=0)
     assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    i0 = gr.get_i0(x, C_Li, T)
+    i0 = gr.get_i0(x, C_Li, T, fluxdir=0)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
     Eeq = gr.get_Eeq(x)
@@ -64,10 +64,10 @@ def test_graphite_slow(args):
 
     x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    Ds = gr.get_Ds(x, T)
+    Ds = gr.get_Ds(x, T, fluxdir=0)
     assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    i0 = gr.get_i0(x, C_Li, T)
+    i0 = gr.get_i0(x, C_Li, T, fluxdir=0)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
     Eeq = gr.get_Eeq(x)
@@ -90,10 +90,10 @@ def test_nmc_532_fast(args):
 
     x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    Ds = nmc.get_Ds(x, T)
+    Ds = nmc.get_Ds(x, T, fluxdir=0)
     assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    i0 = nmc.get_i0(x, C_Li, T)
+    i0 = nmc.get_i0(x, C_Li, T, fluxdir=0)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
     Eeq = nmc.get_Eeq(x)
@@ -110,10 +110,10 @@ def test_nmc_532_slow(args):
 
     x, C_Li, T = data['x'], data['C_Li'], data['T']
 
-    Ds = nmc.get_Ds(x, T)
+    Ds = nmc.get_Ds(x, T, fluxdir=0)
     assert np.allclose(Ds / max(Ds), data['Ds'] / max(Ds))
 
-    i0 = nmc.get_i0(x, C_Li, T)
+    i0 = nmc.get_i0(x, C_Li, T, fluxdir=0)
     assert np.allclose(i0 / max(i0), data['i0'] / max(i0))
 
     Eeq = nmc.get_Eeq(x)

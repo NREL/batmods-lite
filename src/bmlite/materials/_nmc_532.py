@@ -25,7 +25,8 @@ class NMC532Fast:
         self.alpha_c = alpha_c
         self.Li_max = Li_max
 
-    def get_Ds(self, x: float | np.ndarray, T: float) -> float | np.ndarray:
+    def get_Ds(self, x: float | np.ndarray, T: float,
+               fluxdir: float | np.ndarray) -> float | np.ndarray:
         """
         Calculate the lithium diffusivity in the solid phase given the local
         intercalation fraction ``x`` and temperature ``T``.
@@ -36,6 +37,10 @@ class NMC532Fast:
             Lithium intercalation fraction [-].
         T : float
             Battery temperature [K].
+        fluxdir : float | 1D array
+            Lithiation direction: +1 for lithiation, -1 for delithiation, 0 for
+            rest. Used for direction-dependent parameters. Ensure the zero case
+            is handled explicitly or via a default (lithiating or delithiating).
 
         Returns
         -------
@@ -68,7 +73,7 @@ class NMC532Fast:
         return Ds
 
     def get_i0(self, x: float | np.ndarray, C_Li: float | np.ndarray,
-               T: float) -> float | np.ndarray:
+               T: float, fluxdir: float | np.ndarray) -> float | np.ndarray:
         """
         Calculate the exchange current density given the intercalation
         fraction ``x`` at the particle surface, the local lithium ion
@@ -84,6 +89,10 @@ class NMC532Fast:
             Lithium ion concentration in the local electrolyte [kmol/m^3].
         T : float
             Battery temperature [K].
+        fluxdir : float | 1D array
+            Lithiation direction: +1 for lithiation, -1 for delithiation, 0 for
+            rest. Used for direction-dependent parameters. Ensure the zero case
+            is handled explicitly or via a default (lithiating or delithiating).
 
         Returns
         -------
