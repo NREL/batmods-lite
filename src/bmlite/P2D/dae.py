@@ -14,6 +14,10 @@ if not hasattr(np, 'concat'):  # pragma: no cover
     np.concat = np.concatenate
 
 
+def sign(x):
+    return (x >= 0).astype(float) * 2 - 1
+
+
 def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
               inputs: tuple[object, dict]) -> None | tuple[np.ndarray]:
     """
@@ -69,6 +73,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     phi_an = sv[an.x_ptr['phi_ed']]
     Li_el_an = sv[an.x_ptr['Li_el']]
     phi_el_an = sv[an.x_ptr['phi_el']]
+    hyst_an = sv[an.x_ptr['hyst']]
 
     Li_el_sep = sv[sep.x_ptr['Li_el']]
     phi_el_sep = sv[sep.x_ptr['phi_el']]
@@ -76,6 +81,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     phi_ca = sv[ca.x_ptr['phi_ed']]
     Li_el_ca = sv[ca.x_ptr['Li_el']]
     phi_el_ca = sv[ca.x_ptr['phi_el']]
+    hyst_ca = sv[ca.x_ptr['hyst']]
 
     # sv values for anode particles (both x and r)
     xs_an = sv[an.xr_ptr['Li_ed'].flatten()]
@@ -131,14 +137,14 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Reaction terms ----------------------------------------------------------
 
     # Anode overpotentials and Li+ productions
-    eta = phi_an - phi_el_an - an.get_Eeq(xs_an[:, -1])
+    eta = phi_an - phi_el_an - (an.get_Eeq(xs_an[:, -1]) + an.M_hyst*hyst_an)
 
     i0 = an.get_i0(xs_an[:, -1], Li_el_an, T)
     sdot_an = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
                           - np.exp(-an.alpha_c*c.F*eta / c.R / T)  )
 
     # Cathode overpotentials and Li+ productions
-    eta = phi_ca - phi_el_ca - ca.get_Eeq(xs_ca[:, -1])
+    eta = phi_ca - phi_el_ca - (ca.get_Eeq(xs_ca[:, -1]) + ca.M_hyst*hyst_ca)
 
     i0 = ca.get_i0(xs_ca[:, -1], Li_el_ca, T)
     sdot_ca = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
@@ -213,6 +219,11 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Electrolyte COC (algebraic)
     res[an.x_ptr['phi_el']] = (ip_el - im_el) / (an.xp - an.xm) \
                             - an.A_s*sdot_an*c.F
+
+    # Hysteresis (differential)
+    res[an.x_ptr['hyst']] = svdot[an.x_ptr['hyst']] \
+        - np.abs(sdot_an*c.F*an.g_hyst / 3600. / bat.cap) \
+        * (sign(sdot_an) - hyst_an)
 
     # Store some outputs for verification
     if mode == 'post':
@@ -298,6 +309,11 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Electrolyte COC (algebraic)
     res[ca.x_ptr['phi_el']] = (ip_el - im_el) / (ca.xp - ca.xm) \
                             - ca.A_s*sdot_ca*c.F
+
+    # Hysteresis (differential)
+    res[ca.x_ptr['hyst']] = svdot[ca.x_ptr['hyst']] \
+        - np.abs(sdot_ca*c.F*ca.g_hyst / 3600. / bat.cap) \
+        * (sign(sdot_ca) - hyst_ca)
 
     # Store some outputs for verification
     if mode == 'post':

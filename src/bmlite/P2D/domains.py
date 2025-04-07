@@ -242,6 +242,10 @@ class Electrode:
         self.Ds_deg = kwargs.get('Ds_deg')
         self.material = kwargs.get('material')
 
+        self.g_hyst = 1.0
+        self.M_hyst = 0.03
+        self.hyst0 = 0.
+
         self.update()
 
     def update(self) -> None:
@@ -389,16 +393,18 @@ class Electrode:
         self.ptr['phi_ed'] = self.ptr['Li_ed'] + self.Nr
         self.ptr['Li_el'] = self.ptr['phi_ed'] + 1
         self.ptr['phi_el'] = self.ptr['Li_el'] + 1
-        self.ptr['x_off'] = self.Nr + 3
+        self.ptr['hyst'] = self.ptr['phi_el'] + 1
+        self.ptr['x_off'] = self.Nr + 4
 
         self.ptr['shift'] = self.Nx * self.ptr['x_off']
 
-        x_ptr(self, ['phi_ed', 'Li_el', 'phi_el'])
+        x_ptr(self, ['phi_ed', 'Li_el', 'phi_el', 'hyst'])
         xr_ptr(self, ['Li_ed'])
 
     def sv0(self, el: object) -> np.ndarray:
-        return np.tile(np.hstack([self.x_0 * np.ones(self.Nr),
-                                  self.phi_0, el.Li_0, el.phi_0]), self.Nx)
+        return np.tile(
+            np.hstack([self.x_0 * np.ones(self.Nr),
+                       self.phi_0, el.Li_0, el.phi_0, self.hyst0]), self.Nx)
 
     def algidx(self) -> np.ndarray:
         return np.hstack([self.x_ptr['phi_ed'], self.x_ptr['phi_el']])
@@ -418,6 +424,7 @@ class Electrode:
             'phis': sol.y[:, self.x_ptr['phi_ed']],
             'ce': sol.y[:, self.x_ptr['Li_el']],
             'phie': sol.y[:, self.x_ptr['phi_el']],
+            'hyst': sol.y[:, self.x_ptr['hyst']],
         }
 
         return ed_sol
@@ -447,11 +454,12 @@ class Electrode:
         if self.name == 'anode':
             phis = soln.vars['an']['phis']
             xs = soln.vars['an']['xs'][:, :, -1]
+            hyst = soln.vars['an']['hyst']
 
             phie = soln.vars['an']['phie']
             ce = soln.vars['an']['ce']
 
-            eta = phis - phie - an.get_Eeq(xs)
+            eta = phis - phie - (an.get_Eeq(xs) + an.M_hyst*hyst)
 
             i0 = an.get_i0(xs, ce, T)
             sdot = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
@@ -464,11 +472,12 @@ class Electrode:
         elif self.name == 'cathode':
             phis = soln.vars['ca']['phis']
             xs = soln.vars['ca']['xs'][:, :, -1]
+            hyst = soln.vars['ca']['hyst']
 
             phie = soln.vars['ca']['phie']
             ce = soln.vars['ca']['ce']
 
-            eta = phis - phie - ca.get_Eeq(xs)
+            eta = phis - phie - (ca.get_Eeq(xs) + ca.M_hyst*hyst)
 
             i0 = ca.get_i0(xs, ce, T)
             sdot = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
