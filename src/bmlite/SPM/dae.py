@@ -69,8 +69,17 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     phi_el = sv[el.ptr['phi_el']]
     phi_ca = sv[ca.ptr['phi_ed']]
 
-    hyst_an = sv[an.ptr['hyst']]
-    hyst_ca = sv[ca.ptr['hyst']]
+    if 'Hysteresis' in an._options:
+        hyst_an = sv[an.ptr['hyst']]
+        Hyst_an = an.M_hyst*hyst_an
+    else:
+        Hyst_an = 0.
+
+    if 'Hysteresis' in ca._options:
+        hyst_ca = sv[ca.ptr['hyst']]
+        Hyst_ca = ca.M_hyst*hyst_ca
+    else:
+        Hyst_ca = 0.
 
     xs_an = sv[an.r_ptr['Li_ed']]
     xs_ca = np.flip(sv[ca.r_ptr['Li_ed']])
@@ -81,7 +90,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Anode -------------------------------------------------------------------
 
     # Reaction current
-    eta = phi_an - phi_el - (an.get_Eeq(xs_an[-1]) + an.M_hyst*hyst_an)
+    eta = phi_an - phi_el - (an.get_Eeq(xs_an[-1]) + Hyst_an)
 
     i0 = an.get_i0(xs_an[-1], el.Li_0, T)
     sdot_an = i0 / c.F * (  np.exp( an.alpha_a*c.F*eta / c.R / T)
@@ -100,14 +109,15 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     res[an.ptr['phi_ed']] = phi_an - 0.
 
     # Hysteresis (differential)
-    res[an.ptr['hyst']] = svdot[an.ptr['hyst']] \
-        - np.abs(sdot_an*c.F*an.g_hyst / 3600. / bat.cap) \
-        * (sign(sdot_an) - hyst_an)
+    if 'Hysteresis' in an._options:
+        res[an.ptr['hyst']] = svdot[an.ptr['hyst']] \
+            - np.abs(sdot_an*c.F*an.g_hyst / 3600. / bat.cap) \
+            * (sign(sdot_an) - hyst_an)
 
     # Cathode -----------------------------------------------------------------
 
     # Reaction current
-    eta = phi_ca - phi_el - (ca.get_Eeq(xs_ca[-1]) + ca.M_hyst*hyst_ca)
+    eta = phi_ca - phi_el - (ca.get_Eeq(xs_ca[-1]) + Hyst_ca)
 
     i0 = ca.get_i0(xs_ca[-1], el.Li_0, T)
     sdot_ca = i0 / c.F * (  np.exp( ca.alpha_a*c.F*eta / c.R / T)
@@ -123,9 +133,10 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
                            - np.flip(div_r(ca.rm, ca.rp, Js_ca))
 
     # Hysteresis (differential)
-    res[ca.ptr['hyst']] = svdot[ca.ptr['hyst']] \
-        - np.abs(sdot_ca*c.F*ca.g_hyst / 3600. / bat.cap) \
-        * (sign(sdot_ca) - hyst_ca)
+    if 'Hysteresis' in ca._options:
+        res[ca.ptr['hyst']] = svdot[ca.ptr['hyst']] \
+            - np.abs(sdot_ca*c.F*ca.g_hyst / 3600. / bat.cap) \
+            * (sign(sdot_ca) - hyst_ca)
 
     # External current [A/m^2]
     i_ext = sdot_an*an.A_s*an.thick*c.F
