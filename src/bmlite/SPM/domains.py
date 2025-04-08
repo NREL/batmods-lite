@@ -29,7 +29,7 @@ class Battery:
             ====== =====================================================
             cap    nominal battery capacity [A*h] (*float*)
             temp   temperature [K] (*float*)
-            area   area normal to the current collectors [m^2] (*float*)
+            area   area normal to the current collectors [m2] (*float*)
             ====== =====================================================
 
         """
@@ -68,7 +68,7 @@ class Electrolyte:
             ======== ==============================================
             Key      Description [units] (type)
             ======== ==============================================
-            li_0     initial Li+ concentration [kmol/m^3] (*float*)
+            li_0     initial Li+ concentration [kmol/m3] (*float*)
             ======== ==============================================
 
         """
@@ -168,14 +168,13 @@ class Electrode:
         self.Ds_deg = kwargs.get('Ds_deg')
         self.material = kwargs.get('material')
 
-        self._submodels = {}
+        self.update()
 
+        self._submodels = {}
         all_submodels = kwargs.get('submodels', {})
         if 'Hysteresis' in all_submodels:
             Hysteresis, opt = submodels.Hysteresis, all_submodels['Hysteresis']
             self._submodels['Hysteresis'] = Hysteresis(self, **opt)
-
-        self.update()
 
     def update(self) -> None:
         """
@@ -186,7 +185,7 @@ class Electrode:
             ``eps_void = 1 - eps_s - eps_el``
         * Activate material volume fraction [-]:
             ``eps_AM = eps_s - eps_CBD``
-        * Specific particle surface area [m^2/m^3]:
+        * Specific particle surface area [m2/m3]:
             ``A_s = 3 * eps_AM / R_s``
 
         Returns
@@ -227,10 +226,9 @@ class Electrode:
         Returns
         -------
         Ds : float | 1D array
-            Lithium diffusivity in the solid phase [m^2/s].
+            Lithium diffusivity in the solid phase [m2/s].
 
         """
-
         return self.Ds_deg * self._material.get_Ds(x, T, fluxdir)
 
     def get_i0(self, x: float, C_Li: float, T: float,
@@ -245,7 +243,7 @@ class Electrode:
         x : float
             Lithium intercalation fraction at ``r = R_s`` [-].
         C_Li : float
-            Lithium ion concentration in the local electrolyte [kmol/m^3].
+            Lithium ion concentration in the local electrolyte [kmol/m3].
         T : float
             Battery temperature [K].
         fluxdir : float
@@ -256,16 +254,15 @@ class Electrode:
         Returns
         -------
         i0 : float
-            Exchange current density [A/m^2].
+            Exchange current density [A/m2].
 
         """
-
         return self.i0_deg * self._material.get_i0(x, C_Li, T, fluxdir)
 
     def get_Eeq(self, x: float) -> float:
         """
         Calculate the equilibrium potential given the surface intercalation
-        fraction ``x`` at the particle surface and temperature ``T``.
+        fraction ``x`` at the particle surface.
 
         Parameters
         ----------
@@ -278,8 +275,25 @@ class Electrode:
             Equilibrium potential [V].
 
         """
-
         return self._material.get_Eeq(x)
+
+    def get_Mhyst(self, x: float | np.ndarray) -> float | np.ndarray:
+        """
+        Calculate the hysteresis magnitude given the surface intercalation
+        fraction ``x`` at the particle surface.
+
+        Parameters
+        ----------
+        x : float | 1D array
+            Lithium intercalation fraction at ``r = R_s`` [-].
+
+        Returns
+        -------
+        M_hyst : float | 1D array
+            Hysteresis magnitude [V].
+
+        """
+        return self._material.get_Mhyst(x)
 
     def make_mesh(self, pshift: int = 0):
         """
@@ -408,18 +422,18 @@ class Electrode:
             sign, ed = -1., 'ca'
 
         phis = soln.vars[ed]['phis']
-        xs = soln.vars[ed]['xs'][:, -1]
+        xs_R = soln.vars[ed]['xs'][:, -1]
         phie = soln.vars['el']['phie']
 
         if 'Hysteresis' in self._submodels:
-            hyst = self.M_hyst*soln.vars[ed]['hyst']
+            hyst = self.get_Mhyst(xs_R)*soln.vars[ed]['hyst']
         else:
             hyst = 0.
 
-        eta = phis - phie - (self.get_Eeq(xs) + hyst)
+        eta = phis - phie - (self.get_Eeq(xs_R) + hyst)
         fluxdir = -np.sign(eta)
 
-        i0 = self.get_i0(xs, el.Li_0, T, fluxdir)
+        i0 = self.get_i0(xs_R, el.Li_0, T, fluxdir)
         sdot = i0 / c.F * (  np.exp( self.alpha_a*c.F*eta / c.R / T)
                            - np.exp(-self.alpha_c*c.F*eta / c.R / T)  )
 

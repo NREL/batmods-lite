@@ -35,13 +35,13 @@ def post(soln: Solution) -> dict:
         =========== ========================================================
         Key         Value [units] (*type*)
         =========== ========================================================
-        div_i_an    divergence of current at t, x_a [A/m^3] (*2D array*)
-        div_i_sep   divergence of current at t, x_s [A/m^3] (*2D array*)
-        div_i_ca    divergence of current at t, x_c [A/m^3] (*2D array*)
-        sdot_an     Faradaic current at t, x_a [kmol/m^2/s] (*1D array*)
-        sdot_ca     Faradaic current at t, x_c [kmol/m^2/s] (*1D array*)
-        sum_ip      ``i_ed + i_el`` at t, xp interfaces [A/m^2] (*2D array*)
-        i_el_x      ``i_el`` at t, x interfaces [A/m^2] (*2D array*)
+        div_i_an    divergence of current at t, x_a [A/m3] (*2D array*)
+        div_i_sep   divergence of current at t, x_s [A/m3] (*2D array*)
+        div_i_ca    divergence of current at t, x_c [A/m3] (*2D array*)
+        sdot_an     Faradaic current at t, x_a [kmol/m2/s] (*1D array*)
+        sdot_ca     Faradaic current at t, x_c [kmol/m2/s] (*1D array*)
+        sum_ip      ``i_ed + i_el`` at t, xp interfaces [A/m2] (*2D array*)
+        i_el_x      ``i_el`` at t, x interfaces [A/m2] (*2D array*)
         =========== ========================================================
 
     See also
@@ -110,20 +110,20 @@ def _liquid_phase_Li(soln: Solution) -> np.ndarray:
     Returns
     -------
     Li_ed_0 : float
-        liquid-phase lithium [kmol/m^2] based on ``el.Li_0``.
+        liquid-phase lithium [kmol/m2] based on ``el.Li_0``.
     Li_ed_t : 1D array
-        Solution's liquid-phase lithium [kmol/m^2] vs. time [s].
+        Solution's liquid-phase lithium [kmol/m2] vs. time [s].
 
     """
 
     el, an, sep, ca = soln._sim.el, soln._sim.an, soln._sim.sep, soln._sim.ca
 
-    # Initial total liquid-phase lithium [kmol/m^2]
+    # Initial total liquid-phase lithium [kmol/m2]
     Li_el_0 = np.sum(np.hstack([an.eps_el * el.Li_0 * (an.xp - an.xm),
                                 sep.eps_el * el.Li_0 * (sep.xp - sep.xm),
                                 ca.eps_el * el.Li_0 * (ca.xp - ca.xm)]))
 
-    # Total liquid-phase lithium [kmol/m^2] vs. time [s]
+    # Total liquid-phase lithium [kmol/m2] vs. time [s]
     Li_an = soln.vars['an']['ce']
     Li_sep = soln.vars['sep']['ce']
     Li_ca = soln.vars['ca']['ce']
@@ -147,19 +147,19 @@ def _solid_phase_Li(soln: Solution) -> np.ndarray:
     Returns
     -------
     Li_ed_0 : float
-        Solid-phase lithium [kmol/m^2] based on ``an.x_0`` and ``ca.x_0``.
+        Solid-phase lithium [kmol/m2] based on ``an.x_0`` and ``ca.x_0``.
     Li_ed_t : 1D array
-        Solution's solid-phase lithium [kmol/m^2] vs. time [s].
+        Solution's solid-phase lithium [kmol/m2] vs. time [s].
 
     """
 
     an, ca = soln._sim.an, soln._sim.ca
 
-    # Initial total solid-phase lithium [kmol/m^2]
+    # Initial total solid-phase lithium [kmol/m2]
     Li_ed_0 = an.x_0*an.Li_max*an.eps_AM*an.thick \
             + ca.x_0*ca.Li_max*ca.eps_AM*ca.thick
 
-    # Anode/cathode lithium [kmol/m^2] vs. time [s]
+    # Anode/cathode lithium [kmol/m2] vs. time [s]
     V_an = 4.*np.pi*an.R_s**3 / 3.
     V_ca = 4.*np.pi*ca.R_s**3 / 3.
 
@@ -181,7 +181,7 @@ def _solid_phase_Li(soln: Solution) -> np.ndarray:
 
         Li_ca[i] = np.sum(ca.eps_AM*Li_ed_x*(ca.xp - ca.xm))
 
-    # Total solid-phase lithium [kmol/m^2] vs. time [s]
+    # Total solid-phase lithium [kmol/m2] vs. time [s]
     Li_ed_t = Li_an + Li_ca
 
     return Li_ed_0, Li_ed_t
@@ -300,7 +300,7 @@ def electrolyte(soln: Solution) -> None:
     norm = clrs.Normalize(vmin=soln.t.min(), vmax=soln.t.max())
     sm = plt.cm.ScalarMappable(cmap='jet', norm=norm)
 
-    # Electrolyte-phase Li-ion concentration [kmol/m^3]
+    # Electrolyte-phase Li-ion concentration [kmol/m3]
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=[8, 3],
                            layout='constrained')
 
@@ -423,7 +423,7 @@ def pixels(soln: Solution) -> None:
     fig, ax = plt.subplots(nrows=3, ncols=3, figsize=[8, 10],
                            layout='constrained')
 
-    # Li-ion conc. [kmol/m^3]
+    # Li-ion conc. [kmol/m3]
     xlims = [an.xm[0] * 1e6, ca.xp[-1] * 1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['el']['ce']
@@ -443,7 +443,7 @@ def pixels(soln: Solution) -> None:
     ax[0, 1].set_yticks([])
     ax[0, 1].set_title(r'$\phi_{\rm el}$')
 
-    # Ionic current [A/m^2]
+    # Ionic current [A/m2]
     xlims = [an.xm[0] * 1e6, ca.xp[-1] * 1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['el']['ie']
@@ -453,7 +453,7 @@ def pixels(soln: Solution) -> None:
     ax[0, 2].set_yticks([])
     ax[0, 2].set_title(r'$i_{\rm el}$')
 
-    # Surface conc. for anode [kmol/m^3]
+    # Surface conc. for anode [kmol/m3]
     xlims = [an.x[0] * 1e6, an.x[-1] * 1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['an']['cs'][:, :, -1]
@@ -473,7 +473,7 @@ def pixels(soln: Solution) -> None:
     ax[1, 1].set_yticks([])
     ax[1, 1].set_title(r'$\phi_{\rm s, an}$')
 
-    # Faradaic current in anode [kmol/m^2/s]
+    # Faradaic current in anode [kmol/m2/s]
     xlims = [an.x[0] * 1e6, an.x[-1] * 1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['an']['sdot']
@@ -483,7 +483,7 @@ def pixels(soln: Solution) -> None:
     ax[1, 2].set_yticks([])
     ax[1, 2].set_title(r'$j_{\rm Far, an}$')
 
-    # Surface conc. for cathode [kmol/m^3]
+    # Surface conc. for cathode [kmol/m3]
     xlims = [ca.x[0] * 1e6, ca.x[-1] * 1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['ca']['cs'][:, :, -1]
@@ -505,7 +505,7 @@ def pixels(soln: Solution) -> None:
     ax[2, 1].set_xlabel(r'$x$ [$\mu$m]')
     ax[2, 1].set_title(r'$\phi_{\rm s, ca}$')
 
-    # Faradaic current in cathode [kmol/m^2/s]
+    # Faradaic current in cathode [kmol/m2/s]
     xlims = [ca.x[0] * 1e6, ca.x[-1] * 1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['ca']['sdot']

@@ -19,7 +19,8 @@ class Hysteresis:
 
         Here, h is unitless and is limited to the range [-1, +1]. When applied
         to modify the OCV, h is scaled to H = M_hyst*h. The equivalent OCV is
-        shifted by +H after this scaling.
+        shifted by +H after this scaling. Note that M_hyst must be defined in
+        the material using 'get_Mhyst(xs)`.
 
         Parameters
         ----------
@@ -33,8 +34,6 @@ class Hysteresis:
         g_hyst : float
             The hysteresis transition rate. Larger values make h evolve between
             -1 and +1 more quickly.
-        M_hyst : float
-            A positive value which represents the hysteresis magnitude [V].
         hyst0 : float
             The initial, unitless hysteresis. Should be in [-1, +1].
 
@@ -43,6 +42,9 @@ class Hysteresis:
         TypeError
             'Hysteresis' submodels can only be added to 'Electrode' class
             instances.
+        ValueError
+            The electrode's 'material' class requires a 'get_Mhyst' method to
+            enable 'Hysteresis'.
 
         """
 
@@ -52,9 +54,12 @@ class Hysteresis:
             raise TypeError("'Hysteresis' submodels can only be added to"
                             " 'Electrode' class instances.")
 
+        elif not hasattr(domain._material, 'get_Mhyst'):
+            raise ValueError("The electrode's 'material' class requires a"
+                             " 'get_Mhyst' method to enable 'Hysteresis'.")
+
         self.domain = domain
         domain.g_hyst = options.pop('g_hyst')
-        domain.M_hyst = options.pop('M_hyst')
         domain.hyst0 = options.pop('hyst0')
 
     def make_mesh(self, last_xvar: str, pshift: int = 0) -> str:
@@ -133,7 +138,11 @@ class Hysteresis:
         """
 
         domain = self.domain
+
+        xs_ptr = domain.xr_ptr['Li_ed']
+        xs_R = soln.y[:, xs_ptr[:, -1]]
+
         hyst = soln.y[:, domain.x_ptr['hyst']]
-        Hyst = domain.M_hyst*hyst
+        Hyst = domain.get_Mhyst(xs_R)*hyst
 
         return {'hyst': hyst, 'Hyst': Hyst}

@@ -1,10 +1,10 @@
 battery:
     cap:        1.89e-2               # Nominal capacity                       [A*h]
     temp:       303.15                # Temperature                              [K]
-    area:       1.4e-3                # Cell area                              [m^2]
+    area:       1.4e-3                # Cell area                               [m2]
 
 electrolyte:
-    Li_0:       1.2                   # Initial Li+ conc.                 [kmol/m^3]
+    Li_0:       1.2                   # Initial Li+ conc.                  [kmol/m3]
     material:   Gen2Electrolyte       # Electrolyte material class               [-]
 
 anode:
@@ -19,11 +19,16 @@ anode:
     p_liq:      2.                    # Liquid-phase Bruggeman factor (eps**p)   [-]
     alpha_a:    0.5                   # Anodic charge transfer coeff.            [-]
     alpha_c:    0.5                   # Cathodic charge transfer coeff.          [-]
-    Li_max:     30.53                 # Maximum solid-phase Li conc.      [kmol/m^3]
+    Li_max:     30.53                 # Maximum solid-phase Li conc.       [kmol/m3]
     x_0:        0.91                  # Initial intercalation frac.              [-]
     i0_deg:     0.5                   # Degradation factor for i0                [-]
     Ds_deg:     1.0                   # Degradation factor for Ds                [-]
     material:   GraphiteSlowExtrap    # Anode active material class              [-]
+
+    submodels:
+      Hysteresis:
+        g_hyst:     1.0
+        hyst0:      0.0
 
 separator:
     Nx:         32                    # Number of x discretizations              [-]
@@ -43,8 +48,13 @@ cathode:
     p_liq:      2.                    # Liquid-phase Bruggeman factor (eps**p)   [-]
     alpha_a:    0.5                   # Anodic charge transfer coeff.            [-]
     alpha_c:    0.5                   # Cathodic charge transfer coeff.          [-]
-    Li_max:     49.6                  # Maximum solid-phase Li conc.      [kmol/m^3]
+    Li_max:     49.6                  # Maximum solid-phase Li conc.       [kmol/m3]
     x_0:        0.39                  # Initial intercalation frac.              [-]
     i0_deg:     1.0                   # Degradation factor for i0                [-]
     Ds_deg:     1.0                   # Degradation factor for Ds                [-]
     material:   NMC532SlowExtrap      # Cathode active material class            [-]
+
+    submodels:
+      Hysteresis:
+        g_hyst:     1.0
+        hyst0:      0.0

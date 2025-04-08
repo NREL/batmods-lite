@@ -35,8 +35,8 @@ def post(soln: Solution) -> dict:
         ========= ========================================================
         Key       Value [units] (*type*)
         ========= ========================================================
-        sdot_an   anode Faradaic current at t [kmol/m^2/s] (*1D array*)
-        sdot_ca   cathode Faradaic current at t [kmol/m^2/s] (*1D array*)
+        sdot_an   anode Faradaic current at t [kmol/m2/s] (*1D array*)
+        sdot_ca   cathode Faradaic current at t [kmol/m2/s] (*1D array*)
         ========= ========================================================
 
     See also
@@ -88,9 +88,9 @@ def _solid_phase_Li(soln: Solution) -> np.array:
     Returns
     -------
     Li_ed_0 : float
-        Solid-phase lithium [kmol/m^2] based on ``an.x_0`` and ``ca.x_0``.
+        Solid-phase lithium [kmol/m2] based on ``an.x_0`` and ``ca.x_0``.
     Li_ed_t : 1D array
-        Solution's solid-phase lithium [kmol/m^2] vs. time [s].
+        Solution's solid-phase lithium [kmol/m2] vs. time [s].
 
     See also
     --------
@@ -103,11 +103,11 @@ def _solid_phase_Li(soln: Solution) -> np.array:
 
     an, ca = soln._sim.an, soln._sim.ca
 
-    # Initial total solid-phase lithium [kmol/m^2]
+    # Initial total solid-phase lithium [kmol/m2]
     Li_ed_0 = an.x_0*an.Li_max*an.eps_AM*an.thick \
             + ca.x_0*ca.Li_max*ca.eps_AM*ca.thick
 
-    # Anode/cathode lithium [kmol/m^2] vs. time [s]
+    # Anode/cathode lithium [kmol/m2] vs. time [s]
     V_an = 4.*np.pi*an.R_s**3 / 3.
     V_ca = 4.*np.pi*ca.R_s**3 / 3.
 
@@ -120,7 +120,7 @@ def _solid_phase_Li(soln: Solution) -> np.array:
         Li_ca[i] = ca.thick*ca.eps_AM / V_ca \
                  * int_r(ca.rm, ca.rp, soln.vars['ca']['cs'][i, :])
 
-    # Total solid-phase lithium [kmol/m^2] vs. time [s]
+    # Total solid-phase lithium [kmol/m2] vs. time [s]
     Li_ed_t = Li_an + Li_ca
 
     return Li_ed_0, Li_ed_t
@@ -270,7 +270,7 @@ def pixels(soln: Solution) -> None:
     fig, ax = plt.subplots(nrows=1, ncols=2, figsize=[5.5, 3.25],
                            layout='constrained')
 
-    # Li concentrations in anode [kmol/m^3]
+    # Li concentrations in anode [kmol/m3]
     xlims = [an.rm[0]*1e6, an.rp[-1]*1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['an']['cs']
@@ -282,7 +282,7 @@ def pixels(soln: Solution) -> None:
     ax[0].set_xlabel(r'$r$ [$\mu$m]')
     ax[0].set_title(r'$C_{\rm s, an}$')
 
-    # Li concentrations in cathode [kmol/m^3]
+    # Li concentrations in cathode [kmol/m3]
     xlims = [ca.rm[0]*1e6, ca.rp[-1]*1e6]
     ylims = [soln.t.min(), soln.t.max()]
     z = soln.vars['ca']['cs']

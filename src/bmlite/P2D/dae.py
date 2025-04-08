@@ -52,10 +52,10 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
         div_i_an   divergence in anode volume [A/m3] (*1D array*)
         div_i_sep  divergence in separator volume [A/m3] (*1D array*)
         div_i_ca   divergence in cathode volume [A/m3] (*1D array*)
-        sdot_an    Li+ production at each x_a [kmol/m^3/s] (*1D array*)
-        sdot_ca    Li+ production at each x_c [kmol/m^3/s] (*1D array*)
-        sum_ip     i_ed + i_el at "plus" interfaces [A/m^2] (*1D array*)
-        i_el_x     i_el at each x interface [A/m^2] (*1D array*)
+        sdot_an    Li+ production at each x_a [kmol/m3/s] (*1D array*)
+        sdot_ca    Li+ production at each x_c [kmol/m3/s] (*1D array*)
+        sum_ip     i_ed + i_el at "plus" interfaces [A/m2] (*1D array*)
+        i_el_x     i_el at each x interface [A/m2] (*1D array*)
         ========== ======================================================
 
     """
@@ -75,9 +75,13 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     Li_el_an = sv[an.x_ptr['Li_el']]
     phi_el_an = sv[an.x_ptr['phi_el']]
 
+    xs_an = sv[an.xr_ptr['Li_ed'].flatten()]
+    xs_an = xs_an.reshape([an.Nx, an.Nr])
+    Li_an = xs_an*an.Li_max
+
     if 'Hysteresis' in an._submodels:
         hyst_an = sv[an.x_ptr['hyst']]
-        Hyst_an = an.M_hyst*hyst_an
+        Hyst_an = an.get_Mhyst(xs_an[:, -1])*hyst_an
     else:
         Hyst_an = 0.
 
@@ -88,21 +92,15 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     Li_el_ca = sv[ca.x_ptr['Li_el']]
     phi_el_ca = sv[ca.x_ptr['phi_el']]
 
-    if 'Hysteresis' in ca._submodels:
-        hyst_ca = sv[ca.x_ptr['hyst']]
-        Hyst_ca = ca.M_hyst*hyst_ca
-    else:
-        Hyst_ca = 0.
-
-    # sv values for anode particles (both x and r)
-    xs_an = sv[an.xr_ptr['Li_ed'].flatten()]
-    xs_an = xs_an.reshape([an.Nx, an.Nr])
-    Li_an = xs_an*an.Li_max
-
-    # sv values for cathode particles (both x and r)
     xs_ca = sv[ca.xr_ptr['Li_ed'].flatten()]
     xs_ca = xs_ca.reshape([ca.Nx, ca.Nr])
     Li_ca = xs_ca*ca.Li_max
+
+    if 'Hysteresis' in ca._submodels:
+        hyst_ca = sv[ca.x_ptr['hyst']]
+        Hyst_ca = ca.get_Mhyst(xs_ca[:, -1])*hyst_ca
+    else:
+        Hyst_ca = 0.
 
     # Pre-calculate ln(Li_el)
     ln_Li_an = np.log(Li_el_an)
@@ -168,7 +166,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     units = exp['units']
     value = exp['value']
 
-    # External current [A/m^2]
+    # External current [A/m2]
     i_ext = -sdot_ca[-1]*ca.A_s*c.F*(ca.xp[-1] - ca.xm[-1]) \
           - ca.sigma_s*ca.eps_s**ca.p_sol \
               * (phi_ca[-1] - phi_ca[-2]) / (ca.x[-1] - ca.x[-2])

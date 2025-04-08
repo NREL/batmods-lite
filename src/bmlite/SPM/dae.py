@@ -49,8 +49,8 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
         ========= =================================================
         Variable  Description [units] (*type*)
         ========= =================================================
-        sdot_an   anode Li+ production [kmol/m^3/s] (*1D array*)
-        sdot_ca   cathode Li+ production [kmol/m^3/s] (*1D array*)
+        sdot_an   anode Li+ production [kmol/m3/s] (*1D array*)
+        sdot_ca   cathode Li+ production [kmol/m3/s] (*1D array*)
         ========= =================================================
 
     """
@@ -70,23 +70,23 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     phi_el = sv[el.ptr['phi_el']]
     phi_ca = sv[ca.ptr['phi_ed']]
 
-    if 'Hysteresis' in an._submodels:
-        hyst_an = sv[an.ptr['hyst']]
-        Hyst_an = an.M_hyst*hyst_an
-    else:
-        Hyst_an = 0.
-
-    if 'Hysteresis' in ca._submodels:
-        hyst_ca = sv[ca.ptr['hyst']]
-        Hyst_ca = ca.M_hyst*hyst_ca
-    else:
-        Hyst_ca = 0.
-
     xs_an = sv[an.r_ptr['Li_ed']]
     xs_ca = np.flip(sv[ca.r_ptr['Li_ed']])
 
     Li_an = xs_an*an.Li_max
     Li_ca = xs_ca*ca.Li_max
+
+    if 'Hysteresis' in an._submodels:
+        hyst_an = sv[an.ptr['hyst']]
+        Hyst_an = an.get_Mhyst(xs_an[-1])*hyst_an
+    else:
+        Hyst_an = 0.
+
+    if 'Hysteresis' in ca._submodels:
+        hyst_ca = sv[ca.ptr['hyst']]
+        Hyst_ca = ca.get_Mhyst(xs_ca[-1])*hyst_ca
+    else:
+        Hyst_ca = 0.
 
     # Anode -------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
             - np.abs(sdot_ca*c.F*ca.g_hyst / 3600. / bat.cap) \
             * (sign(sdot_ca) - hyst_ca)
 
-    # External current [A/m^2]
+    # External current [A/m2]
     i_ext = sdot_an*an.A_s*an.thick*c.F
 
     # Boundary conditions -----------------------------------------------------

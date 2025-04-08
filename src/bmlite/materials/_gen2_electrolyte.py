@@ -17,7 +17,7 @@ class Gen2Electrolyte:
         Parameters
         ----------
         C_Li : float | 1D array
-            Lithium ion concentration in the electrolyte [kmol/m^3].
+            Lithium ion concentration in the electrolyte [kmol/m3].
 
         T : float
             Battery temperature [K].
@@ -25,7 +25,7 @@ class Gen2Electrolyte:
         Returns
         -------
         D : float | 1D array
-            Lithium ion diffusivity in the electrolyte [m^2/s].
+            Lithium ion diffusivity in the electrolyte [m2/s].
         """
 
         import numpy as np
@@ -49,7 +49,7 @@ class Gen2Electrolyte:
         Parameters
         ----------
         C_Li : float | 1D array
-            Lithium ion concentration in the electrolyte [kmol/m^3].
+            Lithium ion concentration in the electrolyte [kmol/m3].
 
         T : float
             Battery temperature [K].
@@ -79,7 +79,7 @@ class Gen2Electrolyte:
         Parameters
         ----------
         C_Li : float | 1D array
-            Lithium ion concentration in the electrolyte [kmol/m^3].
+            Lithium ion concentration in the electrolyte [kmol/m3].
 
         T : float
             Battery temperature [K].
@@ -112,7 +112,7 @@ class Gen2Electrolyte:
         Parameters
         ----------
         C_Li : float | 1D array
-            Lithium ion concentration in the electrolyte [kmol/m^3].
+            Lithium ion concentration in the electrolyte [kmol/m3].
 
         T : float
             Battery temperature [K].
