@@ -34,4 +34,9 @@ cathode:
     x_0:        0.39                  # Initial intercalation frac.              [-]
     i0_deg:     1.0                   # Degradation factor for i0                [-]
     Ds_deg:     1.0                   # Degradation factor for Ds                [-]
-    material:   NMC532SlowExtrap      # Cathode active material class            [-]
+    material:   LFPInterp             # Cathode active material class            [-]
+
+    submodels:
+      Hysteresis:
+        g_hyst:     1.0
+        hyst0:      0.0

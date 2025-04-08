@@ -5,14 +5,18 @@ battery:
 
 electrolyte:
     Li_0:       1.2                   # Initial Li+ conc.                  [kmol/m3]
+    material:   Gen2Electrolyte       # Electrolyte material class               [-]
 
 anode:
+    Nx:         32                    # Number of x discretizations              [-]
     Nr:         30                    # Number of r discretizations              [-]
     thick:      44.0e-6               # Thickness                                [m]
     R_s:        4.0e-6                # Secondary particle radius                [m]
     eps_s:      0.6                   # Solid-phase volume frac.                 [-]
     eps_el:     0.4                   # Electrolyte volume frac.                 [-]
     eps_CBD:    0.0569272237          # Carbon-binder-domain volume frac.        [-]
+    p_sol:      2.                    # Solid-phase Bruggeman factor (eps**p)    [-]
+    p_liq:      2.                    # Liquid-phase Bruggeman factor (eps**p)   [-]
     alpha_a:    0.5                   # Anodic charge transfer coeff.            [-]
     alpha_c:    0.5                   # Cathodic charge transfer coeff.          [-]
     Li_max:     30.53                 # Maximum solid-phase Li conc.       [kmol/m3]
@@ -21,17 +25,31 @@ anode:
     Ds_deg:     1.0                   # Degradation factor for Ds                [-]
     material:   GraphiteSlowExtrap    # Anode active material class              [-]
 
+separator:
+    Nx:         32                    # Number of x discretizations              [-]
+    thick:      20.0e-6               # Thickness                                [m]
+    eps_el:     0.4                   # Electrolyte volume frac.                 [-]
+    p_liq:      2.                    # Liquid-phase Bruggeman factor (eps**p)   [-]
+
 cathode:
+    Nx:         32                    # Number of x discretizations              [-]
     Nr:         30                    # Number of r discretizations              [-]
     thick:      42.0e-6               # Thickness                                [m]
     R_s:        1.8e-6                # Secondary particle radius                [m]
     eps_s:      0.6                   # Solid-phase volume frac.                 [-]
     eps_el:     0.4                   # Electrolyte volume frac.                 [-]
     eps_CBD:    0.12338               # Carbon-binder-domain volume frac.        [-]
+    p_sol:      2.                    # Solid-phase Bruggeman factor (eps**p)    [-]
+    p_liq:      2.                    # Liquid-phase Bruggeman factor (eps**p)   [-]
     alpha_a:    0.5                   # Anodic charge transfer coeff.            [-]
     alpha_c:    0.5                   # Cathodic charge transfer coeff.          [-]
     Li_max:     49.6                  # Maximum solid-phase Li conc.       [kmol/m3]
     x_0:        0.39                  # Initial intercalation frac.              [-]
     i0_deg:     1.0                   # Degradation factor for i0                [-]
     Ds_deg:     1.0                   # Degradation factor for Ds                [-]
-    material:   NMC532SlowExtrap      # Cathode active material class            [-]
+    material:   LFPInterp             # Cathode active material class            [-]
+
+    submodels:
+      Hysteresis:
+        g_hyst:     1.0
+        hyst0:      0.0

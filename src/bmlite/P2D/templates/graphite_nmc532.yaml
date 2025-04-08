@@ -25,11 +25,6 @@ anode:
     Ds_deg:     1.0                   # Degradation factor for Ds                [-]
     material:   GraphiteSlowExtrap    # Anode active material class              [-]
 
-    submodels:
-      Hysteresis:
-        g_hyst:     1.0
-        hyst0:      0.0
-
 separator:
     Nx:         32                    # Number of x discretizations              [-]
     thick:      20.0e-6               # Thickness                                [m]
@@ -53,8 +48,3 @@ cathode:
     i0_deg:     1.0                   # Degradation factor for i0                [-]
     Ds_deg:     1.0                   # Degradation factor for Ds                [-]
     material:   NMC532SlowExtrap      # Cathode active material class            [-]
-
-    submodels:
-      Hysteresis:
-        g_hyst:     1.0
-        hyst0:      0.0
