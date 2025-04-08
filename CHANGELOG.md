@@ -3,6 +3,7 @@
 ## [Unreleased](https://github.com/NREL/BATMODS-lite/)
 
 ### New Features
+- Add `submodels` modules with optional `Hysteresis` class, and directional `Ds` / `i0` ([#13](https://github.com/NREL/BATMODS-lite/pull/13))
 - `Exerpiment` class interface allows for multi-step and dynamic load profiles
 - Simplified `run` and `run_step` methods to work with generalized `Experiment` class
 - New solver now provides additional statistics, e.g., number of function and Jacobian evaluations
@@ -14,6 +15,7 @@
 - Use a generic `bandwidth` function instead of having one per model subpackage
 
 ### Bug Fixes
+None.
 
 ### Breaking Changes
 - Removal of `run_CC`, `run_CV`, and `run_CP` methods
