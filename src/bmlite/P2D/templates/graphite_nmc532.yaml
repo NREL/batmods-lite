@@ -6,6 +6,10 @@ battery:
 electrolyte:
     Li_0:       1.2                   # Initial Li+ conc.                  [kmol/m3]
     material:   Gen2Electrolyte       # Electrolyte material class               [-]
+    D_deg:	1.0		      # Degradation factor for D                 [-]
+    t0_deg:	1.0		      # Degradation factor for t0                [-]
+    kappa_deg:	1.0		      # Degradation factor for kappa             [-]
+    gamma_deg:	1.0		      # Degradation factor for gamma             [-]
 
 anode:
     Nx:         32                    # Number of x discretizations              [-]
