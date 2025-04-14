@@ -3,6 +3,7 @@
 ## [Unreleased](https://github.com/NREL/BATMODS-lite/)
 
 ### New Features
+- Add degradation parameters for the electrolyte (applies to P2D only) ([#14](https://github.com/NREL/BATMODS-lite/pull/14))
 - Add `submodels` modules with optional `Hysteresis` class, and directional `Ds` / `i0` ([#13](https://github.com/NREL/BATMODS-lite/pull/13))
 - `Exerpiment` class interface allows for multi-step and dynamic load profiles
 - Simplified `run` and `run_step` methods to work with generalized `Experiment` class

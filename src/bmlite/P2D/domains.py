@@ -69,12 +69,20 @@ class Electrolyte:
             Key        Description [units] (type)
             ========== ================================================
             li_0       initial Li+ concentration [kmol/m3] (*float*)
+            D_deg      ``D`` degradation factor [-] (*float*)
+            t0_deg     ``t0`` degradation factor [-] (*float*)
+            kappa_deg  ``kappa`` degradation factor [-] (*float*)
+            gamma_deg  ``gamma`` degradation factor [-] (*float*)
             material   class name from ``bmlite.materials`` [-] (*str*)
             ========== ================================================
 
         """
 
         self.Li_0 = kwargs.get('Li_0')
+        self.D_deg = kwargs.get('D_deg')
+        self.t0_deg = kwargs.get('t0_deg')
+        self.kappa_deg = kwargs.get('kappa_deg')
+        self.gamma_deg = kwargs.get('gamma_deg')
         self.material = kwargs.get('material')
 
     def update(self) -> None:
@@ -112,7 +120,7 @@ class Electrolyte:
 
         """
 
-        return self._material.get_D(C_Li, T)
+        return self.D_deg * self._material.get_D(C_Li, T)
 
     def get_t0(self, C_Li: float | np.ndarray, T: float) -> float | np.ndarray:
         """
@@ -133,7 +141,7 @@ class Electrolyte:
 
         """
 
-        return self._material.get_t0(C_Li, T)
+        return self.t0_deg * self._material.get_t0(C_Li, T)
 
     def get_kappa(self, C_Li: float | np.ndarray,
                   T: float) -> float | np.ndarray:
@@ -155,7 +163,7 @@ class Electrolyte:
 
         """
 
-        return self._material.get_kappa(C_Li, T)
+        return self.kappa_deg * self._material.get_kappa(C_Li, T)
 
     def get_gamma(self, C_Li: float | np.ndarray,
                   T: float) -> float | np.ndarray:
@@ -177,7 +185,7 @@ class Electrolyte:
 
         """
 
-        return self._material.get_gamma(C_Li, T)
+        return self.gamma_deg * self._material.get_gamma(C_Li, T)
 
 
 class Electrode:
