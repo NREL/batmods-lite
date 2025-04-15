@@ -3,12 +3,14 @@ from typing import TYPE_CHECKING
 
 import os
 import time
+
 from pathlib import Path
 from copy import deepcopy
 
 import numpy as np
-from ruamel.yaml import YAML
 import matplotlib.pyplot as plt
+
+from ruamel.yaml import YAML
 
 if TYPE_CHECKING:  # pragma: no cover
     from bmlite import Experiment
@@ -161,7 +163,7 @@ class Simulation:
         ----------
         plot : bool, optional
             Whether or not to plot the Jacobian pattern. The default is True.
-        return_barnds : bool, optional
+        return_bands : bool, optional
             Whether or not to return the half bandwidths (lower, upper). The
             default is False.
 
@@ -334,17 +336,16 @@ class Simulation:
 
         """
 
-        from .._utils import ProgressBar
+        from bmlite._utils import ProgressBar
         from ._solutions import CycleSolution
 
-        progbar = ProgressBar(expr.num_steps)
+        iterator = range(expr.num_steps)
+        if bar:
+            iterator = ProgressBar(iterator)
 
         solns = []
-        for i in range(expr.num_steps):
+        for i in iterator:
             solns.append(self.run_step(expr, i))
-
-            if bar:
-                progbar.update(i+1)
 
         soln = CycleSolution(*solns, t_shift=t_shift)
 
