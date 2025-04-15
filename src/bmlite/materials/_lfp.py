@@ -21,7 +21,7 @@ class LFPInterp:
         import os
 
         import pandas as pd
-        from scipy.interpolate import interp1d
+        from scipy.interpolate import CubicSpline
 
         self.alpha_a = alpha_a
         self.alpha_c = alpha_c
@@ -33,22 +33,22 @@ class LFPInterp:
         Dsp_y = [7e-15, 7e-15, 7e-15, 8e-15, 9e-15, 6.3e-15, 8.9e-15, 12e-15,
                  20e-15, 56e-15, 90e-15, 110e-15, 230e-15, 230e-15, 230e-15]
 
-        self._Dsp_interp = interp1d(Dsp_x, Dsp_y)
+        self._Dsp_interp = CubicSpline(Dsp_x, Dsp_y)
 
         # Negative lithiation (i.e., delithiating)
-        Dsn_x = [10, 1, 0.976, 0.932, 0.830, 0.796, 0.762, 0.728, 0.660, 0.558,
-                 0.456, 0, -10]
-        Dsn_y = [6e-15, 6e-15, 6e-15, 6e-15, 10e-15, 12e-15, 14e-15, 12e-15,
-                 25e-15, 45e-15, 85e-15, 85e-15, 85e-15]
+        Dsn_x = [-10, 0, 0.456, 0.558, 0.660, 0.728, 0.762, 0.796, 0.830,
+                 0.932, 0.976, 1, 10]
+        Dsn_y = [85e-15, 85e-15, 85e-15, 45e-15, 25e-15, 12e-15, 14e-15,
+                 12e-15, 10e-15, 6.0e-15, 6.0e-15, 6.0e-15, 6.0e-15]
 
-        self._Dsn_interp = interp1d(Dsn_x, Dsn_y)
+        self._Dsn_interp = CubicSpline(Dsn_x, Dsn_y)
 
         # OCV and hysteresis, from csv data file
         csvfile = os.path.dirname(__file__) + '/data/lfp_ocv.csv'
         df = pd.read_csv(csvfile).sort_values(by='x')
 
-        self._Eeq_interp = interp1d(df['x'], df['V_avg'])
-        self._Mhyst_interp = interp1d(df['x'], df['M_hyst'])
+        self._Eeq_interp = CubicSpline(df['x'], df['V_avg'])
+        self._Mhyst_interp = CubicSpline(df['x'], df['M_hyst'])
 
     def get_Ds(self, x: float | np.ndarray, T: float,
                fluxdir: float | np.ndarray) -> float | np.ndarray:

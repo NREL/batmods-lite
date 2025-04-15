@@ -1,7 +1,9 @@
-import sys
 import atexit
 import warnings
-from typing import Callable
+
+from typing import Callable, Iterable
+
+from tqdm import tqdm
 
 
 class ExitHandler:
@@ -22,102 +24,136 @@ class ExitHandler:
             atexit.register(func)
 
 
-class ProgressBar:
-    """
-    Progress bar utility.
+class ProgressBar(tqdm):
+    """Progress bar."""
 
-    Prints a progress bar to the console based on a known maximum number of
-    iterations. For example,
-
-    .. code-block:: python
-
-        import time
-
-        progbar = ProgressBar(10)
-
-        for i in range(10):
-            time.sleep(0.5)
-            progbar.update(i+1, prefix=f"iteration # {i+1}")
-
-    """
-
-    __slots__ = ('_max_iterations', '_decimals', '_width', '_fill',)
-
-    def __init__(self, max_iterations: int, decimals: int = 1,
-                 width: int = 20) -> None:
+    def __init__(self, iterable: Iterable = None, manual: bool = False,
+                 desc: str = None, ncols: int = 80, **kwargs) -> None:
         """
-        Initialize an instance of the class and use the ``update`` method
-        inside a loop to display summary updates and overall progress.
+        Wraps the progress bar from ``tqdm``, with different defaults. Also
+        enables a custom "manual" mode in which the user manually sets the
+        progress as a fraction in [0, 1] using ``set_progress``.
 
         Parameters
         ----------
-        max_iterations : int
-            Maximum number of iterations that will occur in the loop.
-        decimals : int, optional
-            Number of decimals to print in percent complete. The default is 1.
-        width : int, optional
-            Character width of the printed progress bar. The default is 20.
+        iterable : Iterable, optional
+            The iterable to use to construct the "automatic" progress bar, by
+            default None. 'manual' must be False if 'iterable' is not None.
+        manual : bool, optional
+            True enables a "manual" mode progress bar, allowing manual updates
+            via 'set_progress'. If False (default), 'iterable' cannot be None.
+        desc : str, optional
+            Prefix description, by default None.
+        ncols : int, optional
+            Terminal column width, by default 80. The special case of zero will
+            display limited stats and time, with no progress bar.
+
+        Raises
+        ------
+        ValueError
+            'iterable' and 'manual' values are conflicting.
+        ValueError
+            'iterable' cannot be None if 'manual' is False.
 
         """
 
-        if max_iterations <= 0:
-            raise ValueError("'max_iterations' must be > 0.")
-        if decimals < 0:
-            raise ValueError("'decimals' must be >= 0.")
-        if width <= 0:
-            raise ValueError("'width' must be > 0.")
+        if manual and iterable is not None:
+            raise ValueError("'iterable' and 'manual' values are conflicting.")
+        elif iterable is None:
+            raise ValueError("'iterable' cannot be None if 'manual' is False.")
 
-        self._max_iterations = max_iterations
-        self._decimals = decimals
-        self._width = width
-        self._fill = '█'
+        kwargs.setdefault('desc', desc)
+        kwargs.setdefault('ncols', ncols)
+        kwargs.setdefault('ascii', ' 2468█')
+        kwargs.setdefault('iterable', iterable)
 
-    def __repr__(self) -> str:  # pragma: no cover
+        self._iter = 0
+        self._manual = manual
+        if manual:
+            kwargs['total'] = 1
+            kwargs['bar_format'] = (
+                "{l_bar}{bar}|{iter}[{elapsed}<{remaining}, {rate_fmt}]"
+            )
 
-        data = {
-            'max_iterations': self._max_iterations,
-            'decimals': self._decimals,
-            'width': self._width,
-        }
+        super().__init__(**kwargs)
 
-        summary = "\n\t".join([f"{k}={v!r}," for k, v in data.items()])
-
-        return f"ProgressBar(\n{summary}\n)"
-
-    def update(self, iteration: int, prefix: str = '',
-               suffix: str = '') -> None:
+    def set_progress(self, progress: float) -> None:
         """
-        Print the updated progress bar based on the current iteration. Include
-        a prefix and/or suffix to display other important summary info, e.g.,
-        errors in a fitting routine.
+        Updates the progress bar percentage and increments the tracked total
+        number of iterations for the "manual" mode. Should be called once per
+        "iteration", based on the user's definition of an iteration.
 
         Parameters
         ----------
-        iteration : int
-            Current iteration, in reference to max_iterations.
-        prefix : str, optional
-            Prefix string. The default is ''.
-        suffix : str, optional
-            Suffix string. The default is ''.
+        progress : float
+            Progress fraction in [0, 1].
 
         Returns
         -------
         None.
 
         """
+        self._iter += 1
+        self.n = progress
+        self.refresh()
 
-        percent = iteration/self._max_iterations
+    def format_meter(self, n: int | float, total: int | float, elapsed: float,
+                     **kwargs) -> str:
+        """
+        Wraps the parent ``format_meter`` method to customize stats for the
+        "manual" mode. Users should not need to call this method directly.
 
-        num_filled = int(percent*self._width)
-        num_unfilled = self._width - num_filled
+        Parameters
+        ----------
+        n : int or float
+            Number of finished iterations.
+        total : int or float
+            The expected total number of iterations. If meaningless (None),
+            only basic progress statistics are displayed (no ETA).
+        elapsed : float
+            Number of seconds passed since start.
+        **kwargs : dict, optional
+            Extra keyword arguments to pass through to the parent method.
 
-        bar = '|' + self._fill*num_filled + '-'*num_unfilled + '|'
-        per_100 = f"{100*percent:.{self._decimals}f}"
+        Returns
+        -------
+        out : str
+            Formatted meter and stats, ready to display.
 
-        end = '\n' if percent >= 1 else '\r'
+        """
 
-        sys.stdout.write("\r" + f"{prefix} {bar} {per_100}% {suffix}{end}")
-        sys.stdout.flush()
+        if self._manual:
+            kwargs['rate'] = self._iter / elapsed if elapsed > 0 else 0
+
+            try:
+                perc = n / total
+                t = elapsed*(1 - perc) / perc
+
+                m, s = divmod(int(t), 60)
+                h, m = divmod(int(m), 60)
+
+                w_hours = f"{h:d}:{m:02d}:{s:02d}"
+                wo_hours = f"{m:02d}:{s:02d}"
+
+                kwargs['remaining'] = w_hours if h else wo_hours
+
+            except ZeroDivisionError:
+                kwargs['remaining'] = '?'
+
+        kwargs['iter'] = f" {self._iter}it "
+        return super().format_meter(n, total, elapsed, **kwargs)
+
+    def reset(self) -> None:
+        """
+        Resets to 0 iterations for repeated use.
+
+        Returns
+        -------
+        None.
+
+        """
+        self._iter = 0
+        super().reset()
 
 
 def formatwarning(message, category, filename, lineno, line=None):
