@@ -12,6 +12,7 @@
 - Control-specific `Solution` classes are replaced with generalized `StepSolution` and `CycleSolution`
 
 ### Optimizations
+- Reduce memory usage by delaying post-processing (slicing) steps ([#17](https://github.com/NREL/BATMODS-lite/pull/17))
 - Replaced `scikits-odes` solver with `scikit-sundae` to improve installation
 - Sped up SPM by flipping cathode pointers so that bandwidth is reduced to +/- 2
 - Use a generic `bandwidth` function instead of having one per model subpackage

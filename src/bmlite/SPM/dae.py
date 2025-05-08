@@ -66,12 +66,12 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     T = bat.temp
 
     # Organize values from sv
-    phi_an = sv[an.ptr['phi_ed']]
-    phi_el = sv[el.ptr['phi_el']]
-    phi_ca = sv[ca.ptr['phi_ed']]
+    phi_an = sv[an.ptr['phis']]
+    phi_el = sv[el.ptr['phie']]
+    phi_ca = sv[ca.ptr['phis']]
 
-    xs_an = sv[an.r_ptr['Li_ed']]
-    xs_ca = np.flip(sv[ca.r_ptr['Li_ed']])
+    xs_an = sv[an.r_ptr['xs']]
+    xs_ca = np.flip(sv[ca.r_ptr['xs']])
 
     Li_an = xs_an*an.Li_max
     Li_ca = xs_ca*ca.Li_max
@@ -105,11 +105,11 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Solid-phase COM (differential)
     Js_an = np.concat([[0.], Ds_an*grad_r(an.r, Li_an), [-sdot_an]])
 
-    res[an.r_ptr['Li_ed']] = an.Li_max*svdot[an.r_ptr['Li_ed']] \
+    res[an.r_ptr['xs']] = an.Li_max*svdot[an.r_ptr['xs']] \
                            - div_r(an.rm, an.rp, Js_an)
 
     # Solid-phase COC (algebraic)
-    res[an.ptr['phi_ed']] = phi_an - 0.
+    res[an.ptr['phis']] = phi_an - 0.
 
     # Hysteresis (differential)
     if 'Hysteresis' in an._submodels:
@@ -134,7 +134,7 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Solid-phase COM (differential)
     Js_ca = np.concat([[0.], Ds_ca*grad_r(ca.r, Li_ca), [-sdot_ca]])
 
-    res[ca.r_ptr['Li_ed']] = ca.Li_max*svdot[ca.r_ptr['Li_ed']] \
+    res[ca.r_ptr['xs']] = ca.Li_max*svdot[ca.r_ptr['xs']] \
                            - np.flip(div_r(ca.rm, ca.rp, Js_ca))
 
     # Hysteresis (differential)
@@ -158,25 +158,25 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     # Cathode - Solid-phase COC (algebraic)
     # Electrolyte - potential (algebraic)
     if mode == 'current' and units == 'A':
-        res[ca.ptr['phi_ed']] = sdot_ca*ca.A_s*ca.thick*c.F \
+        res[ca.ptr['phis']] = sdot_ca*ca.A_s*ca.thick*c.F \
                               + value(t) / bat.area
-        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick*c.F \
+        res[el.ptr['phie']] = sdot_an*an.A_s*an.thick*c.F \
                               - value(t) / bat.area
 
     elif mode == 'current' and units == 'C':
-        res[ca.ptr['phi_ed']] = sdot_ca*ca.A_s*ca.thick*c.F \
+        res[ca.ptr['phis']] = sdot_ca*ca.A_s*ca.thick*c.F \
                               + value(t)*bat.cap / bat.area
-        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick*c.F \
+        res[el.ptr['phie']] = sdot_an*an.A_s*an.thick*c.F \
                               - value(t)*bat.cap / bat.area
 
     elif mode == 'voltage':
-        res[ca.ptr['phi_ed']] = voltage_V - value(t)
-        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick \
+        res[ca.ptr['phis']] = voltage_V - value(t)
+        res[el.ptr['phie']] = sdot_an*an.A_s*an.thick \
                               + sdot_ca*ca.A_s*ca.thick
 
     elif mode == 'power':
-        res[ca.ptr['phi_ed']] = power_W - value(t)
-        res[el.ptr['phi_el']] = sdot_an*an.A_s*an.thick \
+        res[ca.ptr['phis']] = power_W - value(t)
+        res[el.ptr['phie']] = sdot_an*an.A_s*an.thick \
                               + sdot_ca*ca.A_s*ca.thick
 
     # Events tracking ---------------------------------------------------------

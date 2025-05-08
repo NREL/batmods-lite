@@ -24,7 +24,7 @@ class RDomain():
         self.Nr = 10
 
         self.ptr = {}
-        self.ptr['cs'] = 0
+        self.ptr['xs'] = 0
         self.ptr['phis'] = self.Nr
 
         self.ptr['r_off'] = 1
@@ -38,7 +38,7 @@ class XRDomain():
         self.Nx = 10
 
         self.ptr = {}
-        self.ptr['cs'] = 0
+        self.ptr['xs'] = 0
         self.ptr['phis'] = self.Nr
         self.ptr['ce'] = self.ptr['phis'] + 1
         self.ptr['phie'] = self.ptr['ce'] + 1
@@ -78,25 +78,25 @@ def test_x_ptr(x_domain):
 
 def test_r_ptr(r_domain):
 
-    bm.mesh.r_ptr(r_domain, ['cs'])
+    bm.mesh.r_ptr(r_domain, ['xs'])
 
-    cs_ptr = np.array([r_domain.ptr['cs'] + j * r_domain.ptr['r_off']
+    cs_ptr = np.array([r_domain.ptr['xs'] + j * r_domain.ptr['r_off']
                        for j in range(r_domain.Nr)], dtype=int)
 
-    assert np.all(r_domain.r_ptr['cs'] == cs_ptr)
+    assert np.all(r_domain.r_ptr['xs'] == cs_ptr)
 
 
 def test_xr_ptr(xr_domain):
 
-    bm.mesh.xr_ptr(xr_domain, ['cs'])
+    bm.mesh.xr_ptr(xr_domain, ['xs'])
 
     cs_ptr = np.zeros([xr_domain.Nx, xr_domain.Nr], dtype=int)
     for i in range(xr_domain.Nx):
         for j in range(xr_domain.Nr):
-            cs_ptr[i, j] = xr_domain.ptr['cs'] + i * xr_domain.ptr['x_off'] \
+            cs_ptr[i, j] = xr_domain.ptr['xs'] + i * xr_domain.ptr['x_off'] \
                 + j * xr_domain.ptr['r_off']
 
-    assert np.all(xr_domain.xr_ptr['cs'] == cs_ptr)
+    assert np.all(xr_domain.xr_ptr['xs'] == cs_ptr)
 
 
 def test_uniform_mesh():

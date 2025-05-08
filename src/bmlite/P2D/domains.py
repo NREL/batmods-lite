@@ -234,7 +234,7 @@ class Electrode:
         if name not in ['anode', 'cathode']:
             raise ValueError("'name' must be either 'anode' or 'cathode'.")
 
-        self.name = name
+        self._name = name
 
         self.Nx = kwargs.get('Nx')
         self.Nr = kwargs.get('Nr')
@@ -423,15 +423,15 @@ class Electrode:
         # ptr_an and ptr_ca -> [[Li_ed(0->R_s)], phi_ed, Li_el, phi_el, ...]
 
         self.ptr = {}
-        self.ptr['Li_ed'] = 0 + pshift
+        self.ptr['xs'] = 0 + pshift
         self.ptr['r_off'] = 1
 
-        self.ptr['phi_ed'] = self.ptr['Li_ed'] + self.Nr
-        self.ptr['Li_el'] = self.ptr['phi_ed'] + 1
-        self.ptr['phi_el'] = self.ptr['Li_el'] + 1
+        self.ptr['phis'] = self.ptr['xs'] + self.Nr
+        self.ptr['ce'] = self.ptr['phis'] + 1
+        self.ptr['phie'] = self.ptr['ce'] + 1
 
-        xvars = ['phi_ed', 'Li_el', 'phi_el']
-        last_xvar = 'phi_el'
+        xvars = ['phis', 'ce', 'phie']
+        last_xvar = 'phie'
 
         # Submodels only support new x variables (like hysteresis... not xr)
         for model in self._submodels.values():
@@ -448,7 +448,7 @@ class Electrode:
         self.ptr['shift'] = self.ptr['size']
 
         x_ptr(self, xvars)
-        xr_ptr(self, ['Li_ed'])
+        xr_ptr(self, ['xs'])
 
     def sv0(self, el: object) -> np.ndarray:
 
@@ -456,10 +456,10 @@ class Electrode:
         size = self.ptr['size']
 
         sv0 = np.zeros(size)
-        sv0[self.xr_ptr['Li_ed'].flatten() - start] = self.x_0
-        sv0[self.x_ptr['phi_ed'] - start] = self.phi_0
-        sv0[self.x_ptr['Li_el'] - start] = el.Li_0
-        sv0[self.x_ptr['phi_el'] - start] = el.phi_0
+        sv0[self.xr_ptr['xs'].flatten() - start] = self.x_0
+        sv0[self.x_ptr['phis'] - start] = self.phi_0
+        sv0[self.x_ptr['ce'] - start] = el.Li_0
+        sv0[self.x_ptr['phie'] - start] = el.phi_0
 
         for model in self._submodels.values():
             model.sv0(sv0)
@@ -467,35 +467,62 @@ class Electrode:
         return sv0
 
     def algidx(self) -> np.ndarray:
-        algidx = np.hstack([self.x_ptr['phi_ed'], self.x_ptr['phi_el']])
+        algidx = np.hstack([self.x_ptr['phis'], self.x_ptr['phie']])
 
         for model in self._submodels.values():
             model.algidx(algidx)
 
         return np.sort(algidx)
 
-    def to_dict(self, sol: object) -> dict:
+    def to_dict(self, soln: object) -> dict:
 
-        xs = np.zeros([sol.t.size, self.Nx, self.Nr])
-        for i in range(sol.t.size):
-            xs_tmp = sol.y[i, self.xr_ptr['Li_ed'].flatten()]
+        xs = np.zeros([soln.t.size, self.Nx, self.Nr])
+        for i in range(soln.t.size):
+            xs_tmp = soln.y[i, self.xr_ptr['xs'].flatten()]
             xs[i, :, :] = xs_tmp.reshape([self.Nx, self.Nr])
 
-        ed_sol = {
+        ed_soln = {
             'x': self.x,
             'r': self.r,
             'xs': xs,
             'cs': xs*self.Li_max,
-            'phis': sol.y[:, self.x_ptr['phi_ed']],
-            'ce': sol.y[:, self.x_ptr['Li_el']],
-            'phie': sol.y[:, self.x_ptr['phi_el']],
+            'phis': soln.y[:, self.x_ptr['phis']],
+            'ce': soln.y[:, self.x_ptr['ce']],
+            'phie': soln.y[:, self.x_ptr['phie']],
         }
 
         for model in self._submodels.values():
-            outputs = model.to_dict(sol)
-            ed_sol.update(outputs)
+            outputs = model.to_dict(soln)
+            ed_soln.update(outputs)
 
-        return ed_sol
+        return ed_soln
+
+    def _boundary_voltage(self, soln) -> np.ndarray:
+        """
+        Calculate and return the boundary voltage at all solution times.
+
+        Parameters
+        ----------
+        soln : Solution
+            A P2D solution instance, step or cycle.
+
+        Returns
+        -------
+        voltage_V : np.ndarray
+            Boundary voltage, in volts.
+
+        """
+
+        if self._name == 'anode':
+            idx = 0
+        elif self._name == 'cathode':
+            idx = -1
+        else:
+            raise ValueError("Electrode name not in {'anode', 'cathode'}.")
+
+        V_ptr = self.x_ptr['phis'][idx]
+
+        return soln.y[:, V_ptr]
 
     def _boundary_current(self, soln) -> np.ndarray:
         """
@@ -519,35 +546,33 @@ class Electrode:
 
         c, T = sim.c, bat.temp
 
-        if self.name == 'anode':
-            ed, ed_str = an, 'an'
-        elif self.name == 'cathode':
-            ed, ed_str = ca, 'ca'
+        # calculate the boundary current using solid-phase cons. of charge
+        ed_soln = self.to_dict(soln)
 
-        phis = soln.vars[ed_str]['phis']
-        xs_R = soln.vars[ed_str]['xs'][:, :, -1]
-        phie = soln.vars[ed_str]['phie']
-        ce = soln.vars[ed_str]['ce']
+        phis = ed_soln['phis']
+        xs_R = ed_soln['xs'][:, :, -1]
+        phie = ed_soln['phie']
+        ce = ed_soln['ce']
 
-        if 'Hysteresis' in ed._submodels:
-            hyst = soln.vars[ed_str]['hyst']
-            Hyst = ed.get_Mhyst(xs_R)*hyst
+        if 'Hysteresis' in self._submodels:
+            hyst = ed_soln['hyst']
+            Hyst = self.get_Mhyst(xs_R)*hyst
         else:
             Hyst = 0.
 
-        eta = phis - phie - (ed.get_Eeq(xs_R) + Hyst)
+        eta = phis - phie - (self.get_Eeq(xs_R) + Hyst)
         fluxdir = -np.sign(eta)
 
-        i0 = ed.get_i0(xs_R, ce, T, fluxdir)
-        sdot = i0 / c.F * (  np.exp( ed.alpha_a*c.F*eta / c.R / T)
-                           - np.exp(-ed.alpha_c*c.F*eta / c.R / T)  )
+        i0 = self.get_i0(xs_R, ce, T, fluxdir)
+        sdot = i0 / c.F * (  np.exp( self.alpha_a*c.F*eta / c.R / T)
+                           - np.exp(-self.alpha_c*c.F*eta / c.R / T)  )
 
-        if self.name == 'anode':
+        if self._name == 'anode':
             i_ext = sdot[:, 0]*an.A_s*c.F*(an.xp[0] - an.xm[0]) \
-                    - an.sigma_s*an.eps_s**an.p_sol \
-                        * (phis[:, 1] - phis[:, 0]) / (an.x[1] - an.x[0])
+                  - an.sigma_s*an.eps_s**an.p_sol \
+                      * (phis[:, 1] - phis[:, 0]) / (an.x[1] - an.x[0])
 
-        elif self.name == 'cathode':
+        elif self._name == 'cathode':
             i_ext = -sdot[:, -1]*ca.A_s*c.F*(ca.xp[-1] - ca.xm[-1]) \
                   - ca.sigma_s*ca.eps_s**ca.p_sol \
                       * (phis[:, -1] - phis[:, -2]) / (ca.x[-1] - ca.x[-2])
@@ -636,27 +661,27 @@ class Separator:
         # [[ptr_an], Li_el, phi_el, ..., [ptr_ca]]
 
         self.ptr = {}
-        self.ptr['Li_el'] = 0 + pshift
-        self.ptr['phi_el'] = self.ptr['Li_el'] + 1
+        self.ptr['ce'] = 0 + pshift
+        self.ptr['phie'] = self.ptr['ce'] + 1
         self.ptr['x_off'] = 2
 
         self.ptr['shift'] = self.Nx * self.ptr['x_off']
 
-        x_ptr(self, ['Li_el', 'phi_el'])
+        x_ptr(self, ['ce', 'phie'])
 
     def sv0(self, el: object) -> np.ndarray:
         import numpy as np
         return np.tile([el.Li_0, el.phi_0], self.Nx)
 
     def algidx(self) -> np.ndarray:
-        return self.x_ptr['phi_el']
+        return self.x_ptr['phie']
 
-    def to_dict(self, sol: object) -> dict:
+    def to_dict(self, soln: object) -> dict:
 
-        sep_sol = {
+        sep_soln = {
             'x': self.x,
-            'ce': sol.y[:, self.x_ptr['Li_el']],
-            'phie': sol.y[:, self.x_ptr['phi_el']],
+            'ce': soln.y[:, self.x_ptr['ce']],
+            'phie': soln.y[:, self.x_ptr['phie']],
         }
 
-        return sep_sol
+        return sep_soln

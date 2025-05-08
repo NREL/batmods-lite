@@ -82,6 +82,14 @@ class BaseSolution(IDAResult):
 
     def post(self) -> None:
         from .postutils import post
+
+        sim = self._sim
+
+        # domain variables
+        self.vars['an'] = sim.an.to_dict(self)
+        self.vars['ca'] = sim.ca.to_dict(self)
+        self.vars['el'] = sim.el.to_dict(self)
+
         postvars = post(self)
 
         self.vars['an']['sdot'] = postvars['sdot_an']
@@ -91,7 +99,8 @@ class BaseSolution(IDAResult):
 
     def simple_plot(self, x: str, y: str, **kwargs) -> None:
         """
-        Plot any two variables in 'vars' against each other.
+        Plot any two basic 1D variables in 'vars' against each other, i.e.,
+        time, current, voltage, and power.
 
         Parameters
         ----------
@@ -279,14 +288,11 @@ class BaseSolution(IDAResult):
         """
 
         sim = self._sim
-        an = sim.an.to_dict(self)
-        ca = sim.ca.to_dict(self)
-        el = sim.el.to_dict(self)
 
-        # domain variables
-        self.vars['an'] = an
-        self.vars['ca'] = ca
-        self.vars['el'] = el
+        # domain variables - placeholders
+        self.vars['an'] = 'Run soln.post() to populate'
+        self.vars['ca'] = 'Run soln.post() to populate'
+        self.vars['el'] = 'Run soln.post() to populate'
 
         # stored time
         time_s = self.t
@@ -296,7 +302,7 @@ class BaseSolution(IDAResult):
         self.vars['time_h'] = time_s / 3600.
 
         # common variables
-        voltage_V = ca['phis']
+        voltage_V = sim.ca._boundary_voltage(self)
         current_A = sim.ca._boundary_current(self)
 
         self.vars['current_A'] = current_A

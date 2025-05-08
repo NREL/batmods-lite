@@ -71,11 +71,11 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     T = bat.temp
 
     # Organize values from sv
-    phi_an = sv[an.x_ptr['phi_ed']]
-    Li_el_an = sv[an.x_ptr['Li_el']]
-    phi_el_an = sv[an.x_ptr['phi_el']]
+    phi_an = sv[an.x_ptr['phis']]
+    Li_el_an = sv[an.x_ptr['ce']]
+    phi_el_an = sv[an.x_ptr['phie']]
 
-    xs_an = sv[an.xr_ptr['Li_ed'].flatten()]
+    xs_an = sv[an.xr_ptr['xs'].flatten()]
     xs_an = xs_an.reshape([an.Nx, an.Nr])
     Li_an = xs_an*an.Li_max
 
@@ -85,14 +85,14 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     else:
         Hyst_an = 0.
 
-    Li_el_sep = sv[sep.x_ptr['Li_el']]
-    phi_el_sep = sv[sep.x_ptr['phi_el']]
+    Li_el_sep = sv[sep.x_ptr['ce']]
+    phi_el_sep = sv[sep.x_ptr['phie']]
 
-    phi_ca = sv[ca.x_ptr['phi_ed']]
-    Li_el_ca = sv[ca.x_ptr['Li_el']]
-    phi_el_ca = sv[ca.x_ptr['phi_el']]
+    phi_ca = sv[ca.x_ptr['phis']]
+    Li_el_ca = sv[ca.x_ptr['ce']]
+    phi_el_ca = sv[ca.x_ptr['phie']]
 
-    xs_ca = sv[ca.xr_ptr['Li_ed'].flatten()]
+    xs_ca = sv[ca.xr_ptr['xs'].flatten()]
     xs_ca = xs_ca.reshape([ca.Nx, ca.Nr])
     Li_ca = xs_ca*ca.Li_max
 
@@ -213,23 +213,23 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     fk_ode = div_r(an.rm, an.rp, Nk_ed)
 
-    xr_ptr = an.xr_ptr['Li_ed'].flatten()
+    xr_ptr = an.xr_ptr['xs'].flatten()
     res[xr_ptr] = an.Li_max*svdot[xr_ptr] - fk_ode.flatten()
 
     # Solid-phase COC (algebraic)
-    res[an.x_ptr['phi_ed']] = (ip_ed - im_ed) / (an.xp - an.xm) \
+    res[an.x_ptr['phis']] = (ip_ed - im_ed) / (an.xp - an.xm) \
                             + an.A_s*sdot_an*c.F
 
     # Reference potential BC (algebraic)
-    res[an.x_ptr['phi_ed'][0]] = phi_an[0] - 0.
+    res[an.x_ptr['phis'][0]] = phi_an[0] - 0.
 
     # Electrolyte COM (differential)
-    res[an.x_ptr['Li_el']] = an.eps_el*svdot[an.x_ptr['Li_el']] \
+    res[an.x_ptr['ce']] = an.eps_el*svdot[an.x_ptr['ce']] \
         - (Np_el - Nm_el - (ip_el*t0_an[1:] - im_el*t0_an[:-1]) / c.F) \
         / (an.xp - an.xm) - an.A_s*sdot_an
 
     # Electrolyte COC (algebraic)
-    res[an.x_ptr['phi_el']] = (ip_el - im_el) / (an.xp - an.xm) \
+    res[an.x_ptr['phie']] = (ip_el - im_el) / (an.xp - an.xm) \
                             - an.A_s*sdot_an*c.F
 
     # Hysteresis (differential)
@@ -257,10 +257,10 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
     Np_el = Np_io[an.Nx:an.Nx + sep.Nx]
 
     # Electrolyte COC (algebraic)
-    res[sep.x_ptr['phi_el']] = (ip_el - im_el) / (sep.xp - sep.xm)
+    res[sep.x_ptr['phie']] = (ip_el - im_el) / (sep.xp - sep.xm)
 
     # Electrolyte COM (differential)
-    res[sep.x_ptr['Li_el']] = sep.eps_el*svdot[sep.x_ptr['Li_el']] \
+    res[sep.x_ptr['ce']] = sep.eps_el*svdot[sep.x_ptr['ce']] \
         - (Np_el - Nm_el - (ip_el*t0_sep[1:] - im_el*t0_sep[:-1]) / c.F) \
         / (sep.xp - sep.xm)
 
@@ -303,25 +303,25 @@ def residuals(t: float, sv: np.ndarray, svdot: np.ndarray, res: np.ndarray,
 
     fk_ode = div_r(ca.rm, ca.rp, Nk_ed)
 
-    xr_ptr = ca.xr_ptr['Li_ed'].flatten()
+    xr_ptr = ca.xr_ptr['xs'].flatten()
     res[xr_ptr] = ca.Li_max*svdot[xr_ptr] - fk_ode.flatten()
 
     # Solid-phase COC (algebraic)
-    res[ca.x_ptr['phi_ed']] = (ip_ed - im_ed) / (ca.xp - ca.xm) \
+    res[ca.x_ptr['phis']] = (ip_ed - im_ed) / (ca.xp - ca.xm) \
                             + ca.A_s*sdot_ca*c.F
 
     if mode == 'voltage':
-        res[ca.x_ptr['phi_ed'][-1]] = voltage_V - value(t)
+        res[ca.x_ptr['phis'][-1]] = voltage_V - value(t)
     elif mode == 'power':
-        res[ca.x_ptr['phi_ed'][-1]] = power_W - value(t)
+        res[ca.x_ptr['phis'][-1]] = power_W - value(t)
 
     # Electrolyte COM (differential)
-    res[ca.x_ptr['Li_el']] = ca.eps_el*svdot[ca.x_ptr['Li_el']] \
+    res[ca.x_ptr['ce']] = ca.eps_el*svdot[ca.x_ptr['ce']] \
         - (Np_el - Nm_el - (ip_el*t0_ca[1:] - im_el*t0_ca[:-1]) / c.F) \
         / (ca.xp - ca.xm) - ca.A_s*sdot_ca
 
     # Electrolyte COC (algebraic)
-    res[ca.x_ptr['phi_el']] = (ip_el - im_el) / (ca.xp - ca.xm) \
+    res[ca.x_ptr['phie']] = (ip_el - im_el) / (ca.xp - ca.xm) \
                             - ca.A_s*sdot_ca*c.F
 
     # Hysteresis (differential)

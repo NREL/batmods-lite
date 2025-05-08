@@ -80,7 +80,7 @@ class Hysteresis:
 
         domain = self.domain
         if domain._name == 'anode':
-            domain.ptr['hyst'] = domain.ptr['phi_ed'] + 1
+            domain.ptr['hyst'] = domain.ptr['phis'] + 1
 
         elif domain._name == 'cathode':
             for k in domain.ptr.keys():
@@ -140,7 +140,7 @@ class Hysteresis:
 
         domain = self.domain
 
-        xs_ptr = domain.r_ptr['Li_ed']
+        xs_ptr = domain.r_ptr['xs']
         if domain._name == 'anode':
             xs_R = soln.y[:, xs_ptr[-1]]
         elif domain._name == 'cathode':

@@ -139,7 +139,7 @@ class Hysteresis:
 
         domain = self.domain
 
-        xs_ptr = domain.xr_ptr['Li_ed']
+        xs_ptr = domain.xr_ptr['xs']
         xs_R = soln.y[:, xs_ptr[:, -1]]
 
         hyst = soln.y[:, domain.x_ptr['hyst']]

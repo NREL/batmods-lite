@@ -47,7 +47,7 @@ from . import materials
 from . import mesh
 from . import plotutils
 
-__version__ = '0.0.2'
+__version__ = '0.0.2.dev0'
 
 __all__ = [
     'Constants',

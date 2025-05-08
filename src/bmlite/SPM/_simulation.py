@@ -146,8 +146,8 @@ class Simulation:
 
         # Determine the bandwidth
         # self._lband, self._uband, _ = bandwidth(self)
-        self._lband = int(self.el.ptr['phi_el'] - self.an.r_ptr['Li_ed'][-1])
-        self._uband = int(self.el.ptr['phi_el'] - self.an.r_ptr['Li_ed'][-1])
+        self._lband = int(self.el.ptr['phie'] - self.an.r_ptr['xs'][-1])
+        self._uband = int(self.el.ptr['phie'] - self.an.r_ptr['xs'][-1])
 
     def j_pattern(self, plot: bool = True,
                   return_bands: bool = False) -> tuple[int] | None:
@@ -309,8 +309,10 @@ class Simulation:
 
         Returns
         -------
-        :class:`~bmlite.SPM.CycleSolution`
-            A stitched solution with all experimental steps.
+        soln : Solution
+            A SPM solution instance. If the experiment was only one step then
+            a StepSolution will be returned. Otherwise, a CycleSolution is
+            returned with all steps stitched together.
 
         Warning
         -------
@@ -325,6 +327,7 @@ class Simulation:
         See also
         --------
         Experiment : Build an experiment.
+        StepSolution : Wrapper for a single-step solution.
         CycleSolution : Wrapper for an all-steps solution.
 
         """
@@ -340,11 +343,14 @@ class Simulation:
         for i in iterator:
             solns.append(self.run_step(expr, i))
 
-        soln = CycleSolution(*solns, t_shift=t_shift)
-
         self._t0 = 0.
         if reset_state:
             self.pre()
+
+        if len(solns) == 1:
+            return solns[0]
+
+        soln = CycleSolution(*solns, t_shift=t_shift)
 
         return soln
 
