@@ -64,7 +64,7 @@ class LFPInterp:
 
         """
 
-        Ds = 1e-17*np.ones_like(x)  # 10**np.polyval(self._Ds_coeffs, x)
+        Ds = 4.014e-17*np.ones_like(x)  # 10**np.polyval(self._Ds_coeffs, x)
 
         return Ds.item() if np.isscalar(x) else Ds
 

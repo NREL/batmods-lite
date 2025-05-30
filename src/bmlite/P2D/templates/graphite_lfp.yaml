@@ -13,7 +13,7 @@ electrolyte:
 
 anode:
     Nx:         20                    # Number of x discretizations          [-]
-    Nr:         10                    # Number of r discretizations          [-]
+    Nr:         20                    # Number of r discretizations          [-]
     thick:      86.12e-6              # Thickness                            [m]
     R_s:        4.3e-6                # Secondary particle radius            [m]
     eps_s:      0.637                 # Solid-phase volume frac.             [-]
@@ -30,14 +30,14 @@ anode:
     material:   GraphiteSlowExtrap    # Anode active material class          [-]
 
 separator:
-    Nx:         10                    # Number of x discretizations          [-]
+    Nx:         20                    # Number of x discretizations          [-]
     thick:      9.0e-6                # Thickness                            [m]
     eps_el:     0.4                   # Electrolyte volume frac.             [-]
     p_liq:      2.2                   # Liquids Bruggeman factor (eps**p)    [-]
 
 cathode:
     Nx:         20                    # Number of x discretizations          [-]
-    Nr:         10                    # Number of r discretizations          [-]
+    Nr:         20                    # Number of r discretizations          [-]
     thick:      152.32e-6             # Thickness                            [m]
     R_s:        0.25e-6               # Secondary particle radius            [m]
     eps_s:      0.516                 # Solid-phase volume frac.             [-]
@@ -50,7 +50,7 @@ cathode:
     Li_max:     22.835                # Maximum solid-phase Li conc.   [kmol/m3]
     x_0:        0.87                  # Initial intercalation frac.          [-]
     i0_deg:     0.02                  # Degradation factor for i0            [-]
-    Ds_deg:     25.0                  # Degradation factor for Ds            [-]
+    Ds_deg:     1.0                   # Degradation factor for Ds            [-]
     material:   LFPInterp             # Cathode active material class        [-]
 
     submodels:

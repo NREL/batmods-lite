@@ -3,6 +3,7 @@
 ## [Unreleased](https://github.com/NREL/BATMODS-lite/)
 
 ### New Features
+- Update `materials` module with new LFP properties, from ICI ([#18](https://github.com/NREL/BATMODS-lite/pull/18))
 - Use `CubicSpline` interpolations for LFP properties ([#15](https://github.com/NREL/BATMODS-lite/pull/15))
 - Add degradation parameters for the electrolyte (applies to P2D only) ([#14](https://github.com/NREL/BATMODS-lite/pull/14))
 - Add `submodels` modules with optional `Hysteresis` class, and directional `Ds` / `i0` ([#13](https://github.com/NREL/BATMODS-lite/pull/13))

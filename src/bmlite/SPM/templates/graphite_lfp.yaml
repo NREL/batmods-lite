@@ -33,7 +33,7 @@ cathode:
     Li_max:     22.835                # Maximum solid-phase Li conc.   [kmol/m3]
     x_0:        0.87                  # Initial intercalation frac.          [-]
     i0_deg:     0.02                  # Degradation factor for i0            [-]
-    Ds_deg:     25.0                  # Degradation factor for Ds            [-]
+    Ds_deg:     1.0                   # Degradation factor for Ds            [-]
     material:   LFPInterp             # Cathode active material class        [-]
 
     submodels:
