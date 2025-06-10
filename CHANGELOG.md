@@ -3,6 +3,7 @@
 ## [Unreleased](https://github.com/NREL/BATMODS-lite/)
 
 ### New Features
+- Check bounds of intercalation fraction before calculating exchange current density ([#19](https://github.com/NREL/BATMODS-lite/pull/19))
 - Update `materials` module with new LFP properties, from ICI ([#18](https://github.com/NREL/BATMODS-lite/pull/18))
 - Use `CubicSpline` interpolations for LFP properties ([#15](https://github.com/NREL/BATMODS-lite/pull/15))
 - Add degradation parameters for the electrolyte (applies to P2D only) ([#14](https://github.com/NREL/BATMODS-lite/pull/14))

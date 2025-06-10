@@ -1,3 +1,5 @@
+from numbers import Real
+
 import numpy as np
 
 
@@ -92,6 +94,15 @@ class GraphiteFast:
         from .. import Constants
 
         c = Constants()
+
+        # Avoid floating point errors
+        if isinstance(x, Real):
+            if (x < 0 and self.alpha_c < 1) or (x > 1 and self.alpha_a < 1):
+                raise ValueError('x is out of [0, 1] during i0 calculation')
+        elif isinstance(x, np.ndarray):
+            if ((any(x.flatten() < 0) and self.alpha_c < 1)
+               or (any(x.flatten() > 1) and self.alpha_a < 1)):
+                raise ValueError('x is out of [0, 1] during i0 calculation')
 
         i0 = 2.5 * 0.27 * np.exp(-30e6 / c.R * (1 / T - 1 / 303.15)) \
             * C_Li**self.alpha_a * (self.Li_max * x)**self.alpha_c \
