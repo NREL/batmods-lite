@@ -1,17 +1,12 @@
-<picture>
-  <source media='(prefers-color-scheme: dark)' srcset='./images/dark.svg'
-  style='width: 75%; min-width: 250px; max-width: 500px;'>
-  <img alt='BATMODS-lite logo' src='./images/light.svg'
-  style='width: 75%; min-width: 250px; max-width: 500px;'>
-</picture> 
+# BATMODS-lite
 
 [![CI][ci-b]][ci-l] &nbsp;
 ![tests][test-b] &nbsp;
 ![coverage][cov-b] &nbsp;
 [![pep8][pep-b]][pep-l]
 
-[ci-b]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yaml/badge.svg
-[ci-l]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yaml
+[ci-b]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yml/badge.svg
+[ci-l]: https://github.com/NREL/BATMODS-lite/actions/workflows/ci.yml
 
 [test-b]: ./images/tests.svg
 [cov-b]: ./images/coverage.svg
@@ -85,4 +80,4 @@ nox -s tests
 All of these and more are run with `nox -s pre-commit` which should be used before all commits back to the remote repository. Running the pre-commit session locally saves time by helping to catch errors that may occur during the CI builds and tests.
 
 ## Disclaimer
-This work was authored by the National Renewable Energy Laboratory (NREL), operated by Alliance for Sustainable Energy, LLC, for the U.S. Department of Energy (DOE). The views expressed in the repository do not necessarily represent the views of the DOE or the U.S. Government.
+This work was authored by the National Laboratory of the Rockies (NLR), operated by Alliance for Energy Innovation, LLC, for the U.S. Department of Energy (DOE). The views expressed in the repository do not necessarily represent the views of the DOE or the U.S. Government.

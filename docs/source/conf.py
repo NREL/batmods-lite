@@ -9,7 +9,7 @@
 import bmlite as bm
 
 project = 'BATMODS-lite'
-copyright = 'Alliance for Sustainable Energy, LLC'
+copyright = 'Alliance for Energy Innovation, LLC'
 author = 'Corey R. Randall'
 version = bm.__version__
 release = bm.__version__
