@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 name = "batmods-lite"
 readme = "README.md"
 dynamic = ["version"]
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10,<3.15"
 license = { file = "LICENSE" }
 description = "Packaged battery models and material properties."
 keywords = ["battery", "models", "lithium", "NMC", "LFP"]
@@ -28,6 +28,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "tqdm",
