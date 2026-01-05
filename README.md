@@ -79,7 +79,7 @@ This work was authored by researchers at the National Laboratory of the Rockies 
 For convenience, we also provide the following for your BibTex:
 
 ```
-@misc{Randall-2025,
+@misc{randall2025bmlite,
   author = {Randall, Corey R.},
   title = {{BATMODS-lite: Packaged battery models and material properties [SWR-25-108]}},
   url = {github.com/NREL/batmods-lite},
