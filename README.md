@@ -76,7 +76,7 @@ soln.simple_plot('time_s', 'voltage_V')
 ## Citing this Work
 This work was authored by researchers at the National Laboratory of the Rockies (NLR). If you use this package in your work, please include the following citation:
 
-> Randall, Corey R. "BATMODS-lite: Packaged battery models and material properties [SWR-25-108]." Computer software, Jun. 2025. url: [github.com/NREL/batmods-lite](https://github.com/NREL/batmods-lite). doi: [waiting for doi...](??).
+> Randall, Corey R. "BATMODS-lite: Packaged battery models and material properties [SWR-25-108]." Computer software, Jun. 2025. url: [github.com/NREL/batmods-lite](https://github.com/NREL/batmods-lite). doi: [10.11578/dc.20260114.1](https://doi.org./10.11578/dc.20260114.1).
 
 For convenience, we also provide the following for your BibTex:
 
@@ -87,7 +87,7 @@ For convenience, we also provide the following for your BibTex:
   url = {github.com/NREL/batmods-lite},
   month = {Jun.},
   year = {2025},
-  doi = {waiting for doi...},
+  doi = {10.11578/dc.20260114.1},
 }
 ```
 
